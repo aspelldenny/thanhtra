@@ -8,10 +8,12 @@
 
 # vbsec — Source Code Security Scanner
 
-A Claude Code skill that performs in-depth security scans and detects 20+ of the most common security vulnerabilities in your source code.
+A multi-platform agent skill that performs in-depth security scans and detects 20+ of the most common security vulnerabilities in your source code. Runs natively on **Claude Code**, **OpenAI Codex CLI**, and **Google Antigravity**.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Claude Code Skill](https://img.shields.io/badge/Claude%20Code-Skill-blue)](https://docs.claude.com/claude-code)
+[![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-blue)](https://docs.claude.com/claude-code)
+[![OpenAI Codex](https://img.shields.io/badge/OpenAI%20Codex-Skill-black)](https://developers.openai.com/codex/skills)
+[![Google Antigravity](https://img.shields.io/badge/Google%20Antigravity-Skill-orange)](https://antigravity.google/docs/skills)
 
 ---
 
@@ -19,7 +21,7 @@ A Claude Code skill that performs in-depth security scans and detects 20+ of the
 
 AI-generated code now represents a meaningful share of new commits across the industry. While modern coding assistants excel at producing code that *works*, they routinely ship code with classic security pitfalls: hardcoded secrets, SQL injection, missing access controls, weak password hashing, JWT misuse, and broken CORS configurations. These mistakes rarely surface in functional testing — they surface in incident reports.
 
-vbsec brings production-grade security review into the AI coding loop. It runs as a native Claude Code skill — type `/vbs-scan-security` and receive a structured report covering 20+ categories of vulnerabilities. There are no external API calls, no separate tool installation, and no additional infrastructure to maintain.
+vbsec brings production-grade security review into the AI coding loop. It runs as a native agent skill on three platforms — type `/vbs-scan-security` in Claude Code, `$vbs-scan-security` (or `/skills`) in OpenAI Codex CLI, or simply ask Google Antigravity to "scan security" — and receive a structured report covering 20+ categories of vulnerabilities. There are no external API calls, no separate tool installation, and no additional infrastructure to maintain.
 
 vbsec has been exercised against intentionally vulnerable open-source training apps such as OWASP Juice Shop — and identifies findings that line up with the documented vulnerability challenges across SQL injection, NoSQL injection, JWT misuse, broken access control, mass assignment, deserialization RCE, and more.
 
@@ -48,28 +50,60 @@ vbsec is engineered around a small set of design choices that distinguish it fro
 
 - **Bilingual reports.** Vietnamese is the default; English is selected with `lang=en`. The JSON summary at the report tail is always canonical English for CI and tooling consumption.
 
+- **Multi-platform.** One canonical rule set, three platform variants. Claude Code uses parallel sub-agents for large scans; Codex and Antigravity use sequential chunking with identical output. A single `sync-skills.sh` script keeps rule definitions in lock-step across all three.
+
+## Multi-platform support
+
+vbsec ships three variants from a single source of truth:
+
+| Platform | Skill folder | Install target | LARGE mode strategy |
+|---|---|---|---|
+| Claude Code | `skills/vbs-scan-security/` | `~/.claude/skills/vbs-scan-security` | Parallel sub-agents (3 concurrent) |
+| OpenAI Codex CLI | `skills/codex/vbs-scan-security/` | `~/.agents/skills/vbs-scan-security` | Sequential chunking |
+| Google Antigravity | `skills/antigravity/vbs-scan-security/` | `~/.gemini/antigravity/skills/vbs-scan-security` | Sequential chunking |
+
+All three share the same 21 rules, language overlays, i18n strings, and output format. Findings are identical; only execution strategy differs. Sequential variants are ~3× slower wall-clock than Claude Code's parallel mode on large repositories, but produce the same JSON summary and the same Markdown report.
+
+Contributors: edit rules in `skills/vbs-scan-security/` (the canonical Claude folder), then run `./scripts/sync-skills.sh` to propagate to the Codex and Antigravity variants. Platform-specific files (`SKILL.md`, `workflows/large-review*.md`) are hand-maintained.
+
 ## Installation
 
-vbsec installs as a Claude Code skill. Run these two commands in your terminal:
+vbsec auto-detects every supported CLI you have installed and wires up the skill. Run:
 
 ```bash
 git clone https://github.com/tanviet12/vbsec ~/vbsec
-ln -sfn ~/vbsec/skills/vbs-scan-security ~/.claude/skills/vbs-scan-security
+cd ~/vbsec
+./scripts/install.sh
 ```
 
-Restart Claude Code, then verify:
-
-```
-/vbs-scan-security
-```
-
-To update later:
+The installer symlinks the appropriate skill folder into each platform's expected location. To update later:
 
 ```bash
 cd ~/vbsec && git pull
 ```
 
-(Restart Claude Code to pick up the new version.)
+(Symlinks pick up the new version automatically; restart the CLI / IDE if needed.)
+
+**Manual install for a single platform:**
+
+```bash
+# Claude Code
+ln -sfn ~/vbsec/skills/vbs-scan-security              ~/.claude/skills/vbs-scan-security
+
+# OpenAI Codex CLI
+ln -sfn ~/vbsec/skills/codex/vbs-scan-security        ~/.agents/skills/vbs-scan-security
+
+# Google Antigravity
+ln -sfn ~/vbsec/skills/antigravity/vbs-scan-security  ~/.gemini/antigravity/skills/vbs-scan-security
+```
+
+Verify the install on each platform:
+
+```
+Claude Code:   /vbs-scan-security
+Codex:         $vbs-scan-security        (or /skills, then pick)
+Antigravity:   "scan security cho repo này"  (auto-trigger by description)
+```
 
 See [docs/en/installation.md](docs/en/installation.md) for prerequisites, troubleshooting, and update procedures.
 
@@ -128,8 +162,8 @@ The list currently contains 21 rules and will continue to expand.
 - v0.1 — Generic rule set + Go + PHP specialization + bilingual output ✅
 - v0.2 — TypeScript/JavaScript specialization (Sequelize/Prisma/Mongoose, React/Vue/Angular, Express/NestJS/Next.js) ✅
 - v0.3 — Default scope changed to full-repo, persistent reports, verbose per-finding explanations ✅
-- v0.4 (current) — Python specialization (SQLAlchemy/Django ORM SQLi, pickle/yaml deserialization RCE, Werkzeug debugger, FastAPI/Flask/Django CSRF + CORS, PyJWT algorithms, subprocess shell=True) ✅
-- v0.5 — Codex compatibility (`.codex/skills/`)
+- v0.4 — Python specialization (SQLAlchemy/Django ORM SQLi, pickle/yaml deserialization RCE, Werkzeug debugger, FastAPI/Flask/Django CSRF + CORS, PyJWT algorithms, subprocess shell=True) ✅
+- v0.5 (current) — Multi-platform support: OpenAI Codex CLI + Google Antigravity (sequential LARGE mode, shared rule set, `install.sh` + `sync-skills.sh`) ✅
 - v0.6+ — Ruby, Java, Rust — community-driven
 
 ## Disclaimer

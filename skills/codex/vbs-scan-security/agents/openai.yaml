@@ -1,0 +1,7 @@
+# Codex skill — agent hint (optional)
+# Codex tự chọn model phù hợp; hint dưới đây gợi ý cấu hình tốt nhất cho scan bảo mật:
+# - reasoning chuyên sâu (data flow L1-L4, không phải pattern match)
+# - đủ context cho LARGE mode aggregate
+
+model: gpt-5-codex
+reasoning_effort: high

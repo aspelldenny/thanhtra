@@ -8,10 +8,12 @@
 
 # vbsec — Trình quét bảo mật cho mã nguồn
 
-Skill của Claude Code quét bảo mật chuyên sâu và phát hiện hơn 20 lỗ hổng bảo mật phổ biến nhất trong mã nguồn của bạn.
+Skill agent đa nền tảng, quét bảo mật chuyên sâu và phát hiện hơn 20 lỗ hổng bảo mật phổ biến nhất trong mã nguồn. Chạy native trên **Claude Code**, **OpenAI Codex CLI** và **Google Antigravity**.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Claude Code Skill](https://img.shields.io/badge/Claude%20Code-Skill-blue)](https://docs.claude.com/claude-code)
+[![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-blue)](https://docs.claude.com/claude-code)
+[![OpenAI Codex](https://img.shields.io/badge/OpenAI%20Codex-Skill-black)](https://developers.openai.com/codex/skills)
+[![Google Antigravity](https://img.shields.io/badge/Google%20Antigravity-Skill-orange)](https://antigravity.google/docs/skills)
 
 ---
 
@@ -19,7 +21,7 @@ Skill của Claude Code quét bảo mật chuyên sâu và phát hiện hơn 20 
 
 Mã nguồn do AI sinh ra hiện chiếm tỷ trọng đáng kể trong các commit mới của ngành phần mềm. Các trợ lý lập trình hiện đại rất giỏi tạo ra mã nguồn *chạy được*, nhưng chúng vẫn thường xuyên xuất ra mã mắc những lỗi bảo mật kinh điển: Hardcoded Secret, SQL Injection, Broken Access Control, Weak Password Hashing, JWT misuse, CORS misconfiguration. Những lỗi này hiếm khi lộ ra trong kiểm thử chức năng — chúng chỉ lộ ra khi đã xảy ra sự cố.
 
-vbsec đưa quy trình rà soát bảo mật cấp production vào trong vòng lặp lập trình với AI. Skill chạy trực tiếp trong Claude Code — bạn chỉ cần gõ `/vbs-scan-security` để nhận một báo cáo có cấu trúc rõ ràng, bao phủ hơn 20 nhóm lỗ hổng phổ biến. Không gọi API ngoài, không cần cài thêm công cụ, không cần duy trì hạ tầng phụ trợ.
+vbsec đưa quy trình rà soát bảo mật cấp production vào trong vòng lặp lập trình với AI. Skill chạy native trên ba nền tảng — gõ `/vbs-scan-security` trong Claude Code, `$vbs-scan-security` (hoặc `/skills`) trong OpenAI Codex CLI, hoặc đơn giản nói *"scan security cho repo này"* với Google Antigravity — và nhận một báo cáo có cấu trúc rõ ràng, bao phủ hơn 20 nhóm lỗ hổng phổ biến. Không gọi API ngoài, không cần cài thêm công cụ, không cần duy trì hạ tầng phụ trợ.
 
 vbsec đã được chạy thử trên các ứng dụng mã nguồn mở có chủ đích chứa lỗ hổng dùng cho mục đích đào tạo (như OWASP Juice Shop) — và phát hiện được các lỗ hổng tương ứng với những challenge đã được tài liệu hoá: SQL Injection, NoSQL Injection, JWT misuse, Broken Access Control, Mass Assignment, RCE qua deserialization, và nhiều nhóm khác.
 
@@ -48,28 +50,60 @@ vbsec được thiết kế xoay quanh một số quyết định kỹ thuật g
 
 - **Báo cáo song ngữ.** Tiếng Việt là mặc định; tiếng Anh được chọn bằng `lang=en`. Phần tóm tắt JSON ở cuối báo cáo luôn ở tiếng Anh chuẩn để phục vụ tích hợp với hệ thống CI/CD.
 
+- **Đa nền tảng.** Một bộ rule canonical, ba bản platform variant. Claude Code dùng sub-agent song song cho scan lớn; Codex và Antigravity dùng sequential chunking với output identical. Script `sync-skills.sh` giữ rule đồng bộ trên cả ba.
+
+## Hỗ trợ đa nền tảng
+
+vbsec ship ba bản variant từ một nguồn duy nhất:
+
+| Nền tảng | Folder skill | Vị trí cài đặt | Chiến lược LARGE mode |
+|---|---|---|---|
+| Claude Code | `skills/vbs-scan-security/` | `~/.claude/skills/vbs-scan-security` | Sub-agent song song (3 concurrent) |
+| OpenAI Codex CLI | `skills/codex/vbs-scan-security/` | `~/.agents/skills/vbs-scan-security` | Sequential chunking |
+| Google Antigravity | `skills/antigravity/vbs-scan-security/` | `~/.gemini/antigravity/skills/vbs-scan-security` | Sequential chunking |
+
+Cả ba chia sẻ cùng 21 rule, language overlay, chuỗi i18n và format output. Findings identical; chỉ chiến lược thực thi khác. Sequential variant chậm hơn ~3× wall-clock so với parallel mode của Claude Code trên repo lớn, nhưng tạo ra cùng JSON summary và cùng báo cáo Markdown.
+
+Người contribute: sửa rule trong `skills/vbs-scan-security/` (folder canonical của Claude), rồi chạy `./scripts/sync-skills.sh` để propagate sang Codex và Antigravity. File platform-specific (`SKILL.md`, `workflows/large-review*.md`) maintain riêng từng platform.
+
 ## Cài đặt
 
-vbsec cài đặt dưới dạng skill của Claude Code. Chạy hai lệnh sau trong terminal:
+vbsec tự động detect mọi CLI hỗ trợ có sẵn trên máy và cấu hình skill. Chạy:
 
 ```bash
 git clone https://github.com/tanviet12/vbsec ~/vbsec
-ln -sfn ~/vbsec/skills/vbs-scan-security ~/.claude/skills/vbs-scan-security
+cd ~/vbsec
+./scripts/install.sh
 ```
 
-Khởi động lại Claude Code, sau đó kiểm tra:
-
-```
-/vbs-scan-security
-```
-
-Để cập nhật về sau:
+Installer symlink folder skill phù hợp vào vị trí của từng platform. Để cập nhật về sau:
 
 ```bash
 cd ~/vbsec && git pull
 ```
 
-(Khởi động lại Claude Code để load phiên bản mới.)
+(Symlink tự load phiên bản mới; khởi động lại CLI/IDE nếu cần.)
+
+**Cài thủ công cho 1 platform:**
+
+```bash
+# Claude Code
+ln -sfn ~/vbsec/skills/vbs-scan-security              ~/.claude/skills/vbs-scan-security
+
+# OpenAI Codex CLI
+ln -sfn ~/vbsec/skills/codex/vbs-scan-security        ~/.agents/skills/vbs-scan-security
+
+# Google Antigravity
+ln -sfn ~/vbsec/skills/antigravity/vbs-scan-security  ~/.gemini/antigravity/skills/vbs-scan-security
+```
+
+Verify trên từng platform:
+
+```
+Claude Code:   /vbs-scan-security
+Codex:         $vbs-scan-security        (hoặc /skills, rồi chọn)
+Antigravity:   "scan security cho repo này"  (auto-trigger qua description)
+```
 
 Xem [docs/vi/installation.md](docs/vi/installation.md) để biết yêu cầu chi tiết, xử lý sự cố và quy trình cập nhật.
 
@@ -128,8 +162,8 @@ Danh sách hiện tại có 21 quy tắc và sẽ tiếp tục mở rộng.
 - v0.1 — Bộ quy tắc chung + chuyên sâu Go + PHP + báo cáo song ngữ ✅
 - v0.2 — Chuyên sâu TypeScript/JavaScript (Sequelize/Prisma/Mongoose, React/Vue/Angular, Express/NestJS/Next.js) ✅
 - v0.3 — Phạm vi mặc định chuyển sang toàn repo, lưu báo cáo cố định, giải thích chi tiết cho từng finding ✅
-- v0.4 (hiện tại) — Chuyên sâu Python (SQLAlchemy/Django ORM SQLi, pickle/yaml deserialization RCE, Werkzeug debugger, FastAPI/Flask/Django CSRF + CORS, PyJWT algorithms, subprocess shell=True) ✅
-- v0.5 — Tương thích Codex (`.codex/skills/`)
+- v0.4 — Chuyên sâu Python (SQLAlchemy/Django ORM SQLi, pickle/yaml deserialization RCE, Werkzeug debugger, FastAPI/Flask/Django CSRF + CORS, PyJWT algorithms, subprocess shell=True) ✅
+- v0.5 (hiện tại) — Hỗ trợ đa nền tảng: OpenAI Codex CLI + Google Antigravity (sequential LARGE mode, chia sẻ bộ rule, `install.sh` + `sync-skills.sh`) ✅
 - v0.6+ — Ruby, Java, Rust — theo nhu cầu cộng đồng
 
 ## Miễn trừ trách nhiệm
