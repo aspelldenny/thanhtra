@@ -102,7 +102,7 @@ def main() -> int:
             path
             for path in case_dir.rglob("*")
             if path.is_file()
-            and path.suffix in {".go", ".php", ".py", ".js", ".jsx", ".ts", ".tsx", ".rs", ".swift"}
+            and path.suffix in {".go", ".php", ".py", ".js", ".jsx", ".ts", ".tsx", ".rs", ".swift", ".sh"}
         ]
         if not code_files:
             fail(f"{name}: fixture contains no source files")

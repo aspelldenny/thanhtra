@@ -228,6 +228,11 @@ HOTSPOT_PATTERNS = {
         r"os\.popen\s*\(",
         r"child_process\.exec\s*\(",
         r"exec\.Command\s*\(\s*[\"'](sh|bash|cmd)",
+        # shell scripts — persistence/exec sinks mà LLM hay skim qua
+        r"(\$HOME|~)/\.(zshrc|bashrc|bash_profile|zprofile)",
+        r"\beval\s+\"?\$",
+        r"\b(ba|z)?sh\s+-c\s+[\"']",
+        r"\b(curl|wget)\b[^|;\n]*\|\s*(sudo\s+)?(ba|z)?sh\b",
     ],
     "PROMPT-INJECTION": [
         r"(system_prompt|system_message|instructions?)\s*\+",

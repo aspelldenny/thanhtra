@@ -246,12 +246,16 @@ File i18n chứa bảng key→text cho toàn bộ user-facing strings. Mọi tex
 |---|---|---|
 | Files ngôn ngữ chính | ≤20 | SMALL |
 | Files ngôn ngữ chính | >20 | **LARGE** |
-| Tổng files | ≤30 | SMALL |
-| Tổng files | >30 | **LARGE** |
+| Tổng files **code** (source + script + config — KHÔNG tính docs/markdown/ảnh) | ≤30 | SMALL |
+| Tổng files code | >30 | **LARGE** |
 | Timespan (scope `commit within`) | ≤14 ngày | SMALL |
 | Timespan | >14 ngày | **LARGE** |
 
 BẤT KỲ điều kiện nào sang LARGE → dùng LARGE mode.
+
+**Luật cứng — KHÔNG tự hạ mode:** khi ngưỡng đã sang LARGE thì BẮT BUỘC chạy LARGE, kể cả khi repo "trông nhỏ" vì đa số file là docs. Docs nhiều chỉ có nghĩa là không cần chunk cho docs — KHÔNG có nghĩa là phần code được quét nông.
+
+**Repo polyglot** (không lang nào ≥30%): vẫn LARGE nếu vượt ngưỡng — chunk theo nhóm ngôn ngữ (vd: `shell/`, `rust/`, `python/`) thay vì theo folder. Shell script không có overlay nhưng generic rules grep được — phải đọc trọn từng script, không skim theo hotspot.
 
 - **SMALL mode:** Read [`workflows/small-review.md`](workflows/small-review.md) — inline scan
 - **LARGE mode:** Read [`workflows/large-review-sequential.md`](workflows/large-review-sequential.md) — chunk + xử lý **tuần tự**

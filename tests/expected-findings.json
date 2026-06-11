@@ -119,6 +119,19 @@
       ]
     },
     {
+      "name": "positive/command-injection-shell",
+      "path": "tests/fixtures/positive/command-injection-shell",
+      "language": "generic",
+      "expected_findings": [
+        {
+          "rule_id": "COMMAND-INJECTION",
+          "severity": "HIGH",
+          "file": "setup.sh",
+          "line": 8
+        }
+      ]
+    },
+    {
       "name": "negative/hardcoded-secret",
       "path": "tests/fixtures/negative/hardcoded-secret",
       "language": "python",
@@ -164,6 +177,12 @@
       "name": "negative/cors-misconfig-swift",
       "path": "tests/fixtures/negative/cors-misconfig-swift",
       "language": "swift",
+      "expected_findings": []
+    },
+    {
+      "name": "negative/command-injection-shell",
+      "path": "tests/fixtures/negative/command-injection-shell",
+      "language": "generic",
       "expected_findings": []
     }
   ]

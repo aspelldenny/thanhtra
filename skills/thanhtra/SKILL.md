@@ -273,12 +273,16 @@ File i18n chứa bảng key→text cho toàn bộ user-facing strings (section h
 |---|---|---|
 | Files ngôn ngữ chính | ≤20 | SMALL |
 | Files ngôn ngữ chính | >20 | **LARGE** |
-| Tổng files | ≤30 | SMALL |
-| Tổng files | >30 | **LARGE** |
+| Tổng files **code** (source + script + config — KHÔNG tính docs/markdown/ảnh) | ≤30 | SMALL |
+| Tổng files code | >30 | **LARGE** |
 | Timespan (chỉ với scope `commit within`) | ≤14 ngày | SMALL |
 | Timespan | >14 ngày | **LARGE** |
 
 BẤT KỲ điều kiện nào sang LARGE → dùng LARGE mode.
+
+**Luật cứng — KHÔNG tự hạ mode:** khi ngưỡng đã sang LARGE thì BẮT BUỘC chạy LARGE, kể cả khi repo "trông nhỏ" vì đa số file là docs. Docs nhiều chỉ có nghĩa là không cần chunk cho docs — KHÔNG có nghĩa là phần code được quét nông. (Bài học thực tế: repo 162 file trong đó 103 markdown, agent tự hạ xuống inline → miss 1 finding HIGH trong shell script mà LARGE mode đã từng bắt được ở bản copy của repo khác.)
+
+**Repo polyglot** (không lang nào ≥30%): vẫn LARGE nếu vượt ngưỡng — chunk theo nhóm ngôn ngữ (vd: `shell/`, `rust/`, `python/`) thay vì theo folder, mỗi nhóm 1 sub-agent. Shell script không có overlay nhưng generic rules grep được — phải có sub-agent đọc trọn từng script, không skim theo hotspot.
 
 - **SMALL mode:** Read [`workflows/small-review.md`](workflows/small-review.md) và follow workflow đó (inline, không sub-agent)
 - **LARGE mode:** Read [`workflows/large-review.md`](workflows/large-review.md), trở thành **orchestrator only**:
