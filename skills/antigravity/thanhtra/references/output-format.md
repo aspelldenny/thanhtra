@@ -44,7 +44,10 @@ Mục đích: non-tech user đọc CRITICAL phải hiểu được tác hại + 
 **{header_primary_lang}:** {lang_code} ({using_specialized | using_generic | no_specialized})
 **{header_mode}:** {mode_label}
 **{header_date}:** {date}
+**{header_inspector}:** {model_name}
 **{header_lang}:** {lang_code}
+
+> `{model_name}` là tên/phiên bản model đang chạy scan này (ví dụ `Claude Opus 4.8`, `GPT-5.5 Codex`). Hai biên bản cùng repo nhưng khác thanh tra viên có thể khác nhau ở khâu triage — ghi lại để so sánh có nghĩa.
 
 ## {verdict_label}: {verdict_value}
 
@@ -413,6 +416,7 @@ Mọi report đều có disclaimer `{footer_disclaimer}` — Thanh Tra là tool 
 **Ngôn ngữ chính:** typescript (chưa có rule chuyên sâu)
 **Chế độ:** NHỎ (quét trực tiếp)
 **Ngày quét:** 2026-05-13
+**Thanh tra viên:** Claude Opus 4.8
 **Ngôn ngữ báo cáo:** vi
 
 ## KẾT LUẬN: KHÔNG ĐẠT
@@ -498,6 +502,7 @@ Sửa các lỗi NGHIÊM TRỌNG trước. Sau đó re-scan để xác nhận.
 **Primary language:** typescript (no specialized rules available)
 **Mode:** SMALL (inline scan)
 **Scan date:** 2026-05-13
+**Inspector:** Claude Opus 4.8
 **Report language:** en
 
 ## VERDICT: FAIL

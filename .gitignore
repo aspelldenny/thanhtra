@@ -12,7 +12,7 @@ __pycache__/
 *.pyc
 
 # Thanh Tra runtime tmp (when scanning user repos)
-.Thanh Tra-tmp/
+.thanhtra-tmp/
 thanhtra-reports/
 
 # Source repo used for porting rules (not part of public Thanh Tra)

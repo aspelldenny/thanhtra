@@ -57,11 +57,11 @@ def main() -> int:
         return 1
 
     rule_ids = load_rule_ids()
-    if len(rule_ids) != 21:
-        fail(f"loaded {len(rule_ids)} canonical rule IDs, expected 21")
+    if len(rule_ids) != 22:
+        fail(f"loaded {len(rule_ids)} canonical rule IDs, expected 22")
         errors += 1
     else:
-        ok("loaded 21 canonical rule IDs")
+        ok("loaded 22 canonical rule IDs")
 
     names: set[str] = set()
     positive_count = 0

@@ -12,6 +12,7 @@ Key→text mapping for report output when `lang=en`. SKILL.md and workflows must
 | `header_primary_lang` | Primary language |
 | `header_mode` | Mode |
 | `header_date` | Scan date |
+| `header_inspector` | Inspector |
 | `header_lang` | Report language |
 | `header_using_generic` | using generic rules |
 | `header_using_specialized` | using specialized rules |

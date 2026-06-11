@@ -3,7 +3,7 @@
 
 This script gives the LLM stable "eyes and hands" before reasoning:
 - inventory files and language counts
-- collect security hot spots mapped to the 21 canonical rule IDs
+- collect security hot spots mapped to the 22 canonical rule IDs
 - mask possible secrets
 - collect git-history secret signals without printing secret values
 - run dependency audit tools when already available
@@ -221,6 +221,17 @@ HOTSPOT_PATTERNS = {
         r"child_process\.exec\s*\(",
         r"exec\.Command\s*\(\s*[\"'](sh|bash|cmd)",
     ],
+    "PROMPT-INJECTION": [
+        r"(system_prompt|system_message|instructions?)\s*\+",
+        r"(system_prompt|system_message|system|instructions?)\s*=\s*f[\"']",
+        r"role\s*[:=]\s*[\"']system[\"']",
+        r"\.(chat|messages|responses|completions)\.(create|completions)\s*\(",
+        r"\b(ChatCompletion|generate_content|invoke)\s*\(",
+        r"\btools\s*=\s*\[",
+        r"\b(tool_calls|function_call|tool_use)\b",
+        r"(similarity_search|as_retriever|vector_?store)",
+        r"(user_knowledge|user_facts|user_memory|memory)\b.*\b(insert|update|upsert|save|store)\b",
+    ],
 }
 
 
@@ -234,8 +245,11 @@ def run(cmd: list[str], cwd: Path, timeout: int = 20) -> tuple[int, str, str]:
 
 # Artifact do chính Thanh Tra sinh ra — scan lại sẽ tạo feedback loop (hotspot rác,
 # fingerprint đổi giữa các lần chạy).
-TOOL_ARTIFACT_NAMES = {".thanhtra-pre-scan.json", ".Thanh Tra-pre-scan.json", ".anhsec-pre-scan.json"}
-TOOL_ARTIFACT_DIRS = {"thanhtra-reports", "Thanh Tra-reports", "anhsec-reports"}
+TOOL_ARTIFACT_NAMES = {".thanhtra-pre-scan.json", ".vbsec-pre-scan.json", ".anhsec-pre-scan.json"}
+TOOL_ARTIFACT_DIRS = {
+    "thanhtra-reports", "vbsec-reports", "anhsec-reports",
+    ".thanhtra-tmp", ".vbsec-tmp",
+}
 
 
 def is_tool_artifact(path: Path) -> bool:

@@ -1,4 +1,4 @@
-# The 21 Thanh Tra Security Rules
+# The 22 Thanh Tra Security Rules
 
 Compact overview of each rule with unsafe/safe examples. For the full reasoning, search patterns, and edge cases, open the corresponding rule file under [`skill/rules/generic/`](../../skill/rules/generic/).
 
@@ -33,6 +33,7 @@ Compact overview of each rule with unsafe/safe examples. For the full reasoning,
 | 19 | [RACE-CONDITION](#rule-19--race-condition) | HIGH | — |
 | 20 | [OUTDATED-DEPENDENCY](#rule-20--outdated-dependency) | HIGH | — |
 | 21 | [COMMAND-INJECTION](#rule-21--command-injection) | CRITICAL | go, php, typescript, python |
+| 22 | [PROMPT-INJECTION](#rule-22--prompt-injection) | HIGH | — |
 
 ---
 
@@ -574,6 +575,34 @@ subprocess.run(['convert', filename, 'output.png'], check=True)
 
 ---
 
+### Rule 22 — PROMPT-INJECTION
+
+**Severity max:** HIGH
+**Applies to:** all
+
+An LLM-backed app (chatbot, agent, RAG) splices untrusted data into a prompt without separating "instructions" from "data". An attacker embeds directives in the input → hijacks the model: leak the system prompt, trigger unintended tool calls, bypass guardrails. The nastiest variant is **context poisoning**: malicious input gets stored (memory/vector store) and re-injected into a later prompt — even for other users.
+
+**Unsafe (context poisoning):**
+```python
+fact = llm.extract(f"Extract info from: {telegram_text}")
+db.upsert_user_knowledge(user_id, fact)            # fact carries hostile directives
+system = f"You are an assistant.\nUser info:\n{db.get_user_knowledge(user_id)}"  # ← poisoned
+```
+
+**Safe:**
+```python
+resp = client.messages.create(
+    system=STATIC_SYSTEM_PROMPT,                   # constant, no input spliced in
+    messages=[{"role": "user", "content": user_message[:4000]}],  # separate role + length cap
+)
+if resp.category not in ALLOWED_CATEGORIES:        # validate model-produced control field
+    resp.category = "unknown"
+```
+
+[Full reasoning →](../../skill/rules/generic/22-prompt-injection.md)
+
+---
+
 ## Specializations
 
 Some rules have language-specific overrides that catch idioms more accurately. When Thanh Tra detects the primary language, it loads the matching overlay:
@@ -594,4 +623,4 @@ If you add a new rule (22, 23...) or change a severity, remember to update:
 1. This file (`docs/en/rules.md`)
 2. [`docs/vi/rules.md`](../vi/rules.md)
 3. The table in [SKILL.md](../../skill/SKILL.md) Step 4
-4. README.vi.md + README.en.md (the "21 vulnerabilities" section)
+4. README.vi.md + README.en.md (the "22 vulnerabilities" section)

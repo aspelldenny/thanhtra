@@ -176,7 +176,7 @@ A specialization overrides a generic rule for a specific language with patterns 
 mkdir -p skill/rules/languages/ruby
 ```
 
-Pick the rules worth specializing (not all 21 — focus on ones with idiomatic Ruby patterns). Examples:
+Pick the rules worth specializing (not all 22 — focus on ones with idiomatic Ruby patterns). Examples:
 
 - SQL-INJECTION → ActiveRecord `.where("...")` raw vs parameterized
 - MASS-ASSIGNMENT → `User.update(params)` missing `permit`

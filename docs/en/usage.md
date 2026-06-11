@@ -34,7 +34,7 @@ By default Thanh Tra will:
 1. Collect every file in the repo (full tree, not just uncommitted)
 2. Detect the primary language (Go/PHP/JS/Python/...)
 3. Route to SMALL or LARGE mode based on file count
-4. Apply 21 generic rules + language overlay (if available)
+4. Apply 22 generic rules + language overlay (if available)
 5. Print a Markdown report + JSON summary to stdout
 6. Save a copy of the report to `thanhtra-reports/scan-<timestamp>.md` in the repo
 
@@ -294,14 +294,14 @@ LARGE mode uses `TodoWrite` to track each chunk. If you interrupt mid-run (Ctrl+
 
 1. Reopen Claude Code in the same directory
 2. Re-run the original command (same scope, same lang)
-3. The skill sees the existing `.Thanh Tra-tmp/` directory with prior findings and resumes from the unfinished chunk
+3. The skill sees the existing `.thanhtra-tmp/` directory with prior findings and resumes from the unfinished chunk
 
 **Important:**
-- Don't manually delete `.Thanh Tra-tmp/` if you want to resume
-- After a successful scan, Thanh Tra cleans up `.Thanh Tra-tmp/` itself
-- Add `.Thanh Tra-tmp/` to your repo's `.gitignore`:
+- Don't manually delete `.thanhtra-tmp/` if you want to resume
+- After a successful scan, Thanh Tra cleans up `.thanhtra-tmp/` itself
+- Add `.thanhtra-tmp/` to your repo's `.gitignore`:
   ```
-  .Thanh Tra-tmp/
+  .thanhtra-tmp/
   ```
 
 ---
@@ -424,5 +424,5 @@ fi
 
 ## Next steps
 
-- Read [rules.md](rules.md) for full details on the 21 rules
+- Read [rules.md](rules.md) for full details on the 22 rules
 - Want to add a new rule or language? See [contributing.md](contributing.md)

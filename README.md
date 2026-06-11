@@ -64,7 +64,7 @@ Thanh Tra ships three variants from a single source of truth:
 | OpenAI Codex CLI | `skills/codex/thanhtra/` | `~/.agents/skills/thanhtra` | Sequential chunking |
 | Google Antigravity | `skills/antigravity/thanhtra/` | `~/.gemini/antigravity/skills/thanhtra` | Sequential chunking |
 
-All three share the same 21 rules, language overlays, i18n strings, and output format. Findings are identical; only execution strategy differs. Sequential variants are ~3× slower wall-clock than Claude Code's parallel mode on large repositories, but produce the same JSON summary and the same Markdown report.
+All three share the same 22 rules, language overlays, i18n strings, and output format. Findings are identical; only execution strategy differs. Sequential variants are ~3× slower wall-clock than Claude Code's parallel mode on large repositories, but produce the same JSON summary and the same Markdown report.
 
 Contributors: edit rules in `skills/thanhtra/` (the canonical Claude folder), then run `./scripts/sync-skills.sh` to propagate to the Codex and Antigravity variants. Platform-specific files (`SKILL.md`, `workflows/large-review*.md`) are hand-maintained.
 
@@ -174,7 +174,7 @@ Thanh Tra scan /path/to/repo --json                         # backward-compatibl
 | 20 | `OUTDATED-DEPENDENCY` | HIGH | — |
 | 21 | `COMMAND-INJECTION` | CRITICAL | go, php, typescript |
 
-The list currently contains 21 rules and will continue to expand.
+The list currently contains 22 rules and will continue to expand.
 
 ## Documentation
 
@@ -191,8 +191,9 @@ The list currently contains 21 rules and will continue to expand.
 - v0.3 — Default scope changed to full-repo, persistent reports, verbose per-finding explanations ✅
 - v0.4 — Python specialization (SQLAlchemy/Django ORM SQLi, pickle/yaml deserialization RCE, Werkzeug debugger, FastAPI/Flask/Django CSRF + CORS, PyJWT algorithms, subprocess shell=True) ✅
 - v0.5 — Multi-platform support: OpenAI Codex CLI + Google Antigravity (sequential LARGE mode, shared rule set, `install.sh` + `sync-skills.sh`) ✅
-- v0.6 (current) — Thanh Tra CLI-first deterministic evidence: `bin/thanhtra scan --json`, dependency audit parsing, audit gaps, file classification ✅
-- v0.7+ — Ruby, Java, Rust overlays; SARIF/GitHub Action; optional LLM triage provider
+- v0.6 — Thanh Tra CLI-first deterministic evidence: `bin/thanhtra scan --json`, dependency audit parsing, audit gaps, file classification ✅
+- v0.7 (current) — Rule #22 PROMPT-INJECTION for LLM/agent apps (direct + context-poisoning); report header records the inspector (model identity) for cross-run comparison ✅
+- v0.8+ — Ruby, Java, Rust overlays; SARIF/GitHub Action; optional LLM triage provider
 
 ## Disclaimer
 

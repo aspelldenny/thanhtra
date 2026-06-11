@@ -40,10 +40,10 @@ Pre-scan evidence KHÔNG tự là finding cuối, trừ dependency audit tool ou
 ### Step L3 — Setup workspace
 
 ```bash
-mkdir -p .Thanh Tra-tmp
+mkdir -p .thanhtra-tmp
 ```
 
-Đảm bảo `.Thanh Tra-tmp/` trong `.gitignore` (warn user nếu không, nhưng vẫn proceed).
+Đảm bảo `.thanhtra-tmp/` trong `.gitignore` (warn user nếu không, nhưng vẫn proceed).
 
 ### Step L4 — Chunk files
 
@@ -66,7 +66,7 @@ chunks = [
 
 For mỗi `chunk` trong `chunks` (theo thứ tự, không parallel):
 
-1. **Resume check:** nếu `.Thanh Tra-tmp/findings-<slug>.md` đã tồn tại và non-empty → skip chunk này (đã scan ở session trước). Đọc lại file vào memory.
+1. **Resume check:** nếu `.thanhtra-tmp/findings-<slug>.md` đã tồn tại và non-empty → skip chunk này (đã scan ở session trước). Đọc lại file vào memory.
 
 2. **Print progress** ra stdout: `[chunk N/total] Scanning <chunk.name> (<count> files)...`
 
@@ -85,7 +85,7 @@ For mỗi `chunk` trong `chunks` (theo thứ tự, không parallel):
    - **Chỉ dùng 21 canonical rule IDs**. KHÔNG tự bịa rule mới.
    - 1 dòng code dính 2 rule → tạo **2 finding riêng biệt**, mỗi cái 1 `rule_id`.
 
-5. **Write chunk findings** vào `.Thanh Tra-tmp/findings-<slug>.md`:
+5. **Write chunk findings** vào `.thanhtra-tmp/findings-<slug>.md`:
    - Format markdown (cùng schema với sub-agent output của Claude variant)
    - Sections: `## FINDINGS`, `## PASSED`, `## NOT_MAPPED` (nếu có)
    - File path tuyệt đối từ repo root
@@ -96,7 +96,7 @@ For mỗi `chunk` trong `chunks` (theo thứ tự, không parallel):
 
 ### Step L6 — Aggregate findings
 
-Đọc tất cả `.Thanh Tra-tmp/findings-*.md`:
+Đọc tất cả `.thanhtra-tmp/findings-*.md`:
 
 1. **Parse** mỗi file thành list findings (file/line/rule_id/severity/issue/fix/context)
 2. **Validate rule_ids**: mọi finding phải có `rule_id` trong 21 canonical IDs.
@@ -171,19 +171,19 @@ Khi translate sang `$LANG=vi`: dịch text, giữ code English. Khi `lang=en`: d
 ### Step L11 — Cleanup
 
 ```bash
-rm -rf .Thanh Tra-tmp    # cleanup temp files (luôn xóa)
+rm -rf .thanhtra-tmp    # cleanup temp files (luôn xóa)
 # KHÔNG xóa thanhtra-reports/ — đó là persisted output cho user
 ```
 
 ## Resume protocol
 
-Nếu user re-run skill khi `.Thanh Tra-tmp/` còn từ session trước:
+Nếu user re-run skill khi `.thanhtra-tmp/` còn từ session trước:
 
-1. Đọc `.Thanh Tra-tmp/` — chunks nào đã có `findings-*.md` non-empty thì coi như đã scan
+1. Đọc `.thanhtra-tmp/` — chunks nào đã có `findings-*.md` non-empty thì coi như đã scan
 2. Chỉ process chunks chưa có findings file (Step L4 đã có resume check ở mục 1)
 3. Aggregate như bình thường (Step L5)
 
-Nếu user muốn re-scan từ đầu: dùng arg `--fresh` → xóa `.Thanh Tra-tmp/` trước khi bắt đầu.
+Nếu user muốn re-scan từ đầu: dùng arg `--fresh` → xóa `.thanhtra-tmp/` trước khi bắt đầu.
 
 ## Performance target
 
@@ -205,6 +205,6 @@ Main agent context: ~50-100K tokens (đủ cho repo trung bình; nếu repo cự
 | 2 chunks cùng tìm thấy lỗi trong file giống nhau (file ở biên) | Dedup ở Step L5 |
 | Generated code chiếm cả 1 chunk | Flag tự "this chunk is mostly generated, low priority". Giảm severity các finding trong chunk này 1 cấp. |
 | Repo 500+ file → 15 chunk, mỗi chunk 30+ file | OK nhưng chậm (~20-30 min). Cân nhắc gợi ý user dùng Claude Code variant cho repo cỡ này. |
-| User Ctrl+C giữa chừng | `.Thanh Tra-tmp/` giữ lại. Re-run → resume từ chunk dở dang (skip chunks đã có findings file). |
+| User Ctrl+C giữa chừng | `.thanhtra-tmp/` giữ lại. Re-run → resume từ chunk dở dang (skip chunks đã có findings file). |
 | Không có git (repo chưa init) | Lỗi sớm ở SKILL.md Step 0 — không vào đây. |
-| Context của agent gần đầy giữa chừng | Save partial findings vào `.Thanh Tra-tmp/` rồi báo user re-invoke skill để continue. |
+| Context của agent gần đầy giữa chừng | Save partial findings vào `.thanhtra-tmp/` rồi báo user re-invoke skill để continue. |

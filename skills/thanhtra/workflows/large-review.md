@@ -28,10 +28,10 @@ Pre-scan evidence KHÔNG tự là finding cuối, trừ dependency audit tool ou
 
 1. Tạo workspace tạm cho findings:
    ```bash
-   mkdir -p .Thanh Tra-tmp
+   mkdir -p .thanhtra-tmp
    ```
 
-2. Đảm bảo `.Thanh Tra-tmp/` trong `.gitignore` (warn user nếu không, nhưng vẫn proceed).
+2. Đảm bảo `.thanhtra-tmp/` trong `.gitignore` (warn user nếu không, nhưng vẫn proceed).
 
 ### Step L3 — Chunk files
 
@@ -80,13 +80,13 @@ Agent(subagent_type="general-purpose", description="Thanh Tra scan chunk: shared
 **Lưu ý quan trọng:**
 - Sub-agent KHÔNG có context conversation hiện tại → prompt phải self-contained (xem template trong `sub-agent-prompts.md`)
 - Prompt phải include hot spots liên quan chunk lấy từ `.thanhtra-pre-scan.json`; sub-agent scan hot spots đó trước, rồi rà phần còn lại.
-- Sub-agent ghi findings ra `.Thanh Tra-tmp/findings-<chunk-slug>.md` (path tuyệt đối từ repo root)
+- Sub-agent ghi findings ra `.thanhtra-tmp/findings-<chunk-slug>.md` (path tuyệt đối từ repo root)
 - Sub-agent return text "FINDINGS_WRITTEN: <path>" — main agent verify file tồn tại
 
 ### Step L6 — Handle sub-agent failures
 
 Khi sub-agent return mà:
-- File `.Thanh Tra-tmp/findings-<slug>.md` không tồn tại
+- File `.thanhtra-tmp/findings-<slug>.md` không tồn tại
 - Hoặc file rỗng / không parse được
 - Hoặc sub-agent return error
 
@@ -97,7 +97,7 @@ Khi sub-agent return mà:
 
 ### Step L7 — Aggregate findings
 
-Đọc tất cả `.Thanh Tra-tmp/findings-*.md`:
+Đọc tất cả `.thanhtra-tmp/findings-*.md`:
 
 1. **Parse** mỗi file thành list findings (file/line/rule_id/severity/issue/fix/context)
 2. **Validate rule_ids**: Mọi finding phải có `rule_id` trong 21 canonical IDs. Nếu sub-agent đã invent (vd `INSECURE-COOKIE`) → map về canonical theo mapping table trong [`../references/sub-agent-prompts.md`](../references/sub-agent-prompts.md#rule-id-discipline-critical--read-carefully). Nếu thật sự không map được → drop hoặc move vào `## NOT_MAPPED` section riêng.
@@ -182,11 +182,11 @@ Nếu có chunk failed → downgrade verdict 1 cấp (PASS→WARN, WARN→FAIL) 
 ### Step L11 — Cleanup
 
 ```bash
-rm -rf .Thanh Tra-tmp    # cleanup sub-agent temp files (luôn xóa)
+rm -rf .thanhtra-tmp    # cleanup sub-agent temp files (luôn xóa)
 # KHÔNG xóa thanhtra-reports/ — đó là persisted output cho user
 ```
 
-**Quan trọng (v0.3+):** Chỉ xóa `.Thanh Tra-tmp/` (chứa raw findings từ sub-agents). KHÔNG được xóa `thanhtra-reports/` — đó là output user cần re-read/share.
+**Quan trọng (v0.3+):** Chỉ xóa `.thanhtra-tmp/` (chứa raw findings từ sub-agents). KHÔNG được xóa `thanhtra-reports/` — đó là output user cần re-read/share.
 
 Update TodoWrite: mark tất cả tasks `completed`.
 
@@ -195,11 +195,11 @@ Update TodoWrite: mark tất cả tasks `completed`.
 Nếu user re-run `/thanhtra` trong khi có TodoWrite pending từ lần trước:
 
 1. Đọc TodoWrite — xác định chunks `pending` / `in_progress`
-2. Đọc `.Thanh Tra-tmp/` — chunks nào đã có `findings-*.md` thì coi như đã scan
+2. Đọc `.thanhtra-tmp/` — chunks nào đã có `findings-*.md` thì coi như đã scan
 3. Chỉ spawn sub-agent cho chunks chưa có findings file
 4. Aggregate như bình thường (Step L6)
 
-Nếu user muốn re-scan từ đầu: dùng arg `/thanhtra ... --fresh` → xóa `.Thanh Tra-tmp/` + TodoWrite trước khi bắt đầu.
+Nếu user muốn re-scan từ đầu: dùng arg `/thanhtra ... --fresh` → xóa `.thanhtra-tmp/` + TodoWrite trước khi bắt đầu.
 
 ## Performance target
 
@@ -220,5 +220,5 @@ Main agent context: ~30-60K tokens (orchestration + aggregate). Sub-agent contex
 | Sub-agent output JSON thay vì markdown | Re-spawn với prompt nhấn mạnh format |
 | Generated code chiếm cả 1 chunk | Sub-agent flag tự "this chunk is mostly generated, low priority". Main agent giảm severity các finding trong chunk này 1 cấp. |
 | Repo 500+ file → 15 chunk, mỗi chunk 30+ file | Vẫn OK, sub-agent đủ context. Time ~10-15 phút. |
-| User Ctrl+C giữa chừng | TodoWrite + `.Thanh Tra-tmp/` giữ lại. Re-run → resume từ chunk dở dang. |
+| User Ctrl+C giữa chừng | TodoWrite + `.thanhtra-tmp/` giữ lại. Re-run → resume từ chunk dở dang. |
 | Không có git (repo chưa init) | Lỗi sớm ở SKILL.md Step 0 — không vào đây. |

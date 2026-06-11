@@ -64,7 +64,7 @@ Thanh Tra ship ba bản variant từ một nguồn duy nhất:
 | OpenAI Codex CLI | `skills/codex/thanhtra/` | `~/.agents/skills/thanhtra` | Sequential chunking |
 | Google Antigravity | `skills/antigravity/thanhtra/` | `~/.gemini/antigravity/skills/thanhtra` | Sequential chunking |
 
-Cả ba chia sẻ cùng 21 rule, language overlay, chuỗi i18n và format output. Findings identical; chỉ chiến lược thực thi khác. Sequential variant chậm hơn ~3× wall-clock so với parallel mode của Claude Code trên repo lớn, nhưng tạo ra cùng JSON summary và cùng báo cáo Markdown.
+Cả ba chia sẻ cùng 22 rule, language overlay, chuỗi i18n và format output. Findings identical; chỉ chiến lược thực thi khác. Sequential variant chậm hơn ~3× wall-clock so với parallel mode của Claude Code trên repo lớn, nhưng tạo ra cùng JSON summary và cùng báo cáo Markdown.
 
 Người contribute: sửa rule trong `skills/thanhtra/` (folder canonical của Claude), rồi chạy `./scripts/sync-skills.sh` để propagate sang Codex và Antigravity. File platform-specific (`SKILL.md`, `workflows/large-review*.md`) maintain riêng từng platform.
 
@@ -191,8 +191,9 @@ Danh sách hiện tại có 21 quy tắc và sẽ tiếp tục mở rộng.
 - v0.3 — Phạm vi mặc định chuyển sang toàn repo, lưu báo cáo cố định, giải thích chi tiết cho từng finding ✅
 - v0.4 — Chuyên sâu Python (SQLAlchemy/Django ORM SQLi, pickle/yaml deserialization RCE, Werkzeug debugger, FastAPI/Flask/Django CSRF + CORS, PyJWT algorithms, subprocess shell=True) ✅
 - v0.5 — Hỗ trợ đa nền tảng: OpenAI Codex CLI + Google Antigravity (sequential LARGE mode, chia sẻ bộ rule, `install.sh` + `sync-skills.sh`) ✅
-- v0.6 (hiện tại) — Thanh Tra CLI-first deterministic evidence: `bin/thanhtra scan --json`, parse dependency audit, audit gaps, phân loại file ✅
-- v0.7+ — Overlay Ruby, Java, Rust; SARIF/GitHub Action; optional LLM triage provider
+- v0.6 — Thanh Tra CLI-first deterministic evidence: `bin/thanhtra scan --json`, parse dependency audit, audit gaps, phân loại file ✅
+- v0.7 (hiện tại) — Rule #22 PROMPT-INJECTION cho app LLM/agent (direct + context-poisoning); header báo cáo ghi thanh tra viên (model) để so sánh giữa các lần scan ✅
+- v0.8+ — Overlay Ruby, Java, Rust; SARIF/GitHub Action; optional LLM triage provider
 
 ## Miễn trừ trách nhiệm
 

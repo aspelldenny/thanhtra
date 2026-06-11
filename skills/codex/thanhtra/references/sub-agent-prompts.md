@@ -7,14 +7,14 @@ Templates cho prompt khi main orchestrator delegate quét 1 chunk cho sub-agent.
 1. **Sub-agent KHÔNG có lang context** — Luôn yêu cầu sub-agent output **canonical English + rule ID**. Main agent sẽ translate sang `$LANG` ở step aggregate.
 2. **Sub-agent KHÔNG load rule files** — Main agent embed nội dung rule (hoặc list rule ID) trực tiếp vào prompt. Sub-agent không có quyền truy cập file system bằng path tương đối từ skill, embed thẳng để tránh ambiguity.
 3. **Prompt phải self-contained** — Sub-agent không thấy conversation hiện tại. Mọi context cần phải nằm trong prompt.
-4. **Output file path cố định** — Sub-agent ghi findings ra `.Thanh Tra-tmp/findings-<chunk-name-slug>.md`. Main agent đọc lại để aggregate.
+4. **Output file path cố định** — Sub-agent ghi findings ra `.thanhtra-tmp/findings-<chunk-name-slug>.md`. Main agent đọc lại để aggregate.
 5. **Evidence-first** — Main agent phải truyền hot spots liên quan chunk từ `.thanhtra-pre-scan.json`; sub-agent scan các hot spot này trước để giảm drift giữa các lần chạy.
 
 ## Template prompt chính
 
 ```
 You are a security scanner agent for the Thanh Tra skill (github.com/aspelldenny/thanhtra).
-Your job: scan a chunk of files for the 21 Thanh Tra security rules and report findings.
+Your job: scan a chunk of files for the 22 Thanh Tra security rules and report findings.
 
 # Context
 - Repository: {repo_path}
@@ -30,7 +30,7 @@ Start with them, then read full context and apply L1-L4 reasoning.
 {chunk_pre_scan_evidence}
 
 # Rules to check
-For each file, look for these 21 vulnerability categories:
+For each file, look for these 22 vulnerability categories:
 
 1. HARDCODED-SECRET — API keys/passwords in source or committed config
 2. SQL-INJECTION — untrusted input concatenated into SQL without parameterization
@@ -53,6 +53,7 @@ For each file, look for these 21 vulnerability categories:
 19. RACE-CONDITION — balance/inventory update without transaction+lock (check-then-act)
 20. OUTDATED-DEPENDENCY — package.json/requirements.txt/go.mod with known-CVE versions
 21. COMMAND-INJECTION — exec/system/spawn/shell=True with user input
+22. PROMPT-INJECTION — untrusted input/stored content fed into LLM prompt or tool calls without trust boundary (direct injection, context/memory poisoning, model-output-as-control)
 
 # Methodology — Reasoning, not pattern-matching
 
@@ -73,7 +74,7 @@ DO NOT flag a pattern blindly. A `fmt.Sprintf` around SQL is fine if the value i
 
 # Output format
 
-Write findings to: `.Thanh Tra-tmp/findings-{chunk_slug}.md`
+Write findings to: `.thanhtra-tmp/findings-{chunk_slug}.md`
 
 Use EN canonical (do not translate). Format:
 
@@ -122,7 +123,7 @@ Use EN canonical (do not translate). Format:
   line: 42
   description: Brief description of the issue
   suggested_new_rule_id: SUGGESTED-NEW-RULE (only if you believe this is a class of vulnerability worth a new rule)
-  reasoning: Why none of the 21 canonical rules fit
+  reasoning: Why none of the 22 canonical rules fit
 - ... (issues you couldn't map — usually empty; only add when truly novel)
 ```
 
@@ -130,9 +131,9 @@ Use EN canonical (do not translate). Format:
 
 ## Rule ID discipline (CRITICAL — read carefully)
 
-**ONLY use the 21 canonical rule IDs listed above.** Do NOT invent new rule IDs like `INSECURE-COOKIE`, `AUTH-BYPASS`, `WEAK-CRYPTO`, `DATA-IN-URL`, `OAUTH-MISCONFIG`, `SUPPLY-CHAIN`, `INFO-DISCLOSURE`, `DATA-AT-REST`, `DEPRECATED-API`, `INSECURE-SESSION`, etc.
+**ONLY use the 22 canonical rule IDs listed above.** Do NOT invent new rule IDs like `INSECURE-COOKIE`, `AUTH-BYPASS`, `WEAK-CRYPTO`, `DATA-IN-URL`, `OAUTH-MISCONFIG`, `SUPPLY-CHAIN`, `INFO-DISCLOSURE`, `DATA-AT-REST`, `DEPRECATED-API`, `INSECURE-SESSION`, etc.
 
-When you encounter a real security issue that doesn't obviously fit one of the 21 IDs, map it to the closest canonical rule using this mapping table:
+When you encounter a real security issue that doesn't obviously fit one of the 22 IDs, map it to the closest canonical rule using this mapping table:
 
 | If you'd want to call it... | Use this canonical ID instead | Note in `issue` |
 |---|---|---|
@@ -148,7 +149,7 @@ When you encounter a real security issue that doesn't obviously fit one of the 2
 | DEPRECATED-API (apt-key, old syscall) | `OUTDATED-DEPENDENCY` | "deprecated API: ..." |
 | DEPENDENCY-HARDENING (lockfile ignored) | `OUTDATED-DEPENDENCY` | "dependency hardening missing" |
 
-If you genuinely cannot map a finding to any of the 21 rules, **skip it** and mention it ONLY in the `## NOT_MAPPED` section at the end of your findings file (see format below) — main agent will decide whether to surface or propose adding a new rule in future versions.
+If you genuinely cannot map a finding to any of the 22 rules, **skip it** and mention it ONLY in the `## NOT_MAPPED` section at the end of your findings file (see format below) — main agent will decide whether to surface or propose adding a new rule in future versions.
 
 ## One finding = one primary rule_id
 
@@ -172,7 +173,7 @@ Example:
 ## Other constraints
 
 - Only report findings WITH high confidence (you traced the data flow)
-- Severity is CAPPED by rule. CRITICAL rules: 01,02,05,07,08,12,13,14,16,21. HIGH max for others (03,04,06,09,10,11,15,17,18,19,20).
+- Severity is CAPPED by rule. CRITICAL rules: 01,02,05,07,08,12,13,14,16,21. HIGH max for others (03,04,06,09,10,11,15,17,18,19,20,22).
 - You MAY downgrade severity if context reduces risk (note reason in `issue`)
 - Do NOT recommend specific library versions (main agent will check OUTDATED-DEPENDENCY)
 - Do NOT output JSON. Use the markdown format above. Main agent will parse.
@@ -191,7 +192,7 @@ Do NOT write the full Vietnamese/English verbose blocks yourself — main agent 
 
 # When done
 
-Reply with the single line: `FINDINGS_WRITTEN: .Thanh Tra-tmp/findings-{chunk_slug}.md`
+Reply with the single line: `FINDINGS_WRITTEN: .thanhtra-tmp/findings-{chunk_slug}.md`
 ```
 
 ## Template gọi sub-agent
@@ -210,12 +211,12 @@ Agent({
 
 Sau khi tất cả sub-agents return:
 
-1. Đọc tất cả `.Thanh Tra-tmp/findings-*.md`
+1. Đọc tất cả `.thanhtra-tmp/findings-*.md`
 2. **Dedup**: cùng `file:line:rule_id` → giữ severity cao nhất
 3. **Cross-reference**: 1 finding có liên quan đến finding khác không? (vd: HARDCODED-SECRET in .env + EXPOSED-CONFIG cùng vị trí)
 4. **Translate**: Nếu `lang=vi`, dịch `issue` và `fix` sang tiếng Việt theo phrase template trong i18n file
 5. **Render report** theo `output-format.md`
-6. **Cleanup**: `rm -rf .Thanh Tra-tmp/` sau khi done
+6. **Cleanup**: `rm -rf .thanhtra-tmp/` sau khi done
 
 ## Edge cases
 

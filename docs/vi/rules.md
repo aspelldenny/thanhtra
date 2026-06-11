@@ -1,4 +1,4 @@
-# 21 Rule bảo mật của Thanh Tra
+# 22 Rule bảo mật của Thanh Tra
 
 Tổng quan ngắn gọn từng rule với ví dụ unsafe/safe. Để đọc đầy đủ reasoning, search pattern và edge case, mở file rule tương ứng trong [`skill/rules/generic/`](../../skill/rules/generic/).
 
@@ -33,6 +33,7 @@ Tổng quan ngắn gọn từng rule với ví dụ unsafe/safe. Để đọc đ
 | 19 | [RACE-CONDITION](#rule-19--race-condition) | HIGH | — |
 | 20 | [OUTDATED-DEPENDENCY](#rule-20--outdated-dependency) | HIGH | — |
 | 21 | [COMMAND-INJECTION](#rule-21--command-injection) | CRITICAL | go, php, typescript, python |
+| 22 | [PROMPT-INJECTION](#rule-22--prompt-injection) | HIGH | — |
 
 ---
 
@@ -574,6 +575,34 @@ subprocess.run(['convert', filename, 'output.png'], check=True)
 
 ---
 
+### Rule 22 — PROMPT-INJECTION
+
+**Severity max:** HIGH
+**Applies to:** all
+
+App nhúng LLM (chatbot, agent, RAG) ghép dữ liệu không tin cậy vào prompt mà không tách "lệnh" khỏi "dữ liệu". Kẻ tấn công nhét chỉ thị vào input → chiếm điều khiển model: lộ system prompt, gọi tool ngoài ý muốn, bỏ qua guardrail. Nguy nhất là **context poisoning**: input độc bị lưu (memory/vector store) rồi tái-inject vào prompt lượt sau, kể cả cho user khác.
+
+**Unsafe (context poisoning):**
+```python
+fact = llm.extract(f"Trích info từ: {telegram_text}")
+db.upsert_user_knowledge(user_id, fact)            # fact chứa chỉ thị độc
+system = f"Bạn là trợ lý.\nInfo user:\n{db.get_user_knowledge(user_id)}"  # ← poisoned
+```
+
+**Safe:**
+```python
+resp = client.messages.create(
+    system=STATIC_SYSTEM_PROMPT,                   # hằng, không ghép input
+    messages=[{"role": "user", "content": user_message[:4000]}],  # role riêng + giới hạn
+)
+if resp.category not in ALLOWED_CATEGORIES:        # validate field model trả về
+    resp.category = "unknown"
+```
+
+[Đầy đủ →](../../skill/rules/generic/22-prompt-injection.md)
+
+---
+
 ## Specialization
 
 Một số rule có override chuyên sâu cho ngôn ngữ cụ thể. Khi Thanh Tra detect ngôn ngữ chính, nó tự load overlay:
@@ -594,4 +623,4 @@ Nếu bạn thêm rule mới (22, 23...) hoặc cập nhật severity, nhớ upd
 1. File này (`docs/vi/rules.md`)
 2. [`docs/en/rules.md`](../en/rules.md)
 3. Bảng trong [SKILL.md](../../skill/SKILL.md) Step 4
-4. README.vi.md + README.en.md (section "Danh sách 21 lỗi")
+4. README.vi.md + README.en.md (section "Danh sách 22 lỗi")

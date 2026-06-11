@@ -176,7 +176,7 @@ Specialization = override rule generic cho 1 ngôn ngữ cụ thể, với patte
 mkdir -p skill/rules/languages/ruby
 ```
 
-Chọn rule muốn specialize (không cần toàn bộ 21 — chọn rule nào Ruby có pattern đặc thù). Ví dụ:
+Chọn rule muốn specialize (không cần toàn bộ 22 — chọn rule nào Ruby có pattern đặc thù). Ví dụ:
 
 - SQL-INJECTION → ActiveRecord `.where("...")` raw vs parameterized
 - MASS-ASSIGNMENT → `User.update(params)` thiếu `permit`
