@@ -27,7 +27,7 @@ Thanh Tra brings production-grade security review into the AI coding loop. It ru
 
 Thanh Tra has been exercised against intentionally vulnerable open-source training apps such as OWASP Juice Shop — and identifies findings that line up with the documented vulnerability challenges across SQL injection, NoSQL injection, JWT misuse, broken access control, mass assignment, deserialization RCE, and more.
 
-Generic rules apply to every language. Specialized rule overlays exist for Go, PHP, TypeScript/JavaScript, and Python, covering common frameworks: React, Vue, Angular, Express, NestJS, Next.js, Django, Flask, FastAPI, SQLAlchemy, Sequelize, Prisma, and Mongoose. Additional language overlays are on the roadmap.
+Generic rules apply to every language. Specialized rule overlays exist for Go, PHP, TypeScript/JavaScript, Python, and Rust, covering common frameworks: React, Vue, Angular, Express, NestJS, Next.js, Django, Flask, FastAPI, SQLAlchemy, Sequelize, Prisma, Mongoose, axum, actix-web, sqlx, and diesel.
 
 ## Authors
 
@@ -221,7 +221,8 @@ The list currently contains 22 rules and will continue to expand.
 - v0.7 — Rule #22 PROMPT-INJECTION for LLM/agent apps (direct + context-poisoning); report header records the inspector (model identity) for cross-run comparison ✅
 - v0.8 — Optional LLM triage: `scan --triage` / `thanhtra triage` reasons over the evidence headless (false-positive removal, rule mapping, PASS/WARN/FAIL verdict) via the Claude API, SDK-or-stdlib ✅
 - v0.9 (current) — `openai` triage provider: one OpenAI-compatible adapter covers OpenAI, OpenRouter, Groq, Together, DeepSeek, and local servers (Ollama/LM Studio/vLLM) via `--triage-base-url` ✅
-- v1.0+ — Rust overlay; SARIF + GitHub Action (CI gate)
+- v0.10 (current) — Rust overlay: sqlx/diesel SQLi, reqwest SSRF, PathBuf traversal, Command injection, error leak (axum/actix) ✅
+- v1.0+ — SARIF + GitHub Action (CI gate)
 
 ## Disclaimer
 
