@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 EXPECTED = ROOT / "tests" / "expected-findings.json"
 RULE_DIR = ROOT / "skills" / "thanhtra" / "rules" / "generic"
 VALID_SEVERITIES = {"CRITICAL", "HIGH", "MEDIUM", "LOW"}
-VALID_LANGUAGES = {"go", "php", "python", "typescript", "generic"}
+VALID_LANGUAGES = {"go", "php", "python", "typescript", "rust", "swift", "generic"}
 
 
 def fail(message: str) -> None:
@@ -101,7 +101,8 @@ def main() -> int:
         code_files = [
             path
             for path in case_dir.rglob("*")
-            if path.is_file() and path.suffix in {".go", ".php", ".py", ".js", ".jsx", ".ts", ".tsx"}
+            if path.is_file()
+            and path.suffix in {".go", ".php", ".py", ".js", ".jsx", ".ts", ".tsx", ".rs", ".swift"}
         ]
         if not code_files:
             fail(f"{name}: fixture contains no source files")

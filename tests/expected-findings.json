@@ -68,6 +68,57 @@
       ]
     },
     {
+      "name": "positive/hardcoded-secret-swift",
+      "path": "tests/fixtures/positive/hardcoded-secret-swift",
+      "language": "swift",
+      "expected_findings": [
+        {
+          "rule_id": "HARDCODED-SECRET",
+          "severity": "CRITICAL",
+          "file": "Sources/Config.swift",
+          "line": 4
+        },
+        {
+          "rule_id": "HARDCODED-SECRET",
+          "severity": "HIGH",
+          "file": "Sources/Config.swift",
+          "line": 8
+        }
+      ]
+    },
+    {
+      "name": "positive/sql-injection-swift",
+      "path": "tests/fixtures/positive/sql-injection-swift",
+      "language": "swift",
+      "expected_findings": [
+        {
+          "rule_id": "SQL-INJECTION",
+          "severity": "CRITICAL",
+          "file": "Sources/SearchStore.swift",
+          "line": 9
+        }
+      ]
+    },
+    {
+      "name": "positive/cors-misconfig-swift",
+      "path": "tests/fixtures/positive/cors-misconfig-swift",
+      "language": "swift",
+      "expected_findings": [
+        {
+          "rule_id": "CORS-MISCONFIG",
+          "severity": "HIGH",
+          "file": "App/Info.plist",
+          "line": 7
+        },
+        {
+          "rule_id": "CORS-MISCONFIG",
+          "severity": "HIGH",
+          "file": "App/APIClient.swift",
+          "line": 6
+        }
+      ]
+    },
+    {
       "name": "negative/hardcoded-secret",
       "path": "tests/fixtures/negative/hardcoded-secret",
       "language": "python",
@@ -95,6 +146,24 @@
       "name": "negative/command-injection-python",
       "path": "tests/fixtures/negative/command-injection-python",
       "language": "python",
+      "expected_findings": []
+    },
+    {
+      "name": "negative/hardcoded-secret-swift",
+      "path": "tests/fixtures/negative/hardcoded-secret-swift",
+      "language": "swift",
+      "expected_findings": []
+    },
+    {
+      "name": "negative/sql-injection-swift",
+      "path": "tests/fixtures/negative/sql-injection-swift",
+      "language": "swift",
+      "expected_findings": []
+    },
+    {
+      "name": "negative/cors-misconfig-swift",
+      "path": "tests/fixtures/negative/cors-misconfig-swift",
+      "language": "swift",
       "expected_findings": []
     }
   ]
