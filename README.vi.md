@@ -143,10 +143,23 @@ thanhtra scan /path/to/repo --json
 thanhtra scan /path/to/repo --json --output /tmp/thanhtra-scan.json
 thanhtra scan /path/to/repo --json --no-audit
 thanhtra prescan --root . --output .thanhtra-pre-scan.json   # raw evidence — chính là cái agent skill đọc
-Thanh Tra scan /path/to/repo --json                         # alias tương thích ngược
+thanhtra scan /path/to/repo --json --triage                  # thêm verdict LLM (cần ANTHROPIC_API_KEY)
 ```
 
-`scan` xuất `schema: "thanhtra-scan/v1"` kèm `legacy_schema: "Thanh Tra-scan/v1"`, summary ngắn và raw `evidence`. `prescan` xuất thẳng raw evidence (`thanhtra-pre-scan/v1`) mà agent skill đọc trước khi LLM reasoning. Cả hai cố ý cơ học: audit dependency, mask secret, kiểm Docker exposure, phân loại file, và gom hotspot — CLI là nguồn sự thật duy nhất; script bundled trong skill chỉ là wrapper fallback cho máy chưa có CLI trên PATH.
+`scan` xuất `schema: "thanhtra-scan/v1"`, summary ngắn và raw `evidence`. `prescan` xuất thẳng raw evidence (`thanhtra-pre-scan/v1`) mà agent skill đọc trước khi LLM reasoning. Cả hai cố ý cơ học: audit dependency, mask secret, kiểm Docker exposure, phân loại file, và gom hotspot — CLI là nguồn sự thật duy nhất; script bundled trong skill chỉ là wrapper fallback cho máy chưa có CLI trên PATH.
+
+### LLM triage tùy chọn (verdict headless)
+
+`scan --triage` (hoặc subcommand `thanhtra triage`) cho LLM reasoning trên evidence cơ học — loại false positive, map finding về rule, và ra verdict `PASS`/`WARN`/`FAIL` — mà không cần mở agent. Đây chính là thứ giúp Thanh Tra chạy được trong CI hoặc cron, nơi không ai ngồi gõ `/thanhtra` thủ công.
+
+```bash
+export ANTHROPIC_API_KEY=...                       # bắt buộc
+thanhtra scan . --json --triage                    # evidence cơ học + verdict trong một document
+thanhtra prescan --root . | thanhtra triage --evidence -   # triage evidence từ stdin
+THANHTRA_TRIAGE_MODEL=claude-opus-4-8 thanhtra scan . --triage   # override model (đây là default)
+```
+
+Tầng triage **tùy chọn và pluggable**: default dùng Anthropic Claude API (model `claude-opus-4-8`), dùng SDK `anthropic` nếu có sẵn còn không thì gọi HTTP bằng stdlib (giữ CLI zero-install), và degrade nhẹ nhàng — không có key thì `scan --triage` vẫn xuất đầy đủ evidence cơ học và ghi `triage_error`. Chọn provider qua `THANHTRA_TRIAGE_PROVIDER` (hiện có `anthropic`).
 
 ## Các lỗ hổng Thanh Tra phát hiện
 
@@ -192,8 +205,9 @@ Danh sách hiện tại có 21 quy tắc và sẽ tiếp tục mở rộng.
 - v0.4 — Chuyên sâu Python (SQLAlchemy/Django ORM SQLi, pickle/yaml deserialization RCE, Werkzeug debugger, FastAPI/Flask/Django CSRF + CORS, PyJWT algorithms, subprocess shell=True) ✅
 - v0.5 — Hỗ trợ đa nền tảng: OpenAI Codex CLI + Google Antigravity (sequential LARGE mode, chia sẻ bộ rule, `install.sh` + `sync-skills.sh`) ✅
 - v0.6 — Thanh Tra CLI-first deterministic evidence: `bin/thanhtra scan --json`, parse dependency audit, audit gaps, phân loại file ✅
-- v0.7 (hiện tại) — Rule #22 PROMPT-INJECTION cho app LLM/agent (direct + context-poisoning); header báo cáo ghi thanh tra viên (model) để so sánh giữa các lần scan ✅
-- v0.8+ — Overlay Ruby, Java, Rust; SARIF/GitHub Action; optional LLM triage provider
+- v0.7 — Rule #22 PROMPT-INJECTION cho app LLM/agent (direct + context-poisoning); header báo cáo ghi thanh tra viên (model) để so sánh giữa các lần scan ✅
+- v0.8 (hiện tại) — Tầng LLM triage tùy chọn: `scan --triage` / `thanhtra triage` cho LLM reasoning headless trên evidence (loại false positive, map rule, verdict PASS/WARN/FAIL) qua Claude API, SDK-hoặc-stdlib, provider pluggable ✅
+- v0.9+ — Overlay Ruby, Java, Rust; provider triage OpenAI / khác; SARIF + GitHub Action (CI gate)
 
 ## Miễn trừ trách nhiệm
 

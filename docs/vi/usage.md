@@ -47,10 +47,12 @@ thanhtra scan . --json
 thanhtra scan . --json --output /tmp/thanhtra-scan.json
 thanhtra scan . --json --no-audit
 thanhtra prescan --root . --output .thanhtra-pre-scan.json   # raw evidence — agent skill đọc file này
-Thanh Tra scan . --json                                     # alias tương thích ngược
+thanhtra scan . --json --triage                              # thêm verdict LLM (cần ANTHROPIC_API_KEY)
 ```
 
-`scan` xuất `schema: "thanhtra-scan/v1"` và `legacy_schema: "Thanh Tra-scan/v1"`. `summary` ở top-level ổn định cho tooling; `evidence` chứa raw pre-scan payload để LLM agent reasoning ở bước sau. `prescan` xuất thẳng raw evidence (`thanhtra-pre-scan/v1`) — đây là lệnh agent skill gọi ở Step 1.5; script bundled trong skill chỉ là wrapper fallback cho máy chưa có CLI trên PATH.
+`scan` xuất `schema: "thanhtra-scan/v1"`. `summary` ở top-level ổn định cho tooling; `evidence` chứa raw pre-scan payload để LLM agent reasoning ở bước sau. `prescan` xuất thẳng raw evidence (`thanhtra-pre-scan/v1`) — đây là lệnh agent skill gọi ở Step 1.5; script bundled trong skill chỉ là wrapper fallback cho máy chưa có CLI trên PATH.
+
+`--triage` thêm một bước LLM reasoning trên evidence cơ học: loại false positive, map finding về 22 rule canonical, và ra verdict `PASS`/`WARN`/`FAIL` — tương đương chạy skill `/thanhtra` nhưng headless. Default dùng Anthropic Claude API (`claude-opus-4-8`; override bằng `THANHTRA_TRIAGE_MODEL`), cần `ANTHROPIC_API_KEY`, dùng SDK `anthropic` nếu có hoặc gọi HTTP bằng stdlib. Không có key thì `scan --triage` vẫn xuất đầy đủ evidence và ghi `triage_error`. Subcommand `thanhtra triage --evidence <file|->` triage một file prescan/scan JSON có sẵn.
 
 ---
 

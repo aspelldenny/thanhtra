@@ -168,8 +168,33 @@ def main() -> int:
     assert_true(cli_prescan_data["schema"] == "thanhtra-pre-scan/v1", "CLI prescan schema mismatch")
     assert_true(cli_prescan_data["fingerprint_sha256"] == data["fingerprint_sha256"], "CLI prescan evidence mismatch")
 
+    validate_triage_build(data)
+
     print("Pre-scan validation passed.")
     return 0
+
+
+def validate_triage_build(evidence: dict) -> None:
+    """Triage request/schema must build correctly offline (no network/API key)."""
+    spec = importlib.util.spec_from_file_location(
+        "thanhtra_core_triage", ROOT / "thanhtra" / "core" / "triage.py"
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+    assert_true(len(module.ALL_RULES) == 22, "triage should know 22 rules")
+    assert_true(module.CRITICAL_RULES <= set(module.ALL_RULES), "critical rules must be a subset")
+    assert_true("PROMPT-INJECTION" in module.ALL_RULES, "rule #22 missing from triage")
+    json.dumps(module.TRIAGE_SCHEMA)  # schema must be JSON-serializable
+
+    body = module.build_request_body(evidence, module.DEFAULT_MODEL)
+    assert_true(body["model"] == "claude-opus-4-8", "triage default model mismatch")
+    assert_true(body["thinking"] == {"type": "adaptive"}, "triage must use adaptive thinking")
+    assert_true(
+        body["output_config"]["format"]["type"] == "json_schema",
+        "triage must request structured output",
+    )
+    assert_true("hotspots_by_rule" in body["messages"][0]["content"], "triage must send evidence")
 
 
 if __name__ == "__main__":

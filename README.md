@@ -143,10 +143,23 @@ thanhtra scan /path/to/repo --json
 thanhtra scan /path/to/repo --json --output /tmp/thanhtra-scan.json
 thanhtra scan /path/to/repo --json --no-audit
 thanhtra prescan --root . --output .thanhtra-pre-scan.json   # raw evidence, what agent skills consume
-Thanh Tra scan /path/to/repo --json                         # backward-compatible alias
+thanhtra scan /path/to/repo --json --triage                  # add LLM verdict (needs ANTHROPIC_API_KEY)
 ```
 
-`scan` emits `schema: "thanhtra-scan/v1"` with `legacy_schema: "Thanh Tra-scan/v1"`, a compact summary, and raw `evidence`. `prescan` emits the raw evidence document (`thanhtra-pre-scan/v1`) that agent skills read before LLM reasoning. Both are intentionally mechanical: dependency audit, secret masking, Docker exposure checks, file classification, and hotspot collection — the CLI is the single source of truth; the script bundled inside the skill is only a fallback wrapper for machines without the CLI on PATH.
+`scan` emits `schema: "thanhtra-scan/v1"`, a compact summary, and raw `evidence`. `prescan` emits the raw evidence document (`thanhtra-pre-scan/v1`) that agent skills read before LLM reasoning. Both are intentionally mechanical: dependency audit, secret masking, Docker exposure checks, file classification, and hotspot collection — the CLI is the single source of truth; the script bundled inside the skill is only a fallback wrapper for machines without the CLI on PATH.
+
+### Optional LLM triage (headless verdict)
+
+`scan --triage` (or the standalone `thanhtra triage`) reasons over the mechanical evidence with an LLM — removing false positives, mapping findings to rules, and producing a `PASS`/`WARN`/`FAIL` verdict — without opening an agent. This is what makes Thanh Tra usable in CI or a cron job, where no one is around to run the `/thanhtra` skill interactively.
+
+```bash
+export ANTHROPIC_API_KEY=...                       # required
+thanhtra scan . --json --triage                    # mechanical evidence + verdict in one document
+thanhtra prescan --root . | thanhtra triage --evidence -   # triage evidence from stdin
+THANHTRA_TRIAGE_MODEL=claude-opus-4-8 thanhtra scan . --triage   # override model (this is the default)
+```
+
+The triage layer is **optional and pluggable**: it defaults to the Anthropic Claude API (model `claude-opus-4-8`), uses the `anthropic` SDK if installed and a stdlib HTTP call otherwise (so the CLI stays zero-install), and degrades gracefully — without a key, `scan --triage` still emits the full mechanical evidence and notes `triage_error`. Provider is selected via `THANHTRA_TRIAGE_PROVIDER` (currently `anthropic`).
 
 ## Vulnerabilities Thanh Tra detects
 
@@ -192,8 +205,9 @@ The list currently contains 22 rules and will continue to expand.
 - v0.4 — Python specialization (SQLAlchemy/Django ORM SQLi, pickle/yaml deserialization RCE, Werkzeug debugger, FastAPI/Flask/Django CSRF + CORS, PyJWT algorithms, subprocess shell=True) ✅
 - v0.5 — Multi-platform support: OpenAI Codex CLI + Google Antigravity (sequential LARGE mode, shared rule set, `install.sh` + `sync-skills.sh`) ✅
 - v0.6 — Thanh Tra CLI-first deterministic evidence: `bin/thanhtra scan --json`, dependency audit parsing, audit gaps, file classification ✅
-- v0.7 (current) — Rule #22 PROMPT-INJECTION for LLM/agent apps (direct + context-poisoning); report header records the inspector (model identity) for cross-run comparison ✅
-- v0.8+ — Ruby, Java, Rust overlays; SARIF/GitHub Action; optional LLM triage provider
+- v0.7 — Rule #22 PROMPT-INJECTION for LLM/agent apps (direct + context-poisoning); report header records the inspector (model identity) for cross-run comparison ✅
+- v0.8 (current) — Optional LLM triage provider: `scan --triage` / `thanhtra triage` reasons over the evidence headless (false-positive removal, rule mapping, PASS/WARN/FAIL verdict) via the Claude API, SDK-or-stdlib, pluggable provider ✅
+- v0.9+ — Ruby, Java, Rust overlays; OpenAI / other triage providers; SARIF + GitHub Action (CI gate)
 
 ## Disclaimer
 

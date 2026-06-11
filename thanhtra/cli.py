@@ -10,6 +10,7 @@ from pathlib import Path
 
 from thanhtra import __version__
 from thanhtra.core.prescan import build_evidence
+from thanhtra.core.triage import TriageError, triage as run_triage
 
 
 def hotspot_counts(evidence: dict) -> dict[str, int]:
@@ -53,6 +54,16 @@ def scan(args: argparse.Namespace) -> int:
         no_audit=args.no_audit,
     )
     document = build_scan_document(args, evidence)
+    if getattr(args, "triage", False):
+        # Triage is best-effort: a failure must not lose the mechanical evidence.
+        try:
+            document["triage"] = run_triage(
+                evidence, provider=args.triage_provider, model=args.triage_model
+            )
+            document["summary"]["verdict"] = document["triage"].get("verdict")
+        except TriageError as exc:
+            document["triage_error"] = str(exc)
+            print(f"thanhtra: triage skipped: {exc}", file=sys.stderr)
     output = json.dumps(document, ensure_ascii=False, indent=None if args.compact else 2)
     if args.output:
         output_path = Path(args.output)
@@ -61,6 +72,22 @@ def scan(args: argparse.Namespace) -> int:
         output_path.write_text(output + "\n", encoding="utf-8")
     if args.json or not args.output:
         sys.stdout.write(output + "\n")
+    return 0
+
+
+def triage_cmd(args: argparse.Namespace) -> int:
+    if args.evidence and args.evidence != "-":
+        evidence = json.loads(Path(args.evidence).read_text(encoding="utf-8"))
+    elif not sys.stdin.isatty():
+        evidence = json.loads(sys.stdin.read())
+    else:
+        # No evidence supplied: run a pre-scan on --root first.
+        evidence = build_evidence(Path(args.root), no_audit=args.no_audit)
+    # A scan document wraps evidence under "evidence"; accept either shape.
+    if "hotspots_by_rule" not in evidence and isinstance(evidence.get("evidence"), dict):
+        evidence = evidence["evidence"]
+    document = run_triage(evidence, provider=args.triage_provider, model=args.triage_model)
+    sys.stdout.write(json.dumps(document, ensure_ascii=False, indent=2) + "\n")
     return 0
 
 
@@ -96,7 +123,27 @@ def build_parser(prog: str = "thanhtra") -> argparse.ArgumentParser:
     scan_parser.add_argument("--no-audit", action="store_true", help="skip dependency audit commands")
     scan_parser.add_argument("--max-per-rule", type=int, default=80)
     scan_parser.add_argument("--max-secrets", type=int, default=100)
+    scan_parser.add_argument(
+        "--triage",
+        action="store_true",
+        help="reason over the evidence with an LLM (needs ANTHROPIC_API_KEY) "
+        "to produce a verdict + findings, not just mechanical evidence",
+    )
+    scan_parser.add_argument("--triage-model", help="override triage model (default claude-opus-4-8)")
+    scan_parser.add_argument("--triage-provider", help="triage provider (default anthropic)")
     scan_parser.set_defaults(func=scan)
+
+    triage_parser = subparsers.add_parser(
+        "triage", help="LLM-triage existing evidence into a verdict (needs ANTHROPIC_API_KEY)"
+    )
+    triage_parser.add_argument(
+        "--evidence", help="path to a prescan/scan JSON file, or '-' for stdin"
+    )
+    triage_parser.add_argument("--root", default=".", help="repo to pre-scan if no --evidence given")
+    triage_parser.add_argument("--no-audit", action="store_true", help="skip dependency audit when pre-scanning")
+    triage_parser.add_argument("--triage-model", help="override triage model (default claude-opus-4-8)")
+    triage_parser.add_argument("--triage-provider", help="triage provider (default anthropic)")
+    triage_parser.set_defaults(func=triage_cmd)
 
     prescan_parser = subparsers.add_parser(
         "prescan", help="emit raw pre-scan evidence JSON (thanhtra-pre-scan/v1)"
