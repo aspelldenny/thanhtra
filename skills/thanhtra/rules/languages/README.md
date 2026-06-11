@@ -35,16 +35,29 @@ rules/
     │   ├── 15-cors-misconfig.md
     │   ├── 17-verbose-error-debug-mode.md
     │   └── 21-command-injection.md
-    └── python/
-        ├── 02-sql-injection.md        (applies_to: python — .py .pyw)
-        ├── 07-mass-assignment.md
+    ├── python/
+    │   ├── 02-sql-injection.md        (applies_to: python — .py .pyw)
+    │   ├── 07-mass-assignment.md
+    │   ├── 08-insecure-deserialization.md
+    │   ├── 09-ssrf.md
+    │   ├── 11-csrf.md
+    │   ├── 14-jwt-none-algorithm.md
+    │   ├── 15-cors-misconfig.md
+    │   ├── 17-verbose-error-debug-mode.md
+    │   └── 21-command-injection.md
+    ├── rust/
+    │   ├── 02-sql-injection.md        (applies_to: rust)
+    │   ├── 09-ssrf.md
+    │   ├── 10-path-traversal.md
+    │   ├── 17-verbose-error-debug-mode.md
+    │   └── 21-command-injection.md
+    └── swift/
+        ├── 01-hardcoded-secret.md     (applies_to: swift)
+        ├── 02-sql-injection.md
+        ├── 03-xss.md
         ├── 08-insecure-deserialization.md
         ├── 09-ssrf.md
-        ├── 11-csrf.md
-        ├── 14-jwt-none-algorithm.md
-        ├── 15-cors-misconfig.md
-        ├── 17-verbose-error-debug-mode.md
-        └── 21-command-injection.md
+        └── 15-cors-misconfig.md
 ```
 
 **Matching is by frontmatter `id`, not filename.** Filename numeric prefix is convention only, to aid navigation. If `rules/languages/go/02-sql-injection.md` has `id: SQL-INJECTION`, it overrides `rules/generic/02-sql-injection.md` (also `id: SQL-INJECTION`) when scanning a Go repo.
@@ -68,8 +81,10 @@ See `references/language-detection.md` for the detection heuristic. In short:
 | PHP | `php/` | 5 | Stable (v0.1) |
 | TypeScript/JavaScript | `typescript/` | 10 | Stable (v0.2) — includes both `.ts` and `.js` files |
 | Python | `python/` | 9 | Stable (v0.4) — `.py` and `.pyw` |
+| Rust | `rust/` | 5 | Stable (v0.10) |
+| Swift | `swift/` | 6 | Stable (v0.11) — iOS/macOS apps + Vapor server-side |
 
-**Phase v0.5+** (planned): Ruby, Rust, Java/Kotlin.
+Ruby and Java overlays are intentionally skipped (generic rules still apply) — revisit on real demand.
 
 ## Why specialize?
 

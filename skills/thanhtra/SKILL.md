@@ -6,7 +6,7 @@ userInvocable: true
 
 # Thanh Tra — Security Scanner cho Vibe Coders
 
-Quét lỗ hổng bảo mật cho code do AI sinh ra (vibe code). Thanh Tra kế thừa bộ rule MIT từ vbsec upstream, giữ credit tác giả gốc, và bổ sung CLI/core deterministic để agent bớt phụ thuộc reasoning cơ học. Bộ skill này check 22 lỗi bảo mật phổ biến nhất của vibe code, kế thừa kiến trúc SMALL/LARGE mode từ bộ rule production của SePay, tổng quát hóa cross-language (mặc định) + chuyên sâu cho Go/PHP (phase 1).
+Quét lỗ hổng bảo mật cho code do AI sinh ra (vibe code). Thanh Tra kế thừa bộ rule MIT từ vbsec upstream, giữ credit tác giả gốc, và bổ sung CLI/core deterministic để agent bớt phụ thuộc reasoning cơ học. Bộ skill này check 22 lỗi bảo mật phổ biến nhất của vibe code, kế thừa kiến trúc SMALL/LARGE mode từ bộ rule production của SePay, tổng quát hóa cross-language (mặc định) + chuyên sâu cho Go/PHP/TypeScript/Python/Rust/Swift.
 
 > Repo: https://github.com/aspelldenny/thanhtra
 > License: MIT (sẽ chốt khi public)
@@ -263,7 +263,7 @@ File i18n chứa bảng key→text cho toàn bộ user-facing strings (section h
 3. Có `rules/languages/<lang>/` → load overlay; không có → chỉ dùng generic
 4. Multi-lang repo (cả Go backend + Vue frontend) → load cả 2 overlay
 
-**Hiện hỗ trợ chuyên sâu:** `go`, `php`, `typescript` (gộp JS+TS), `python`. Các lang khác chỉ dùng generic rules.
+**Hiện hỗ trợ chuyên sâu:** `go`, `php`, `typescript` (gộp JS+TS), `python`, `rust`, `swift`. Các lang khác chỉ dùng generic rules.
 
 ---
 

@@ -40,17 +40,23 @@ VENDORED_PARTS = {
     "target",
     "__pycache__",
     "thanhtra-reports",
+    "Pods",
+    "Carthage",
+    "DerivedData",
+    ".build",
 }
 
 TEXT_SUFFIXES = {
     ".py", ".pyw", ".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs",
     ".go", ".php", ".phtml", ".rb", ".java", ".rs", ".cs", ".kt", ".kts",
+    ".swift", ".plist", ".xcconfig", ".entitlements",
     ".json", ".yaml", ".yml", ".toml", ".env", ".ini", ".cfg", ".conf",
     ".sh", ".bash", ".zsh", ".sql", ".md", ".txt", ".dockerfile",
 }
 
 DOC_SUFFIXES = {".md", ".mdx", ".rst", ".adoc", ".txt"}
-CONFIG_SUFFIXES = {".json", ".yaml", ".yml", ".toml", ".ini", ".cfg", ".conf"}
+CONFIG_SUFFIXES = {".json", ".yaml", ".yml", ".toml", ".ini", ".cfg", ".conf",
+                   ".plist", ".xcconfig", ".entitlements"}
 SCRIPT_SUFFIXES = {".sh", ".bash", ".zsh", ".sql"}
 
 LANG_EXTS = {
@@ -61,6 +67,7 @@ LANG_EXTS = {
     "ruby": {".rb"},
     "java": {".java"},
     "rust": {".rs"},
+    "swift": {".swift"},
     "csharp": {".cs"},
     "kotlin": {".kt", ".kts"},
 }
@@ -72,6 +79,7 @@ DEPENDENCY_FILES = {
     "requirements.txt", "pyproject.toml", "poetry.lock", "Pipfile.lock",
     "go.mod", "go.sum", "composer.json", "composer.lock", "Gemfile.lock",
     "Cargo.toml", "Cargo.lock",
+    "Package.swift", "Package.resolved", "Podfile", "Podfile.lock",
 }
 
 SECRET_PATTERNS = [
