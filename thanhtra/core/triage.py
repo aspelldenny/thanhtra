@@ -9,10 +9,13 @@ that reasoning. This module lets the CLI call an LLM directly instead, so a
 full triaged verdict is available headless — in CI, a cron job, or a plain
 terminal — without opening an agent.
 
-Provider model:
-- "anthropic" (default): calls the Claude Messages API. Uses the official
-  ``anthropic`` SDK if installed; otherwise falls back to a stdlib ``urllib``
-  call so the CLI keeps its zero-dependency install.
+Providers:
+- "anthropic" (default): Claude Messages API. Uses the official ``anthropic``
+  SDK if installed; otherwise a stdlib ``urllib`` call (zero-dependency).
+- "openai": any OpenAI-compatible ``/chat/completions`` endpoint. One adapter
+  covers OpenAI, OpenRouter, Groq, Together, DeepSeek, and local servers
+  (Ollama, LM Studio, vLLM) — just point ``THANHTRA_TRIAGE_BASE_URL`` at the
+  server and set the model. Always a stdlib ``urllib`` call.
 
 The triage is OPTIONAL. Without an API key the CLI still emits mechanical
 evidence exactly as before.
@@ -25,9 +28,10 @@ import os
 import urllib.error
 import urllib.request
 
-DEFAULT_MODEL = "claude-opus-4-8"
+DEFAULT_MODEL = "claude-opus-4-8"  # anthropic default; openai requires an explicit model
 ANTHROPIC_URL = "https://api.anthropic.com/v1/messages"
 ANTHROPIC_VERSION = "2023-06-01"
+OPENAI_DEFAULT_BASE_URL = "https://api.openai.com/v1"
 REQUEST_TIMEOUT = 600  # triage reasoning on a large repo can run minutes
 
 # Severity a finding of each rule may receive (mirrors the skill's rule corpus).
@@ -150,11 +154,16 @@ def build_messages(evidence: dict, *, max_hotspots: int = 400) -> list[dict]:
     return [{"role": "user", "content": text}]
 
 
+def system_text() -> str:
+    return SYSTEM_PROMPT.format(critical_rules=", ".join(sorted(CRITICAL_RULES)))
+
+
 def build_request_body(evidence: dict, model: str) -> dict:
+    """Anthropic Messages API request body."""
     return {
         "model": model,
         "max_tokens": 16000,
-        "system": SYSTEM_PROMPT.format(critical_rules=", ".join(sorted(CRITICAL_RULES))),
+        "system": system_text(),
         "thinking": {"type": "adaptive"},
         "output_config": {
             "effort": "high",
@@ -162,6 +171,38 @@ def build_request_body(evidence: dict, model: str) -> dict:
         },
         "messages": build_messages(evidence),
     }
+
+
+def build_openai_body(evidence: dict, model: str, *, structured: bool = True) -> dict:
+    """OpenAI-compatible /chat/completions request body.
+
+    structured=True requests a strict json_schema response_format; some
+    OpenAI-compatible servers don't support it, so the caller retries with
+    structured=False (plain json_object + a schema instruction in the prompt).
+    """
+    user = build_messages(evidence)[0]["content"]
+    system = system_text()
+    body: dict = {
+        "model": model,
+        "max_tokens": 16000,
+        "messages": [
+            {"role": "system", "content": system},
+            {"role": "user", "content": user},
+        ],
+    }
+    if structured:
+        body["response_format"] = {
+            "type": "json_schema",
+            "json_schema": {"name": "thanhtra_triage", "schema": TRIAGE_SCHEMA, "strict": True},
+        }
+    else:
+        body["response_format"] = {"type": "json_object"}
+        body["messages"][0]["content"] = (
+            system
+            + "\n\nReturn ONLY a JSON object matching this schema (no prose, no code fences):\n"
+            + json.dumps(TRIAGE_SCHEMA)
+        )
+    return body
 
 
 class TriageError(RuntimeError):
@@ -215,7 +256,64 @@ def _call_anthropic_http(body: dict, api_key: str) -> dict:
     return json.loads(_first_text_block(data.get("content", [])))
 
 
-def triage(evidence: dict, *, provider: str | None = None, model: str | None = None) -> dict:
+def _loads_lenient(text: str) -> dict:
+    """Parse JSON that may be wrapped in ``` fences (some compatible servers)."""
+    text = text.strip()
+    if text.startswith("```"):
+        text = text.split("\n", 1)[-1] if "\n" in text else text
+        if text.endswith("```"):
+            text = text[: text.rfind("```")]
+        text = text.lstrip("json").strip() if text.lstrip().startswith("json") else text
+    return json.loads(text)
+
+
+def _post_json(url: str, body: dict, headers: dict) -> dict:
+    request = urllib.request.Request(
+        url, data=json.dumps(body).encode("utf-8"), headers=headers, method="POST"
+    )
+    with urllib.request.urlopen(request, timeout=REQUEST_TIMEOUT) as resp:
+        return json.loads(resp.read().decode("utf-8"))
+
+
+def _call_openai_http(evidence: dict, model: str, api_key: str, base_url: str) -> dict:
+    url = base_url.rstrip("/") + "/chat/completions"
+    headers = {"content-type": "application/json", "authorization": f"Bearer {api_key}"}
+
+    def run(structured: bool) -> dict:
+        return _post_json(url, build_openai_body(evidence, model, structured=structured), headers)
+
+    try:
+        data = run(structured=True)
+    except urllib.error.HTTPError as exc:
+        if exc.code == 400:  # server likely rejects strict json_schema → degrade
+            try:
+                data = run(structured=False)
+            except urllib.error.HTTPError as exc2:
+                detail = exc2.read().decode("utf-8", "ignore")
+                raise TriageError(f"OpenAI API error {exc2.code}: {detail}") from exc2
+        else:
+            detail = exc.read().decode("utf-8", "ignore")
+            raise TriageError(f"OpenAI API error {exc.code}: {detail}") from exc
+    except urllib.error.URLError as exc:
+        raise TriageError(f"network error calling {url}: {exc.reason}") from exc
+
+    try:
+        choice = data["choices"][0]
+    except (KeyError, IndexError) as exc:
+        raise TriageError(f"unexpected OpenAI response shape: {json.dumps(data)[:300]}") from exc
+    if choice.get("finish_reason") == "content_filter":
+        raise TriageError("model refused the triage request (content_filter)")
+    content = choice.get("message", {}).get("content") or ""
+    return _loads_lenient(content)
+
+
+def triage(
+    evidence: dict,
+    *,
+    provider: str | None = None,
+    model: str | None = None,
+    base_url: str | None = None,
+) -> dict:
     """Run LLM triage over deterministic evidence. Returns a verdict document.
 
     Raises TriageError if the provider is unknown, the API key is missing, or
@@ -223,22 +321,40 @@ def triage(evidence: dict, *, provider: str | None = None, model: str | None = N
     triage raises.
     """
     provider = provider or os.environ.get("THANHTRA_TRIAGE_PROVIDER", "anthropic")
-    model = model or os.environ.get("THANHTRA_TRIAGE_MODEL", DEFAULT_MODEL)
+    model = model or os.environ.get("THANHTRA_TRIAGE_MODEL")
 
-    if provider != "anthropic":
-        raise TriageError(f"unknown triage provider: {provider!r} (only 'anthropic' supported)")
+    if provider == "anthropic":
+        api_key = os.environ.get("ANTHROPIC_API_KEY")
+        if not api_key:
+            raise TriageError(
+                "ANTHROPIC_API_KEY not set — triage needs an API key. "
+                "Run without --triage for mechanical evidence only."
+            )
+        model = model or DEFAULT_MODEL
+        body = build_request_body(evidence, model)
+        result = _call_anthropic_sdk(body, api_key)
+        if result is None:  # SDK not installed → stdlib fallback
+            result = _call_anthropic_http(body, api_key)
 
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
-    if not api_key:
+    elif provider == "openai":
+        # No hardcoded default — OpenAI-compatible model IDs vary per server.
+        if not model:
+            raise TriageError(
+                "openai provider needs a model — set --triage-model or "
+                "THANHTRA_TRIAGE_MODEL (e.g. gpt-5.1, or an OpenRouter model id)."
+            )
+        api_key = os.environ.get("THANHTRA_TRIAGE_API_KEY") or os.environ.get("OPENAI_API_KEY")
+        if not api_key:
+            raise TriageError(
+                "OPENAI_API_KEY (or THANHTRA_TRIAGE_API_KEY) not set — triage needs an API key."
+            )
+        base_url = base_url or os.environ.get("THANHTRA_TRIAGE_BASE_URL", OPENAI_DEFAULT_BASE_URL)
+        result = _call_openai_http(evidence, model, api_key, base_url)
+
+    else:
         raise TriageError(
-            "ANTHROPIC_API_KEY not set — triage needs an API key. "
-            "Run without --triage for mechanical evidence only."
+            f"unknown triage provider: {provider!r} (supported: 'anthropic', 'openai')"
         )
-
-    body = build_request_body(evidence, model)
-    result = _call_anthropic_sdk(body, api_key)
-    if result is None:  # SDK not installed → stdlib fallback
-        result = _call_anthropic_http(body, api_key)
 
     result["provider"] = provider
     result["model"] = model

@@ -153,13 +153,26 @@ thanhtra scan /path/to/repo --json --triage                  # thêm verdict LLM
 `scan --triage` (hoặc subcommand `thanhtra triage`) cho LLM reasoning trên evidence cơ học — loại false positive, map finding về rule, và ra verdict `PASS`/`WARN`/`FAIL` — mà không cần mở agent. Đây chính là thứ giúp Thanh Tra chạy được trong CI hoặc cron, nơi không ai ngồi gõ `/thanhtra` thủ công.
 
 ```bash
-export ANTHROPIC_API_KEY=...                       # bắt buộc
+# Anthropic (mặc định)
+export ANTHROPIC_API_KEY=...
 thanhtra scan . --json --triage                    # evidence cơ học + verdict trong một document
 thanhtra prescan --root . | thanhtra triage --evidence -   # triage evidence từ stdin
-THANHTRA_TRIAGE_MODEL=claude-opus-4-8 thanhtra scan . --triage   # override model (đây là default)
+
+# OpenAI — hoặc bất kỳ endpoint OpenAI-compatible nào
+export OPENAI_API_KEY=...
+thanhtra scan . --triage --triage-provider openai --triage-model gpt-5.1
+
+# OpenRouter / Groq / Together / Ollama local — cùng adapter, khác base URL
+thanhtra scan . --triage --triage-provider openai \
+  --triage-base-url https://openrouter.ai/api/v1 --triage-model anthropic/claude-opus-4
 ```
 
-Tầng triage **tùy chọn và pluggable**: default dùng Anthropic Claude API (model `claude-opus-4-8`), dùng SDK `anthropic` nếu có sẵn còn không thì gọi HTTP bằng stdlib (giữ CLI zero-install), và degrade nhẹ nhàng — không có key thì `scan --triage` vẫn xuất đầy đủ evidence cơ học và ghi `triage_error`. Chọn provider qua `THANHTRA_TRIAGE_PROVIDER` (hiện có `anthropic`).
+Tầng triage **tùy chọn và pluggable**, có 2 provider:
+
+- **`anthropic`** (mặc định) — Claude Messages API, model `claude-opus-4-8`. Dùng SDK `anthropic` nếu có, không thì gọi HTTP stdlib (giữ CLI zero-install).
+- **`openai`** — bất kỳ endpoint OpenAI-compatible `/chat/completions` nào. Một adapter phủ OpenAI, OpenRouter, Groq, Together, DeepSeek, và server local (Ollama, LM Studio, vLLM) — đặt `--triage-base-url` (hoặc `THANHTRA_TRIAGE_BASE_URL`) và `--triage-model`. Key từ `OPENAI_API_KEY` (hoặc `THANHTRA_TRIAGE_API_KEY`). Xin strict JSON-schema, fallback JSON thuần cho server không hỗ trợ.
+
+Chọn qua `--triage-provider` / `THANHTRA_TRIAGE_PROVIDER`. Triage degrade nhẹ nhàng — không có key thì `scan --triage` vẫn xuất đầy đủ evidence cơ học và ghi `triage_error`.
 
 ## Các lỗ hổng Thanh Tra phát hiện
 
@@ -206,8 +219,9 @@ Danh sách hiện tại có 21 quy tắc và sẽ tiếp tục mở rộng.
 - v0.5 — Hỗ trợ đa nền tảng: OpenAI Codex CLI + Google Antigravity (sequential LARGE mode, chia sẻ bộ rule, `install.sh` + `sync-skills.sh`) ✅
 - v0.6 — Thanh Tra CLI-first deterministic evidence: `bin/thanhtra scan --json`, parse dependency audit, audit gaps, phân loại file ✅
 - v0.7 — Rule #22 PROMPT-INJECTION cho app LLM/agent (direct + context-poisoning); header báo cáo ghi thanh tra viên (model) để so sánh giữa các lần scan ✅
-- v0.8 (hiện tại) — Tầng LLM triage tùy chọn: `scan --triage` / `thanhtra triage` cho LLM reasoning headless trên evidence (loại false positive, map rule, verdict PASS/WARN/FAIL) qua Claude API, SDK-hoặc-stdlib, provider pluggable ✅
-- v0.9+ — Overlay Ruby, Java, Rust; provider triage OpenAI / khác; SARIF + GitHub Action (CI gate)
+- v0.8 — Tầng LLM triage tùy chọn: `scan --triage` / `thanhtra triage` cho LLM reasoning headless trên evidence (loại false positive, map rule, verdict PASS/WARN/FAIL) qua Claude API, SDK-hoặc-stdlib ✅
+- v0.9 (hiện tại) — Provider triage `openai`: một adapter OpenAI-compatible phủ OpenAI, OpenRouter, Groq, Together, DeepSeek, và server local (Ollama/LM Studio/vLLM) qua `--triage-base-url` ✅
+- v1.0+ — Overlay Rust; SARIF + GitHub Action (CI gate)
 
 ## Miễn trừ trách nhiệm
 

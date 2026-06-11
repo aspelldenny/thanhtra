@@ -153,13 +153,26 @@ thanhtra scan /path/to/repo --json --triage                  # add LLM verdict (
 `scan --triage` (or the standalone `thanhtra triage`) reasons over the mechanical evidence with an LLM — removing false positives, mapping findings to rules, and producing a `PASS`/`WARN`/`FAIL` verdict — without opening an agent. This is what makes Thanh Tra usable in CI or a cron job, where no one is around to run the `/thanhtra` skill interactively.
 
 ```bash
-export ANTHROPIC_API_KEY=...                       # required
+# Anthropic (default)
+export ANTHROPIC_API_KEY=...
 thanhtra scan . --json --triage                    # mechanical evidence + verdict in one document
 thanhtra prescan --root . | thanhtra triage --evidence -   # triage evidence from stdin
-THANHTRA_TRIAGE_MODEL=claude-opus-4-8 thanhtra scan . --triage   # override model (this is the default)
+
+# OpenAI — or any OpenAI-compatible endpoint
+export OPENAI_API_KEY=...
+thanhtra scan . --triage --triage-provider openai --triage-model gpt-5.1
+
+# OpenRouter / Groq / Together / local Ollama — same adapter, different base URL
+thanhtra scan . --triage --triage-provider openai \
+  --triage-base-url https://openrouter.ai/api/v1 --triage-model anthropic/claude-opus-4
 ```
 
-The triage layer is **optional and pluggable**: it defaults to the Anthropic Claude API (model `claude-opus-4-8`), uses the `anthropic` SDK if installed and a stdlib HTTP call otherwise (so the CLI stays zero-install), and degrades gracefully — without a key, `scan --triage` still emits the full mechanical evidence and notes `triage_error`. Provider is selected via `THANHTRA_TRIAGE_PROVIDER` (currently `anthropic`).
+The triage layer is **optional and pluggable**, with two providers:
+
+- **`anthropic`** (default) — Claude Messages API, model `claude-opus-4-8`. Uses the `anthropic` SDK if installed, else a stdlib HTTP call (so the CLI stays zero-install).
+- **`openai`** — any OpenAI-compatible `/chat/completions` endpoint. One adapter covers OpenAI, OpenRouter, Groq, Together, DeepSeek, and local servers (Ollama, LM Studio, vLLM) — set `--triage-base-url` (or `THANHTRA_TRIAGE_BASE_URL`) and a `--triage-model`. Key from `OPENAI_API_KEY` (or `THANHTRA_TRIAGE_API_KEY`). It requests strict JSON-schema output and falls back to plain JSON for servers that don't support it.
+
+Select via `--triage-provider` / `THANHTRA_TRIAGE_PROVIDER`. Triage degrades gracefully — without a key, `scan --triage` still emits the full mechanical evidence and notes `triage_error`.
 
 ## Vulnerabilities Thanh Tra detects
 
@@ -206,8 +219,9 @@ The list currently contains 22 rules and will continue to expand.
 - v0.5 — Multi-platform support: OpenAI Codex CLI + Google Antigravity (sequential LARGE mode, shared rule set, `install.sh` + `sync-skills.sh`) ✅
 - v0.6 — Thanh Tra CLI-first deterministic evidence: `bin/thanhtra scan --json`, dependency audit parsing, audit gaps, file classification ✅
 - v0.7 — Rule #22 PROMPT-INJECTION for LLM/agent apps (direct + context-poisoning); report header records the inspector (model identity) for cross-run comparison ✅
-- v0.8 (current) — Optional LLM triage provider: `scan --triage` / `thanhtra triage` reasons over the evidence headless (false-positive removal, rule mapping, PASS/WARN/FAIL verdict) via the Claude API, SDK-or-stdlib, pluggable provider ✅
-- v0.9+ — Ruby, Java, Rust overlays; OpenAI / other triage providers; SARIF + GitHub Action (CI gate)
+- v0.8 — Optional LLM triage: `scan --triage` / `thanhtra triage` reasons over the evidence headless (false-positive removal, rule mapping, PASS/WARN/FAIL verdict) via the Claude API, SDK-or-stdlib ✅
+- v0.9 (current) — `openai` triage provider: one OpenAI-compatible adapter covers OpenAI, OpenRouter, Groq, Together, DeepSeek, and local servers (Ollama/LM Studio/vLLM) via `--triage-base-url` ✅
+- v1.0+ — Rust overlay; SARIF + GitHub Action (CI gate)
 
 ## Disclaimer
 

@@ -196,6 +196,16 @@ def validate_triage_build(evidence: dict) -> None:
     )
     assert_true("hotspots_by_rule" in body["messages"][0]["content"], "triage must send evidence")
 
+    ob = module.build_openai_body(evidence, "test-model", structured=True)
+    assert_true(ob["messages"][0]["role"] == "system", "openai body needs system message")
+    assert_true(
+        ob["response_format"]["json_schema"]["strict"] is True,
+        "openai structured body must request strict json_schema",
+    )
+    od = module.build_openai_body(evidence, "test-model", structured=False)
+    assert_true(od["response_format"] == {"type": "json_object"}, "openai fallback shape mismatch")
+    assert_true(module._loads_lenient('```json\n{"x":1}\n```') == {"x": 1}, "lenient JSON parse failed")
+
 
 if __name__ == "__main__":
     raise SystemExit(main())

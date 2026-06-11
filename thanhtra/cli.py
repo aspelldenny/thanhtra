@@ -58,7 +58,10 @@ def scan(args: argparse.Namespace) -> int:
         # Triage is best-effort: a failure must not lose the mechanical evidence.
         try:
             document["triage"] = run_triage(
-                evidence, provider=args.triage_provider, model=args.triage_model
+                evidence,
+                provider=args.triage_provider,
+                model=args.triage_model,
+                base_url=args.triage_base_url,
             )
             document["summary"]["verdict"] = document["triage"].get("verdict")
         except TriageError as exc:
@@ -86,7 +89,12 @@ def triage_cmd(args: argparse.Namespace) -> int:
     # A scan document wraps evidence under "evidence"; accept either shape.
     if "hotspots_by_rule" not in evidence and isinstance(evidence.get("evidence"), dict):
         evidence = evidence["evidence"]
-    document = run_triage(evidence, provider=args.triage_provider, model=args.triage_model)
+    document = run_triage(
+        evidence,
+        provider=args.triage_provider,
+        model=args.triage_model,
+        base_url=args.triage_base_url,
+    )
     sys.stdout.write(json.dumps(document, ensure_ascii=False, indent=2) + "\n")
     return 0
 
@@ -130,7 +138,8 @@ def build_parser(prog: str = "thanhtra") -> argparse.ArgumentParser:
         "to produce a verdict + findings, not just mechanical evidence",
     )
     scan_parser.add_argument("--triage-model", help="override triage model (default claude-opus-4-8)")
-    scan_parser.add_argument("--triage-provider", help="triage provider (default anthropic)")
+    scan_parser.add_argument("--triage-provider", help="triage provider: anthropic (default) or openai")
+    scan_parser.add_argument("--triage-base-url", help="OpenAI-compatible base URL (e.g. OpenRouter, Ollama)")
     scan_parser.set_defaults(func=scan)
 
     triage_parser = subparsers.add_parser(
@@ -142,7 +151,8 @@ def build_parser(prog: str = "thanhtra") -> argparse.ArgumentParser:
     triage_parser.add_argument("--root", default=".", help="repo to pre-scan if no --evidence given")
     triage_parser.add_argument("--no-audit", action="store_true", help="skip dependency audit when pre-scanning")
     triage_parser.add_argument("--triage-model", help="override triage model (default claude-opus-4-8)")
-    triage_parser.add_argument("--triage-provider", help="triage provider (default anthropic)")
+    triage_parser.add_argument("--triage-provider", help="triage provider: anthropic (default) or openai")
+    triage_parser.add_argument("--triage-base-url", help="OpenAI-compatible base URL (e.g. OpenRouter, Ollama)")
     triage_parser.set_defaults(func=triage_cmd)
 
     prescan_parser = subparsers.add_parser(
