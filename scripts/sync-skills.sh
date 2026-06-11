@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# sync-skills.sh — copy shared content (rules/, references/, workflows/small-review.md)
+# sync-skills.sh — copy shared content (rules/, references/, scripts/, workflows/small-review.md)
 # từ canonical Claude skill sang Codex và Antigravity variants.
 #
 # CHẠY MỖI KHI sửa rule hoặc reference ở canonical.
@@ -10,7 +10,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-CANONICAL="$ROOT/skills/vbs-scan-security"
+CANONICAL="$ROOT/skills/thanhtra"
 
 if [ ! -d "$CANONICAL" ]; then
   echo "❌ Canonical skill not found at $CANONICAL"
@@ -24,13 +24,13 @@ if ! command -v rsync >/dev/null 2>&1; then
 fi
 
 targets=(
-  "$ROOT/skills/codex/vbs-scan-security"
-  "$ROOT/skills/antigravity/vbs-scan-security"
+  "$ROOT/skills/codex/thanhtra"
+  "$ROOT/skills/antigravity/thanhtra"
 )
 
 for target in "${targets[@]}"; do
   echo "→ Syncing to $target"
-  mkdir -p "$target/rules" "$target/references" "$target/workflows"
+  mkdir -p "$target/rules" "$target/references" "$target/scripts" "$target/workflows"
 
   # Sync rules/ (21 generic + language overlays) — identical across platforms
   rsync -a --delete "$CANONICAL/rules/" "$target/rules/"
@@ -38,11 +38,15 @@ for target in "${targets[@]}"; do
   # Sync references/ — identical across platforms
   rsync -a --delete "$CANONICAL/references/" "$target/references/"
 
+  # Sync scripts/ — deterministic evidence collectors, identical across platforms
+  rsync -a --delete --exclude '__pycache__/' --exclude '*.pyc' "$CANONICAL/scripts/" "$target/scripts/"
+
   # Sync small-review.md only (large-review variant differs per platform)
   cp "$CANONICAL/workflows/small-review.md" "$target/workflows/small-review.md"
 
   echo "  ✓ rules/ ($(find "$target/rules" -name '*.md' | wc -l | xargs) files)"
   echo "  ✓ references/ ($(find "$target/references" -name '*.md' | wc -l | xargs) files)"
+  echo "  ✓ scripts/ ($(find "$target/scripts" -type f ! -name '*.pyc' | wc -l | xargs) files)"
   echo "  ✓ workflows/small-review.md"
 done
 

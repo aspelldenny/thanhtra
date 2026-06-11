@@ -1,6 +1,6 @@
-# Contributing to vbsec
+# Contributing to Thanh Tra
 
-Thanks for your interest in vbsec! This guide covers the workflow for adding new rules, language specializations, or improving existing ones.
+Thanks for your interest in Thanh Tra! This guide covers the workflow for adding new rules, language specializations, or improving existing ones.
 
 > Audience: developers comfortable with git + basic security knowledge. You do NOT need to know the Claude Code SDK — the skill is just markdown.
 
@@ -24,23 +24,23 @@ Thanks for your interest in vbsec! This guide covers the workflow for adding new
 
 ```bash
 # Fork the repo on GitHub first, then:
-git clone git@github.com:<your-username>/vbsec.git ~/vbsec-dev
-cd ~/vbsec-dev
-git remote add upstream https://github.com/tanviet12/vbsec.git
+git clone git@github.com:<your-username>/Thanh Tra.git ~/thanhtra-dev
+cd ~/thanhtra-dev
+git remote add upstream https://github.com/aspelldenny/thanhtra.git
 
 # Symlink the skill folder so edits are testable immediately
 mkdir -p ~/.claude/skills
-ln -sfn ~/vbsec-dev/skill ~/.claude/skills/vbs-scan-security
+ln -sfn ~/thanhtra-dev/skill ~/.claude/skills/thanhtra
 
 # Restart Claude Code
 ```
 
-Edit any file under `skill/` → open Claude Code → invoke `/vbs-scan-security` → your change is live (Claude Code reads files fresh on every skill invocation).
+Edit any file under `skill/` → open Claude Code → invoke `/thanhtra` → your change is live (Claude Code reads files fresh on every skill invocation).
 
 **Tip:** Create a separate test repo to dogfood:
 
 ```bash
-mkdir ~/vbsec-test && cd ~/vbsec-test
+mkdir ~/thanhtra-test && cd ~/thanhtra-test
 git init
 # Place unsafe files here to exercise rules
 ```
@@ -262,12 +262,12 @@ All user-facing strings in the report must go through i18n. When you need a new 
 
 ## Testing before you PR
 
-vbsec has no automated test runner yet. Manual testing on two cases:
+Thanh Tra has no automated test runner yet. Manual testing on two cases:
 
 ### Positive case — rule MUST flag
 
 ```bash
-mkdir ~/vbsec-test-positive && cd ~/vbsec-test-positive
+mkdir ~/thanhtra-test-positive && cd ~/thanhtra-test-positive
 git init
 
 # Create an unsafe file for the new rule
@@ -280,14 +280,14 @@ EOF
 git add app.py
 
 # In a Claude Code session in this directory:
-#   /vbs-scan-security staged
+#   /thanhtra staged
 # Report MUST contain CRITICAL with rule COMMAND-INJECTION at app.py:3
 ```
 
 ### Negative case — rule MUST NOT false-positive
 
 ```bash
-mkdir ~/vbsec-test-negative && cd ~/vbsec-test-negative
+mkdir ~/thanhtra-test-negative && cd ~/thanhtra-test-negative
 git init
 
 # Safe version of the same code
@@ -298,7 +298,7 @@ EOF
 
 git add app.py
 
-# /vbs-scan-security staged
+# /thanhtra staged
 # Report MUST have COMMAND-INJECTION in "PASSED CHECKS" (no CRITICAL/HIGH)
 ```
 
@@ -417,4 +417,4 @@ A: They're illustrative for the LLM, NOT commands to execute. The skill uses Cla
 A: No. That table is the source of truth — Claude Code reads SKILL.md to know which rules to apply.
 
 **Q: Any other questions?**
-A: Open an [issue](https://github.com/tanviet12/vbsec/issues) or a discussion on GitHub.
+A: Open an [issue](https://github.com/aspelldenny/thanhtra/issues) or a discussion on GitHub.

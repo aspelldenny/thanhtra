@@ -1,4 +1,4 @@
-# The 21 vbsec Security Rules
+# The 21 Thanh Tra Security Rules
 
 Compact overview of each rule with unsafe/safe examples. For the full reasoning, search patterns, and edge cases, open the corresponding rule file under [`skill/rules/generic/`](../../skill/rules/generic/).
 
@@ -528,7 +528,7 @@ tx.Commit()
 **Severity max:** HIGH
 **Applies to:** all
 
-Packages with known CVEs (`log4j 2.14`, `lodash <4.17.21`, `express <4.17.3`). vbsec doesn't fetch CVE data in real-time — it flags old dependency patterns and recommends `npm audit` / `pip-audit` / `govulncheck`.
+Packages with known CVEs (`log4j 2.14`, `lodash <4.17.21`, `express <4.17.3`). Thanh Tra doesn't fetch CVE data in real-time — it flags old dependency patterns and recommends `npm audit` / `pip-audit` / `govulncheck`.
 
 **Unsafe (package.json):**
 ```json
@@ -576,7 +576,7 @@ subprocess.run(['convert', filename, 'output.png'], check=True)
 
 ## Specializations
 
-Some rules have language-specific overrides that catch idioms more accurately. When vbsec detects the primary language, it loads the matching overlay:
+Some rules have language-specific overrides that catch idioms more accurately. When Thanh Tra detects the primary language, it loads the matching overlay:
 
 | Language | Folder | Overridden rules |
 |---|---|---|

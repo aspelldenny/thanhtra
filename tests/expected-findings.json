@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "description": "Regression expectations for minimal Thanh Tra fixture repositories. These fixtures are for validating rule behavior manually or through a future scan harness.",
+  "cases": [
+    {
+      "name": "positive/hardcoded-secret",
+      "path": "tests/fixtures/positive/hardcoded-secret",
+      "language": "python",
+      "expected_findings": [
+        {
+          "rule_id": "HARDCODED-SECRET",
+          "severity": "CRITICAL",
+          "file": "config.py",
+          "line": 1
+        }
+      ]
+    },
+    {
+      "name": "positive/sql-injection-typescript",
+      "path": "tests/fixtures/positive/sql-injection-typescript",
+      "language": "typescript",
+      "expected_findings": [
+        {
+          "rule_id": "SQL-INJECTION",
+          "severity": "CRITICAL",
+          "file": "pages/api/users.ts",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "name": "positive/idor-typescript",
+      "path": "tests/fixtures/positive/idor-typescript",
+      "language": "typescript",
+      "expected_findings": [
+        {
+          "rule_id": "IDOR",
+          "severity": "HIGH",
+          "file": "app/api/orders/[id]/route.ts",
+          "line": 5
+        }
+      ]
+    },
+    {
+      "name": "positive/race-condition-typescript",
+      "path": "tests/fixtures/positive/race-condition-typescript",
+      "language": "typescript",
+      "expected_findings": [
+        {
+          "rule_id": "RACE-CONDITION",
+          "severity": "HIGH",
+          "file": "app/api/credits/spend/route.ts",
+          "line": 12
+        }
+      ]
+    },
+    {
+      "name": "positive/command-injection-python",
+      "path": "tests/fixtures/positive/command-injection-python",
+      "language": "python",
+      "expected_findings": [
+        {
+          "rule_id": "COMMAND-INJECTION",
+          "severity": "CRITICAL",
+          "file": "app.py",
+          "line": 10
+        }
+      ]
+    },
+    {
+      "name": "negative/hardcoded-secret",
+      "path": "tests/fixtures/negative/hardcoded-secret",
+      "language": "python",
+      "expected_findings": []
+    },
+    {
+      "name": "negative/sql-injection-typescript",
+      "path": "tests/fixtures/negative/sql-injection-typescript",
+      "language": "typescript",
+      "expected_findings": []
+    },
+    {
+      "name": "negative/idor-typescript",
+      "path": "tests/fixtures/negative/idor-typescript",
+      "language": "typescript",
+      "expected_findings": []
+    },
+    {
+      "name": "negative/race-condition-typescript",
+      "path": "tests/fixtures/negative/race-condition-typescript",
+      "language": "typescript",
+      "expected_findings": []
+    },
+    {
+      "name": "negative/command-injection-python",
+      "path": "tests/fixtures/negative/command-injection-python",
+      "language": "python",
+      "expected_findings": []
+    }
+  ]
+}

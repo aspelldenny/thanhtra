@@ -7,10 +7,15 @@
 *.swp
 *~
 
-# vbsec runtime tmp (when scanning user repos)
-.vbsec-tmp/
+# Python
+__pycache__/
+*.pyc
 
-# Source repo used for porting rules (not part of public vbsec)
+# Thanh Tra runtime tmp (when scanning user repos)
+.Thanh Tra-tmp/
+thanhtra-reports/
+
+# Source repo used for porting rules (not part of public Thanh Tra)
 sepay-wiki-bot/
 
 # Plans / WIP notes

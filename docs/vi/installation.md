@@ -1,6 +1,6 @@
-# Cài đặt vbsec
+# Cài đặt Thanh Tra
 
-> vbsec là một skill của Claude Code. Cài bằng 2 lệnh.
+> Thanh Tra là một skill của Claude Code. Cài bằng 2 lệnh.
 
 ---
 
@@ -20,7 +20,7 @@
 ## Yêu cầu
 
 - **Claude Code** đã cài (CLI hoặc desktop)
-- **Một git repository** để scan (vbsec dùng `git` để gather danh sách file theo scope)
+- **Một git repository** để scan (Thanh Tra dùng `git` để gather danh sách file theo scope)
 - **`gh` CLI** (tùy chọn) — chỉ cần nếu muốn scan PR bằng scope `pr id <n>`
 
 Kiểm tra nhanh:
@@ -38,17 +38,25 @@ gh --version        # (Tùy chọn) cho scope pr id
 Chạy 2 lệnh sau trong terminal (ngoài Claude Code):
 
 ```bash
-git clone https://github.com/tanviet12/vbsec ~/vbsec
-ln -sfn ~/vbsec/skills/vbs-scan-security ~/.claude/skills/vbs-scan-security
+git clone https://github.com/aspelldenny/thanhtra ~/thanhtra
+ln -sfn ~/thanhtra/skills/thanhtra ~/.claude/skills/thanhtra
 ```
 
 Giải thích từng lệnh:
 
-1. **`git clone`** — tải repository vbsec về `~/vbsec` (có thể đổi đích nếu muốn; nhớ điều chỉnh lệnh thứ hai theo).
+1. **`git clone`** — tải repository Thanh Tra về `~/thanhtra` (có thể đổi đích nếu muốn; nhớ điều chỉnh lệnh thứ hai theo).
 
-2. **`ln -sfn`** — tạo symlink từ `~/.claude/skills/vbs-scan-security` sang folder skill trong clone. Claude Code tự động phát hiện mọi thứ dưới `~/.claude/skills/`. Dùng symlink (thay vì copy) nghĩa là `git pull` cập nhật skill tại chỗ, không cần copy lại.
+2. **`ln -sfn`** — tạo symlink từ `~/.claude/skills/thanhtra` sang folder skill trong clone. Claude Code tự động phát hiện mọi thứ dưới `~/.claude/skills/`. Dùng symlink (thay vì copy) nghĩa là `git pull` cập nhật skill tại chỗ, không cần copy lại.
 
 Sau khi chạy 2 lệnh, **khởi động lại Claude Code** để load skill mới.
+
+Hoặc dùng installer trong clone — tự detect cả 3 platform (Claude Code, Codex CLI, Antigravity), symlink skill cho từng cái, và cài luôn CLI `thanhtra` (+ alias `Thanh Tra`) vào `~/.local/bin`:
+
+```bash
+cd ~/thanhtra && ./scripts/install.sh
+```
+
+Skill ưu tiên gọi CLI `thanhtra` trên PATH cho bước pre-scan deterministic (Step 1.5); script bundled trong skill chỉ là fallback. Dùng `--no-cli` nếu muốn bỏ qua bước cài CLI.
 
 ---
 
@@ -57,12 +65,12 @@ Sau khi chạy 2 lệnh, **khởi động lại Claude Code** để load skill m
 Sau khi restart Claude Code, gõ:
 
 ```
-/vbs-scan-security
+/thanhtra
 ```
 
-Nếu in ra báo cáo scan (header `# Báo cáo quét bảo mật vbsec`) — cài thành công.
+Nếu in ra báo cáo scan (header `# Báo cáo quét bảo mật Thanh Tra`) — cài thành công.
 
-Bạn cũng có thể kiểm tra skill đã load chưa bằng cách gõ `/` trong Claude Code — autocomplete sẽ liệt kê `vbs-scan-security`.
+Bạn cũng có thể kiểm tra skill đã load chưa bằng cách gõ `/` trong Claude Code — autocomplete sẽ liệt kê `thanhtra`.
 
 ---
 
@@ -71,7 +79,7 @@ Bạn cũng có thể kiểm tra skill đã load chưa bằng cách gõ `/` tron
 Để pull phiên bản mới:
 
 ```bash
-cd ~/vbsec
+cd ~/thanhtra
 git pull
 ```
 
@@ -82,8 +90,8 @@ Sau đó khởi động lại Claude Code để nó reload skill từ disk.
 ## Gỡ cài đặt
 
 ```bash
-rm ~/.claude/skills/vbs-scan-security    # gỡ symlink
-rm -rf ~/vbsec                            # xóa source clone (tùy chọn)
+rm ~/.claude/skills/thanhtra    # gỡ symlink
+rm -rf ~/thanhtra                            # xóa source clone (tùy chọn)
 ```
 
 Khởi động lại Claude Code.
@@ -92,15 +100,15 @@ Khởi động lại Claude Code.
 
 ## Sau khi cài: nơi lưu báo cáo và .gitignore
 
-Khi bạn chạy `/vbs-scan-security` lần đầu trong một repo, vbsec sẽ tạo file `vbsec-reports/scan-<timestamp>.md` trong repo đó để lưu báo cáo. Để tránh commit nhầm những file scan này, thêm vào `.gitignore` của project:
+Khi bạn chạy `/thanhtra` lần đầu trong một repo, Thanh Tra sẽ tạo file `thanhtra-reports/scan-<timestamp>.md` trong repo đó để lưu báo cáo. Để tránh commit nhầm những file scan này, thêm vào `.gitignore` của project:
 
 ```bash
 # Thêm vào .gitignore của project được scan:
-echo "vbsec-reports/" >> .gitignore
-git add .gitignore && git commit -m "Add vbsec-reports/ to .gitignore"
+echo "thanhtra-reports/" >> .gitignore
+git add .gitignore && git commit -m "Add thanhtra-reports/ to .gitignore"
 ```
 
-> ⚠️ Mỗi lần scan, nếu vbsec phát hiện `vbsec-reports/` chưa có trong `.gitignore`, nó sẽ in một khuyến nghị ở cuối stdout. vbsec **không** tự động sửa `.gitignore` — đó là quyết định của bạn.
+> ⚠️ Mỗi lần scan, nếu Thanh Tra phát hiện `thanhtra-reports/` chưa có trong `.gitignore`, nó sẽ in một khuyến nghị ở cuối stdout. Thanh Tra **không** tự động sửa `.gitignore` — đó là quyết định của bạn.
 
 Nếu bạn thực sự muốn commit báo cáo (ví dụ: để giữ compliance trail, làm bằng chứng PR review), đơn giản là đừng thêm entry kia. Tên file đã có timestamp nên nhiều lần scan không bị xung đột tên.
 
@@ -108,10 +116,10 @@ Nếu bạn thực sự muốn commit báo cáo (ví dụ: để giữ complianc
 
 ## Troubleshooting
 
-### `/vbs-scan-security` không xuất hiện trong Claude Code
+### `/thanhtra` không xuất hiện trong Claude Code
 
-- Xác nhận symlink tồn tại: `ls -la ~/.claude/skills/vbs-scan-security` phải hiện link trỏ tới `~/vbsec/skills/vbs-scan-security`.
-- Xác nhận target tồn tại: `ls ~/vbsec/skills/vbs-scan-security/SKILL.md` phải in ra đường dẫn file.
+- Xác nhận symlink tồn tại: `ls -la ~/.claude/skills/thanhtra` phải hiện link trỏ tới `~/thanhtra/skills/thanhtra`.
+- Xác nhận target tồn tại: `ls ~/thanhtra/skills/thanhtra/SKILL.md` phải in ra đường dẫn file.
 - Khởi động lại Claude Code (đóng và mở lại). Skill discovery chạy lúc startup.
 
 ### "Permission denied" khi tạo symlink

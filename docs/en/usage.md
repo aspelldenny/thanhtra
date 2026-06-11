@@ -1,6 +1,6 @@
-# Using vbsec
+# Using Thanh Tra
 
-Detailed guide to invoking `/vbs-scan-security`, choosing scopes, understanding reports, and integrating into CI/CD.
+Detailed guide to invoking `/thanhtra`, choosing scopes, understanding reports, and integrating into CI/CD.
 
 > Haven't installed the skill yet? Read [installation.md](installation.md) first.
 
@@ -25,18 +25,32 @@ Detailed guide to invoking `/vbs-scan-security`, choosing scopes, understanding 
 Open Claude Code inside your git repo. In the chat input:
 
 ```
-/vbs-scan-security
+/thanhtra
 ```
 
-> **⚠️ v0.3 behavior change:** `/vbs-scan-security` (no arguments) now scans the **entire repository**. Previously this was equivalent to `uncommitted`. If you want the old behavior, use `/vbs-scan-security uncommitted` or `/vbs-scan-security diff`.
+> **⚠️ v0.3 behavior change:** `/thanhtra` (no arguments) now scans the **entire repository**. Previously this was equivalent to `uncommitted`. If you want the old behavior, use `/thanhtra uncommitted` or `/thanhtra diff`.
 
-By default vbsec will:
+By default Thanh Tra will:
 1. Collect every file in the repo (full tree, not just uncommitted)
 2. Detect the primary language (Go/PHP/JS/Python/...)
 3. Route to SMALL or LARGE mode based on file count
 4. Apply 21 generic rules + language overlay (if available)
 5. Print a Markdown report + JSON summary to stdout
-6. Save a copy of the report to `vbsec-reports/scan-<timestamp>.md` in the repo
+6. Save a copy of the report to `thanhtra-reports/scan-<timestamp>.md` in the repo
+
+### CLI JSON mode
+
+For automation or agent wrappers, run the deterministic scanner directly. `./scripts/install.sh` symlinks the CLI into `~/.local/bin` so it works from any repo:
+
+```bash
+thanhtra scan . --json
+thanhtra scan . --json --output /tmp/thanhtra-scan.json
+thanhtra scan . --json --no-audit
+thanhtra prescan --root . --output .thanhtra-pre-scan.json   # raw evidence consumed by agent skills
+Thanh Tra scan . --json                                     # backward-compatible alias
+```
+
+`scan` emits `schema: "thanhtra-scan/v1"` and `legacy_schema: "Thanh Tra-scan/v1"`. The top-level `summary` is stable for tooling; `evidence` contains the raw pre-scan payload used by LLM agents for later reasoning. `prescan` emits the raw evidence document (`thanhtra-pre-scan/v1`) directly — this is what the agent skills call in Step 1.5; the script bundled inside the skill is only a fallback wrapper for machines without the CLI on PATH.
 
 ---
 
@@ -44,35 +58,35 @@ By default vbsec will:
 
 | Command | What it scans |
 |---|---|
-| `/vbs-scan-security` | **Entire repo (default — changed in v0.3)** |
-| `/vbs-scan-security uncommitted` | Only uncommitted changes (staged + unstaged) |
-| `/vbs-scan-security diff` | Alias for `uncommitted` |
-| `/vbs-scan-security staged` | Only staged files |
-| `/vbs-scan-security commit within 7days` | Files touched in the last N days |
-| `/vbs-scan-security commit id <sha>` | Files in a specific commit |
-| `/vbs-scan-security pr id 42` | Files in PR #42 (GitHub) — needs `gh` CLI |
-| `/vbs-scan-security all` | Explicit alias for entire repo |
+| `/thanhtra` | **Entire repo (default — changed in v0.3)** |
+| `/thanhtra uncommitted` | Only uncommitted changes (staged + unstaged) |
+| `/thanhtra diff` | Alias for `uncommitted` |
+| `/thanhtra staged` | Only staged files |
+| `/thanhtra commit within 7days` | Files touched in the last N days |
+| `/thanhtra commit id <sha>` | Files in a specific commit |
+| `/thanhtra pr id 42` | Files in PR #42 (GitHub) — needs `gh` CLI |
+| `/thanhtra all` | Explicit alias for entire repo |
 
 ### Realistic examples
 
 ```bash
 # Default — scan the whole repo, report in Vietnamese, saved to file
-/vbs-scan-security
+/thanhtra
 
 # Before committing: scan only what changed
-/vbs-scan-security uncommitted
+/thanhtra uncommitted
 
 # Pre-merge review: scan a PR with English report
-/vbs-scan-security pr id 42 lang=en
+/thanhtra pr id 42 lang=en
 
 # Periodic audit: scan recent commits
-/vbs-scan-security commit within 30days
+/thanhtra commit within 30days
 
 # Find the latest report
-ls -lt vbsec-reports/ | head -5
+ls -lt thanhtra-reports/ | head -5
 
 # Diff two scans
-diff vbsec-reports/scan-2026-05-13-100000.md vbsec-reports/scan-2026-05-14-100000.md
+diff thanhtra-reports/scan-2026-05-13-100000.md thanhtra-reports/scan-2026-05-14-100000.md
 ```
 
 ---
@@ -81,31 +95,31 @@ diff vbsec-reports/scan-2026-05-13-100000.md vbsec-reports/scan-2026-05-14-10000
 
 From v0.3 onwards, **every scan saves a copy of the report to a file** in the scanned repo:
 
-- Path: `vbsec-reports/scan-<YYYY-MM-DD-HHMMSS>.md`
+- Path: `thanhtra-reports/scan-<YYYY-MM-DD-HHMMSS>.md`
 - File naming format: `scan-YYYY-MM-DD-HHMMSS.md` — sorts chronologically by default
 - The content is identical to what's printed to stdout — the file is for re-reading and sharing, stdout is for the immediate view
-- If `vbsec-reports/` is not in `.gitignore`, vbsec prints a recommendation at the end of stdout — **vbsec does not auto-modify `.gitignore`**, that's your decision
+- If `thanhtra-reports/` is not in `.gitignore`, Thanh Tra prints a recommendation at the end of stdout — **Thanh Tra does not auto-modify `.gitignore`**, that's your decision
 - Reports can be deleted any time; they're not state files
 
 Find the latest scan:
 
 ```bash
-ls -lt vbsec-reports/ | head -5
+ls -lt thanhtra-reports/ | head -5
 ```
 
 Show the most recent report:
 
 ```bash
-cat "$(ls -t vbsec-reports/scan-*.md | head -1)"
+cat "$(ls -t thanhtra-reports/scan-*.md | head -1)"
 ```
 
-See [installation.md](installation.md#after-installation-report-location--gitignore) for how to add `vbsec-reports/` to `.gitignore`.
+See [installation.md](installation.md#after-installation-report-location--gitignore) for how to add `thanhtra-reports/` to `.gitignore`.
 
 ---
 
 ## Choosing output language
 
-vbsec supports Vietnamese (default) and English. How to specify:
+Thanh Tra supports Vietnamese (default) and English. How to specify:
 
 | Syntax | Result |
 |---|---|
@@ -118,9 +132,9 @@ vbsec supports Vietnamese (default) and English. How to specify:
 Examples:
 
 ```
-/vbs-scan-security pr id 42 lang=en
-/vbs-scan-security commit within 14days --en
-/vbs-scan-security staged
+/thanhtra pr id 42 lang=en
+/thanhtra commit within 14days --en
+/thanhtra staged
 ```
 
 **Note:** The Markdown report changes by lang, BUT:
@@ -135,7 +149,7 @@ Examples:
 A typical report:
 
 ```
-# vbsec Security Scan Report
+# Thanh Tra Security Scan Report
 
 Scope: Uncommitted changes
 Files: 12 (8 .ts, 4 .py)
@@ -280,21 +294,21 @@ LARGE mode uses `TodoWrite` to track each chunk. If you interrupt mid-run (Ctrl+
 
 1. Reopen Claude Code in the same directory
 2. Re-run the original command (same scope, same lang)
-3. The skill sees the existing `.vbsec-tmp/` directory with prior findings and resumes from the unfinished chunk
+3. The skill sees the existing `.Thanh Tra-tmp/` directory with prior findings and resumes from the unfinished chunk
 
 **Important:**
-- Don't manually delete `.vbsec-tmp/` if you want to resume
-- After a successful scan, vbsec cleans up `.vbsec-tmp/` itself
-- Add `.vbsec-tmp/` to your repo's `.gitignore`:
+- Don't manually delete `.Thanh Tra-tmp/` if you want to resume
+- After a successful scan, Thanh Tra cleans up `.Thanh Tra-tmp/` itself
+- Add `.Thanh Tra-tmp/` to your repo's `.gitignore`:
   ```
-  .vbsec-tmp/
+  .Thanh Tra-tmp/
   ```
 
 ---
 
 ## CI/CD integration
 
-vbsec is a Claude Code skill — runs inside the agent CLI. Two integration shapes:
+Thanh Tra is a Claude Code skill — runs inside the agent CLI. Two integration shapes:
 
 ### A. Pre-commit hook (local, each dev runs it)
 
@@ -302,29 +316,29 @@ vbsec is a Claude Code skill — runs inside the agent CLI. Two integration shap
 
 ```bash
 #!/usr/bin/env bash
-# Requires Claude Code installed + vbsec plugin installed (/plugin install vbsec@vbsec)
+# Requires Claude Code installed + Thanh Tra plugin installed (/plugin install Thanh Tra@Thanh Tra)
 set -e
 
 REPORT=$(mktemp)
-claude --no-stream -p '/vbs-scan-security staged lang=en' > "$REPORT"
+claude --no-stream -p '/thanhtra staged lang=en' > "$REPORT"
 
 VERDICT=$(awk '/^```json$/,/^```$/' "$REPORT" \
   | sed '1d;$d' | jq -r '.verdict' 2>/dev/null || echo "")
 
 case "$VERDICT" in
   FAIL)
-    echo "vbsec FAIL — see findings:"
+    echo "Thanh Tra FAIL — see findings:"
     cat "$REPORT"
     exit 1
     ;;
   WARN)
-    echo "vbsec WARN — HIGH issues found, commit allowed but please fix soon."
+    echo "Thanh Tra WARN — HIGH issues found, commit allowed but please fix soon."
     ;;
   PASS)
-    echo "vbsec PASS"
+    echo "Thanh Tra PASS"
     ;;
   *)
-    echo "vbsec: could not parse verdict, allowing commit"
+    echo "Thanh Tra: could not parse verdict, allowing commit"
     ;;
 esac
 ```
@@ -333,10 +347,10 @@ esac
 
 ### B. GitHub Actions (PR check)
 
-`.github/workflows/vbsec.yml`:
+`.github/workflows/Thanh Tra.yml`:
 
 ```yaml
-name: vbsec security scan
+name: Thanh Tra security scan
 on:
   pull_request:
     branches: [main]
@@ -354,34 +368,34 @@ jobs:
           curl -fsSL https://claude.ai/install.sh | bash
           echo "$HOME/.claude/bin" >> $GITHUB_PATH
 
-      - name: Install vbsec plugin
+      - name: Install Thanh Tra plugin
         run: |
-          # Inside the Claude Code session: install vbsec marketplace + plugin
+          # Inside the Claude Code session: install Thanh Tra marketplace + plugin
           # (Run these via `claude --no-stream -p` if the CI image supports it,
           # or use claude-code's plugin pre-install env vars.)
           mkdir -p ~/.claude/plugins
           # Option 1: pre-warm by cloning the plugin into the cache
-          git clone https://github.com/tanviet12/vbsec.git ~/.claude/plugins/cache/vbsec
+          git clone https://github.com/aspelldenny/thanhtra.git ~/.claude/plugins/cache/thanhtra
           # Option 2 (recommended once Claude Code CI tooling matures):
-          #   claude plugin marketplace add tanviet12/vbsec
-          #   claude plugin install vbsec@vbsec
+          #   claude plugin marketplace add aspelldenny/thanhtra
+          #   claude plugin install Thanh Tra@Thanh Tra
 
-      - name: Run vbsec on PR
+      - name: Run Thanh Tra on PR
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          claude --no-stream -p "/vbs-scan-security pr id ${{ github.event.pull_request.number }} lang=en" \
-            > vbsec-report.md
+          claude --no-stream -p "/thanhtra pr id ${{ github.event.pull_request.number }} lang=en" \
+            > Thanh Tra-report.md
 
       - name: Post comment on PR
         uses: marocchino/sticky-pull-request-comment@v2
         with:
-          path: vbsec-report.md
+          path: Thanh Tra-report.md
 
       - name: Fail on CRITICAL
         run: |
-          VERDICT=$(awk '/^```json$/,/^```$/' vbsec-report.md \
+          VERDICT=$(awk '/^```json$/,/^```$/' Thanh Tra-report.md \
             | sed '1d;$d' | jq -r '.verdict')
           [ "$VERDICT" = "FAIL" ] && exit 1 || true
 ```

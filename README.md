@@ -6,9 +6,11 @@
 
 ---
 
-# vbsec — Source Code Security Scanner
+# Thanh Tra — Source Code Security Scanner
 
-A multi-platform agent skill that performs in-depth security scans and detects 20+ of the most common security vulnerabilities in your source code. Runs natively on **Claude Code**, **OpenAI Codex CLI**, and **Google Antigravity**.
+Thanh Tra is a CLI-first security scanner and multi-platform agent skill that performs in-depth security scans and detects 20+ of the most common security vulnerabilities in your source code. Runs natively on **Claude Code**, **OpenAI Codex CLI**, and **Google Antigravity**.
+
+> Credit: Thanh Tra is built from the MIT-licensed `vbsec` skill shared from the original project by **Bùi Tấn Việt** and **Phan Quốc Hiên**. The upstream rule corpus and platform-skill foundation remain credited in this fork.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-blue)](https://docs.claude.com/claude-code)
@@ -21,9 +23,9 @@ A multi-platform agent skill that performs in-depth security scans and detects 2
 
 AI-generated code now represents a meaningful share of new commits across the industry. While modern coding assistants excel at producing code that *works*, they routinely ship code with classic security pitfalls: hardcoded secrets, SQL injection, missing access controls, weak password hashing, JWT misuse, and broken CORS configurations. These mistakes rarely surface in functional testing — they surface in incident reports.
 
-vbsec brings production-grade security review into the AI coding loop. It runs as a native agent skill on three platforms — type `/vbs-scan-security` in Claude Code, `$vbs-scan-security` (or `/skills`) in OpenAI Codex CLI, or simply ask Google Antigravity to "scan security" — and receive a structured report covering 20+ categories of vulnerabilities. There are no external API calls, no separate tool installation, and no additional infrastructure to maintain.
+Thanh Tra brings production-grade security review into the AI coding loop. It runs as a native agent skill on three platforms — type `/thanhtra` in Claude Code, `$thanhtra` (or `/skills`) in OpenAI Codex CLI, or simply ask Google Antigravity to "scan security" — and receive a structured report covering 20+ categories of vulnerabilities. It also ships a CLI-first deterministic scanner via `bin/thanhtra scan --json`.
 
-vbsec has been exercised against intentionally vulnerable open-source training apps such as OWASP Juice Shop — and identifies findings that line up with the documented vulnerability challenges across SQL injection, NoSQL injection, JWT misuse, broken access control, mass assignment, deserialization RCE, and more.
+Thanh Tra has been exercised against intentionally vulnerable open-source training apps such as OWASP Juice Shop — and identifies findings that line up with the documented vulnerability challenges across SQL injection, NoSQL injection, JWT misuse, broken access control, mass assignment, deserialization RCE, and more.
 
 Generic rules apply to every language. Specialized rule overlays exist for Go, PHP, TypeScript/JavaScript, and Python, covering common frameworks: React, Vue, Angular, Express, NestJS, Next.js, Django, Flask, FastAPI, SQLAlchemy, Sequelize, Prisma, and Mongoose. Additional language overlays are on the roadmap.
 
@@ -34,15 +36,15 @@ Generic rules apply to every language. Specialized rule overlays exist for Go, P
 
 ## How it works
 
-vbsec is engineered around a small set of design choices that distinguish it from conventional pattern scanners.
+Thanh Tra is engineered around a small set of design choices that distinguish it from conventional pattern scanners.
 
-- **Reasoning-first, not pattern counting.** vbsec does not blindly grep for `eval(` or `query(`. Each potential finding is verified by reading the surrounding code, tracing data flow (L1 untrusted user input through L4 trusted system data), and confirming the data reaches a dangerous sink without sanitization. This eliminates the false-positive flood typical of regex-based scanners.
+- **Reasoning-first, not pattern counting.** Thanh Tra does not blindly grep for `eval(` or `query(`. Each potential finding is verified by reading the surrounding code, tracing data flow (L1 untrusted user input through L4 trusted system data), and confirming the data reaches a dangerous sink without sanitization. This eliminates the false-positive flood typical of regex-based scanners.
 
 - **Size-aware routing.** Small scans (≤20 main-language files AND ≤30 total) run inline in 30-60 seconds. Larger scans automatically delegate work to sub-agents that run in parallel — one chunk per top-level folder — and aggregate findings centrally. The user experience is identical; only the execution strategy changes.
 
-- **Sub-agent delegation for large repositories.** For repositories with hundreds of files, vbsec spawns up to three parallel sub-agents through Claude Code's general-purpose agent. Each sub-agent scans a chunk of files independently, and findings are dedupe-aggregated by `(file, line, rule_id)`. This keeps wall-clock time bounded even on monorepos.
+- **Sub-agent delegation for large repositories.** For repositories with hundreds of files, Thanh Tra spawns up to three parallel sub-agents through Claude Code's general-purpose agent. Each sub-agent scans a chunk of files independently, and findings are dedupe-aggregated by `(file, line, rule_id)`. This keeps wall-clock time bounded even on monorepos.
 
-- **Language overlay system.** When vbsec detects the primary language, it loads language-specific rule files from `rules/languages/<lang>/` that override the generic rules for that language. This catches framework-specific patterns: Mongoose `$where` NoSQL injection, Angular `bypassSecurityTrustHtml`, Sequelize template-literal SQL, JWT algorithm confusion, Gin debug mode in production builds.
+- **Language overlay system.** When Thanh Tra detects the primary language, it loads language-specific rule files from `rules/languages/<lang>/` that override the generic rules for that language. This catches framework-specific patterns: Mongoose `$where` NoSQL injection, Angular `bypassSecurityTrustHtml`, Sequelize template-literal SQL, JWT algorithm confusion, Gin debug mode in production builds.
 
 - **L1–L4 data flow classification.** Inputs are classified by trust level. A `db.query(\`SELECT ${x}\`)` call is only reported as a finding when `x` originates from L1 (user-controlled input) and reaches the SQL sink without parameterization. Constants, environment variables, and trusted-source data do not generate false positives.
 
@@ -54,25 +56,25 @@ vbsec is engineered around a small set of design choices that distinguish it fro
 
 ## Multi-platform support
 
-vbsec ships three variants from a single source of truth:
+Thanh Tra ships three variants from a single source of truth:
 
 | Platform | Skill folder | Install target | LARGE mode strategy |
 |---|---|---|---|
-| Claude Code | `skills/vbs-scan-security/` | `~/.claude/skills/vbs-scan-security` | Parallel sub-agents (3 concurrent) |
-| OpenAI Codex CLI | `skills/codex/vbs-scan-security/` | `~/.agents/skills/vbs-scan-security` | Sequential chunking |
-| Google Antigravity | `skills/antigravity/vbs-scan-security/` | `~/.gemini/antigravity/skills/vbs-scan-security` | Sequential chunking |
+| Claude Code | `skills/thanhtra/` | `~/.claude/skills/thanhtra` | Parallel sub-agents (3 concurrent) |
+| OpenAI Codex CLI | `skills/codex/thanhtra/` | `~/.agents/skills/thanhtra` | Sequential chunking |
+| Google Antigravity | `skills/antigravity/thanhtra/` | `~/.gemini/antigravity/skills/thanhtra` | Sequential chunking |
 
 All three share the same 21 rules, language overlays, i18n strings, and output format. Findings are identical; only execution strategy differs. Sequential variants are ~3× slower wall-clock than Claude Code's parallel mode on large repositories, but produce the same JSON summary and the same Markdown report.
 
-Contributors: edit rules in `skills/vbs-scan-security/` (the canonical Claude folder), then run `./scripts/sync-skills.sh` to propagate to the Codex and Antigravity variants. Platform-specific files (`SKILL.md`, `workflows/large-review*.md`) are hand-maintained.
+Contributors: edit rules in `skills/thanhtra/` (the canonical Claude folder), then run `./scripts/sync-skills.sh` to propagate to the Codex and Antigravity variants. Platform-specific files (`SKILL.md`, `workflows/large-review*.md`) are hand-maintained.
 
 ## Installation
 
-vbsec auto-detects every supported platform you have installed and wires up the skill. Run:
+Thanh Tra auto-detects every supported platform you have installed and wires up the skill. Run:
 
 ```bash
-git clone https://github.com/tanviet12/vbsec ~/vbsec
-cd ~/vbsec
+git clone https://github.com/aspelldenny/thanhtra ~/thanhtra
+cd ~/thanhtra
 ./scripts/install.sh         # auto-detect, install for what's present
 ./scripts/install.sh --all   # force install for all 3 platforms regardless
 ```
@@ -87,7 +89,7 @@ Antigravity is an IDE (like VS Code), not a CLI. For a brand-new Antigravity use
 The installer symlinks the appropriate skill folder into each platform's expected location. To update later:
 
 ```bash
-cd ~/vbsec && git pull
+cd ~/thanhtra && git pull
 ```
 
 (Symlinks pick up the new version automatically; restart the CLI / IDE if needed.)
@@ -96,20 +98,20 @@ cd ~/vbsec && git pull
 
 ```bash
 # Claude Code
-ln -sfn ~/vbsec/skills/vbs-scan-security              ~/.claude/skills/vbs-scan-security
+ln -sfn ~/thanhtra/skills/thanhtra              ~/.claude/skills/thanhtra
 
 # OpenAI Codex CLI
-ln -sfn ~/vbsec/skills/codex/vbs-scan-security        ~/.agents/skills/vbs-scan-security
+ln -sfn ~/thanhtra/skills/codex/thanhtra        ~/.agents/skills/thanhtra
 
 # Google Antigravity
-ln -sfn ~/vbsec/skills/antigravity/vbs-scan-security  ~/.gemini/antigravity/skills/vbs-scan-security
+ln -sfn ~/thanhtra/skills/antigravity/thanhtra  ~/.gemini/antigravity/skills/thanhtra
 ```
 
 Verify the install on each platform:
 
 ```
-Claude Code:   /vbs-scan-security
-Codex:         $vbs-scan-security        (or /skills, then pick)
+Claude Code:   /thanhtra
+Codex:         $thanhtra        (or /skills, then pick)
 Antigravity:   "scan security cho repo này"  (auto-trigger by description)
 ```
 
@@ -120,19 +122,33 @@ See [docs/en/installation.md](docs/en/installation.md) for prerequisites, troubl
 The default scope is the entire repository. This is a deliberate change from earlier versions and matches how teams typically request a security audit.
 
 ```bash
-/vbs-scan-security                       # scan entire folder (default)
-/vbs-scan-security uncommitted           # only scan uncommitted changes
-/vbs-scan-security pr id 42 lang=en      # scan a PR, report in English
-/vbs-scan-security commit within 7days   # scan last 7 days of commits
+/thanhtra                       # scan entire folder (default)
+/thanhtra uncommitted           # only scan uncommitted changes
+/thanhtra pr id 42 lang=en      # scan a PR, report in English
+/thanhtra commit within 7days   # scan last 7 days of commits
 ```
 
-**Works without git.** Vibe coders rarely init `git` before pasting AI-generated code into a folder. The default scope (`/vbs-scan-security`) walks the filesystem directly when no `.git/` is present — common build/vendored folders are excluded automatically. Git-specific scopes (`uncommitted`, `staged`, `commit within`, `commit id`, `pr id`) still require a git repository and will print a helpful message asking you to init git or fall back to the default scope.
+**Works without git.** Vibe coders rarely init `git` before pasting AI-generated code into a folder. The default scope (`/thanhtra`) walks the filesystem directly when no `.git/` is present — common build/vendored folders are excluded automatically. Git-specific scopes (`uncommitted`, `staged`, `commit within`, `commit id`, `pr id`) still require a git repository and will print a helpful message asking you to init git or fall back to the default scope.
 
-Reports are saved to `vbsec-reports/scan-<timestamp>.md` inside the scanned folder for re-reading, sharing with reviewers, and attaching to remediation tickets.
+Reports are saved to `thanhtra-reports/scan-<timestamp>.md` inside the scanned folder for re-reading, sharing with reviewers, and attaching to remediation tickets.
 
 See [docs/en/usage.md](docs/en/usage.md) for all options including `staged`, single-commit scans, and PR scanning via `gh`.
 
-## Vulnerabilities vbsec detects
+### CLI pre-scan JSON
+
+Thanh Tra ships a phase-1 CLI for deterministic evidence collection. `./scripts/install.sh` symlinks it into `~/.local/bin`, so `thanhtra` is callable from any repo:
+
+```bash
+thanhtra scan /path/to/repo --json
+thanhtra scan /path/to/repo --json --output /tmp/thanhtra-scan.json
+thanhtra scan /path/to/repo --json --no-audit
+thanhtra prescan --root . --output .thanhtra-pre-scan.json   # raw evidence, what agent skills consume
+Thanh Tra scan /path/to/repo --json                         # backward-compatible alias
+```
+
+`scan` emits `schema: "thanhtra-scan/v1"` with `legacy_schema: "Thanh Tra-scan/v1"`, a compact summary, and raw `evidence`. `prescan` emits the raw evidence document (`thanhtra-pre-scan/v1`) that agent skills read before LLM reasoning. Both are intentionally mechanical: dependency audit, secret masking, Docker exposure checks, file classification, and hotspot collection — the CLI is the single source of truth; the script bundled inside the skill is only a fallback wrapper for machines without the CLI on PATH.
+
+## Vulnerabilities Thanh Tra detects
 
 | # | Rule ID | Severity max | Specialized for |
 |---|---|---|---|
@@ -166,6 +182,7 @@ The list currently contains 21 rules and will continue to expand.
 - [Usage](docs/en/usage.md)
 - [Full rule catalog](docs/en/rules.md)
 - [Contributing](docs/en/contributing.md)
+- [Maintenance](docs/en/maintenance.md)
 
 ## Roadmap
 
@@ -173,18 +190,19 @@ The list currently contains 21 rules and will continue to expand.
 - v0.2 — TypeScript/JavaScript specialization (Sequelize/Prisma/Mongoose, React/Vue/Angular, Express/NestJS/Next.js) ✅
 - v0.3 — Default scope changed to full-repo, persistent reports, verbose per-finding explanations ✅
 - v0.4 — Python specialization (SQLAlchemy/Django ORM SQLi, pickle/yaml deserialization RCE, Werkzeug debugger, FastAPI/Flask/Django CSRF + CORS, PyJWT algorithms, subprocess shell=True) ✅
-- v0.5 (current) — Multi-platform support: OpenAI Codex CLI + Google Antigravity (sequential LARGE mode, shared rule set, `install.sh` + `sync-skills.sh`) ✅
-- v0.6+ — Ruby, Java, Rust — community-driven
+- v0.5 — Multi-platform support: OpenAI Codex CLI + Google Antigravity (sequential LARGE mode, shared rule set, `install.sh` + `sync-skills.sh`) ✅
+- v0.6 (current) — Thanh Tra CLI-first deterministic evidence: `bin/thanhtra scan --json`, dependency audit parsing, audit gaps, file classification ✅
+- v0.7+ — Ruby, Java, Rust overlays; SARIF/GitHub Action; optional LLM triage provider
 
 ## Disclaimer
 
-vbsec is a reference scanner. It catches common AI-generated code mistakes, but:
+Thanh Tra is a reference scanner. It catches common AI-generated code mistakes, but:
 
 - It does NOT replace a professional security audit
 - It does NOT guarantee 100% vulnerability coverage
 - It does NOT fetch live CVE databases (run `npm audit` / `pip-audit` / `govulncheck` separately for that)
 
-Use vbsec as a **first line of defense**, not as proof of security.
+Use Thanh Tra as a **first line of defense**, not as proof of security.
 
 ## License & Acknowledgments
 

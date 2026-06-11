@@ -1,4 +1,4 @@
-# 21 Rule bảo mật của vbsec
+# 21 Rule bảo mật của Thanh Tra
 
 Tổng quan ngắn gọn từng rule với ví dụ unsafe/safe. Để đọc đầy đủ reasoning, search pattern và edge case, mở file rule tương ứng trong [`skill/rules/generic/`](../../skill/rules/generic/).
 
@@ -528,7 +528,7 @@ tx.Commit()
 **Severity max:** HIGH
 **Applies to:** all
 
-Package có CVE đã biết (`log4j 2.14`, `lodash <4.17.21`, `express <4.17.3`). vbsec không fetch CVE real-time — flag pattern dependency cũ + đề nghị chạy `npm audit` / `pip-audit` / `govulncheck`.
+Package có CVE đã biết (`log4j 2.14`, `lodash <4.17.21`, `express <4.17.3`). Thanh Tra không fetch CVE real-time — flag pattern dependency cũ + đề nghị chạy `npm audit` / `pip-audit` / `govulncheck`.
 
 **Unsafe (package.json):**
 ```json
@@ -576,7 +576,7 @@ subprocess.run(['convert', filename, 'output.png'], check=True)
 
 ## Specialization
 
-Một số rule có override chuyên sâu cho ngôn ngữ cụ thể. Khi vbsec detect ngôn ngữ chính, nó tự load overlay:
+Một số rule có override chuyên sâu cho ngôn ngữ cụ thể. Khi Thanh Tra detect ngôn ngữ chính, nó tự load overlay:
 
 | Ngôn ngữ | Folder | Override rule |
 |---|---|---|
