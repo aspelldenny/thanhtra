@@ -121,13 +121,52 @@
     {
       "name": "positive/command-injection-shell",
       "path": "tests/fixtures/positive/command-injection-shell",
-      "language": "generic",
+      "language": "shell",
       "expected_findings": [
         {
           "rule_id": "COMMAND-INJECTION",
           "severity": "HIGH",
           "file": "setup.sh",
           "line": 8
+        }
+      ]
+    },
+    {
+      "name": "positive/command-injection-shell-heredoc",
+      "path": "tests/fixtures/positive/command-injection-shell-heredoc",
+      "language": "shell",
+      "expected_findings": [
+        {
+          "rule_id": "COMMAND-INJECTION",
+          "severity": "CRITICAL",
+          "file": "render-clip.sh",
+          "line": 11
+        }
+      ]
+    },
+    {
+      "name": "positive/path-traversal-shell",
+      "path": "tests/fixtures/positive/path-traversal-shell",
+      "language": "shell",
+      "expected_findings": [
+        {
+          "rule_id": "PATH-TRAVERSAL",
+          "severity": "HIGH",
+          "file": "clean-release.sh",
+          "line": 5
+        }
+      ]
+    },
+    {
+      "name": "positive/race-condition-shell",
+      "path": "tests/fixtures/positive/race-condition-shell",
+      "language": "shell",
+      "expected_findings": [
+        {
+          "rule_id": "RACE-CONDITION",
+          "severity": "HIGH",
+          "file": "nightly-sync.sh",
+          "line": 4
         }
       ]
     },
@@ -182,7 +221,25 @@
     {
       "name": "negative/command-injection-shell",
       "path": "tests/fixtures/negative/command-injection-shell",
-      "language": "generic",
+      "language": "shell",
+      "expected_findings": []
+    },
+    {
+      "name": "negative/command-injection-shell-heredoc",
+      "path": "tests/fixtures/negative/command-injection-shell-heredoc",
+      "language": "shell",
+      "expected_findings": []
+    },
+    {
+      "name": "negative/path-traversal-shell",
+      "path": "tests/fixtures/negative/path-traversal-shell",
+      "language": "shell",
+      "expected_findings": []
+    },
+    {
+      "name": "negative/race-condition-shell",
+      "path": "tests/fixtures/negative/race-condition-shell",
+      "language": "shell",
       "expected_findings": []
     }
   ]

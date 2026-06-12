@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 EXPECTED = ROOT / "tests" / "expected-findings.json"
 RULE_DIR = ROOT / "skills" / "thanhtra" / "rules" / "generic"
 VALID_SEVERITIES = {"CRITICAL", "HIGH", "MEDIUM", "LOW"}
-VALID_LANGUAGES = {"go", "php", "python", "typescript", "rust", "swift", "generic"}
+VALID_LANGUAGES = {"go", "php", "python", "typescript", "rust", "swift", "shell", "generic"}
 
 
 def fail(message: str) -> None:
