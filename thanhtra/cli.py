@@ -10,6 +10,7 @@ from pathlib import Path
 
 from thanhtra import __version__
 from thanhtra.core.prescan import build_evidence
+from thanhtra.core.sarif import to_sarif
 from thanhtra.core.triage import TriageError, triage as run_triage
 
 
@@ -47,6 +48,7 @@ def build_scan_document(args: argparse.Namespace, evidence: dict) -> dict:
 
 
 def scan(args: argparse.Namespace) -> int:
+    sarif = getattr(args, "sarif", False)
     evidence = build_evidence(
         Path(args.root),
         max_per_rule=args.max_per_rule,
@@ -54,7 +56,7 @@ def scan(args: argparse.Namespace) -> int:
         no_audit=args.no_audit,
     )
     document = build_scan_document(args, evidence)
-    if getattr(args, "triage", False):
+    if sarif or getattr(args, "triage", False):
         # Triage is best-effort: a failure must not lose the mechanical evidence.
         try:
             document["triage"] = run_triage(
@@ -67,7 +69,13 @@ def scan(args: argparse.Namespace) -> int:
         except TriageError as exc:
             document["triage_error"] = str(exc)
             print(f"thanhtra: triage skipped: {exc}", file=sys.stderr)
-    output = json.dumps(document, ensure_ascii=False, indent=None if args.compact else 2)
+            if sarif:
+                # SARIF maps triage findings; without a verdict the CI gate
+                # must fail loudly, not upload an empty (= all-clear) log.
+                print("thanhtra: --sarif needs a triage verdict, aborting", file=sys.stderr)
+                return 1
+    payload = to_sarif(document) if sarif else document
+    output = json.dumps(payload, ensure_ascii=False, indent=None if args.compact else 2)
     if args.output:
         output_path = Path(args.output)
         if not output_path.is_absolute():
@@ -140,6 +148,12 @@ def build_parser(prog: str = "thanhtra") -> argparse.ArgumentParser:
     scan_parser.add_argument("--triage-model", help="override triage model (default claude-opus-4-8)")
     scan_parser.add_argument("--triage-provider", help="triage provider: anthropic (default) or openai")
     scan_parser.add_argument("--triage-base-url", help="OpenAI-compatible base URL (e.g. OpenRouter, Ollama)")
+    scan_parser.add_argument(
+        "--sarif",
+        action="store_true",
+        help="emit SARIF 2.1.0 instead of scan JSON (implies --triage; for "
+        "GitHub code scanning via codeql-action/upload-sarif)",
+    )
     scan_parser.set_defaults(func=scan)
 
     triage_parser = subparsers.add_parser(

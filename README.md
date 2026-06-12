@@ -174,6 +174,16 @@ The triage layer is **optional and pluggable**, with two providers:
 
 Select via `--triage-provider` / `THANHTRA_TRIAGE_PROVIDER`. Triage degrades gracefully — without a key, `scan --triage` still emits the full mechanical evidence and notes `triage_error`.
 
+### SARIF output + GitHub code scanning (CI gate)
+
+`scan --sarif` emits SARIF 2.1.0 from the **triaged** findings (false positives already dismissed), so they show up natively in GitHub's Security tab and as inline PR annotations:
+
+```bash
+thanhtra scan . --sarif --output thanhtra.sarif    # implies --triage; exits 1 if triage can't run
+```
+
+The 22 rules become SARIF `rules[]` metadata; severity maps CRITICAL/HIGH → `error`, MEDIUM → `warning`, LOW → `note`. Copy [`examples/github-actions/thanhtra.yml`](examples/github-actions/thanhtra.yml) into your repo's `.github/workflows/` to wire it to `codeql-action/upload-sarif` — when it runs (per PR / push / nightly) is your call and your CI quota. Details in [docs/en/usage.md](docs/en/usage.md).
+
 ## Vulnerabilities Thanh Tra detects
 
 | # | Rule ID | Severity max | Specialized for |
@@ -223,8 +233,9 @@ The list currently contains 22 rules and will continue to expand.
 - v0.9 — `openai` triage provider: one OpenAI-compatible adapter covers OpenAI, OpenRouter, Groq, Together, DeepSeek, and local servers (Ollama/LM Studio/vLLM) via `--triage-base-url` ✅
 - v0.10 — Rust overlay: sqlx/diesel SQLi, reqwest SSRF, PathBuf traversal, Command injection, error leak (axum/actix) ✅
 - v0.11 — Swift overlay: plist/xcconfig + UserDefaults secrets, GRDB/NSPredicate SQLi, WKWebView XSS, NSKeyedUnarchiver deserialization, deep-link URL load, ATS/trust-all certs ✅
-- v0.12 (current) — Shell overlay: eval/sh -c, heredoc splice into other interpreters' source (python3/osascript/awk), unquoted expansion + empty-var rm -rf, predictable temp files + flock, set -x leaking secrets into CI logs, curl|sh without pin/checksum; owner-run trust-model downgrade criteria ✅
-- v1.0+ — SARIF + GitHub Action (CI gate)
+- v0.12 — Shell overlay: eval/sh -c, heredoc splice into other interpreters' source (python3/osascript/awk), unquoted expansion + empty-var rm -rf, predictable temp files + flock, set -x leaking secrets into CI logs, curl|sh without pin/checksum; owner-run trust-model downgrade criteria ✅
+- v1.0 (current) — CI gate: `scan --sarif` emits SARIF 2.1.0 from triaged findings (GitHub Security tab + inline PR annotations) + copyable GitHub Action template (`examples/github-actions/thanhtra.yml`) ✅
+- v1.x — Semgrep as optional pre-scan backend (SARIF ingest; reopen trigger reached at v1.0 — see BACKLOG.md)
 
 ## Disclaimer
 

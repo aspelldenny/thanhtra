@@ -1,0 +1,48 @@
+# Thanh Tra — SARIF security gate for GitHub code scanning.
+# Copy this file to .github/workflows/thanhtra.yml in YOUR repo.
+#
+# When it runs is your call — and your CI minutes / API quota:
+# per PR (below), per push, or nightly via schedule.
+name: Thanh Tra security gate
+
+on:
+  pull_request:
+    branches: [main]
+  # schedule:
+  #   - cron: "0 18 * * *"  # nightly, 01:00 Asia/Ho_Chi_Minh
+
+permissions:
+  contents: read
+  security-events: write # required by upload-sarif
+
+jobs:
+  thanhtra:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Thanh Tra
+        run: git clone --depth 1 https://github.com/aspelldenny/thanhtra.git "$RUNNER_TEMP/thanhtra"
+
+      # --sarif implies --triage: an LLM reasons over the deterministic
+      # evidence and only real (non-false-positive) findings reach SARIF.
+      # Exits 1 if triage cannot run — the gate never silently passes.
+      - name: Scan to SARIF
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          # Any OpenAI-compatible provider works instead:
+          # THANHTRA_TRIAGE_PROVIDER: openai
+          # THANHTRA_TRIAGE_MODEL: gpt-5.1
+          # THANHTRA_TRIAGE_BASE_URL: https://openrouter.ai/api/v1
+          # OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: '"$RUNNER_TEMP/thanhtra/bin/thanhtra" scan . --sarif --output thanhtra.sarif'
+
+      - name: Upload to GitHub code scanning
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: thanhtra.sarif
+          category: thanhtra

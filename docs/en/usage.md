@@ -310,7 +310,59 @@ LARGE mode uses `TodoWrite` to track each chunk. If you interrupt mid-run (Ctrl+
 
 ## CI/CD integration
 
-Thanh Tra is a Claude Code skill — runs inside the agent CLI. Two integration shapes:
+Thanh Tra runs as a Claude Code skill (shapes A–C) or headless via the CLI (shape D). Pick one:
+
+### D. SARIF + GitHub code scanning (recommended, no agent needed)
+
+`thanhtra scan --sarif` emits SARIF 2.1.0 from the *triaged* findings (false
+positives already dismissed), so they appear natively in the **Security tab**
+and as inline PR annotations. No Claude Code install in CI — just Python 3 and
+one API key.
+
+Copy [`examples/github-actions/thanhtra.yml`](../../examples/github-actions/thanhtra.yml)
+to `.github/workflows/` in your repo:
+
+```yaml
+name: Thanh Tra security gate
+on:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+  security-events: write
+jobs:
+  thanhtra:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Thanh Tra
+        run: git clone --depth 1 https://github.com/aspelldenny/thanhtra.git "$RUNNER_TEMP/thanhtra"
+      - name: Scan to SARIF
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: '"$RUNNER_TEMP/thanhtra/bin/thanhtra" scan . --sarif --output thanhtra.sarif'
+      - name: Upload to GitHub code scanning
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: thanhtra.sarif
+          category: thanhtra
+```
+
+Notes:
+
+- **Cadence is your call** (per PR / per push / nightly `schedule`) — the CI
+  minutes and triage API tokens are your quota.
+- `--sarif` implies `--triage`; if triage cannot run (missing key, API error)
+  the step **exits 1** instead of uploading an empty all-clear log.
+- To block merges on findings, enable branch protection → "Require code
+  scanning results". Severity mapping: CRITICAL/HIGH → `error`,
+  MEDIUM → `warning`, LOW → `note`.
+- Works with any OpenAI-compatible triage provider too — see the env block in
+  the example file (`THANHTRA_TRIAGE_PROVIDER`, `THANHTRA_TRIAGE_MODEL`,
+  `THANHTRA_TRIAGE_BASE_URL`).
 
 ### A. Pre-commit hook (local, each dev runs it)
 

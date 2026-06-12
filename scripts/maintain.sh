@@ -22,6 +22,10 @@ echo "==> Validate regression fixtures"
 ./scripts/validate-fixtures.sh
 
 echo ""
+echo "==> Validate SARIF emitter"
+./scripts/validate-sarif.sh
+
+echo ""
 echo "==> Verify install plan"
 ./scripts/install.sh --dry-run
 

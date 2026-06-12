@@ -174,6 +174,16 @@ Tầng triage **tùy chọn và pluggable**, có 2 provider:
 
 Chọn qua `--triage-provider` / `THANHTRA_TRIAGE_PROVIDER`. Triage degrade nhẹ nhàng — không có key thì `scan --triage` vẫn xuất đầy đủ evidence cơ học và ghi `triage_error`.
 
+### SARIF output + GitHub code scanning (CI gate)
+
+`scan --sarif` xuất SARIF 2.1.0 từ findings **đã triage** (false positive đã loại), nên findings hiện thẳng trong Security tab của GitHub và annotate inline trên PR:
+
+```bash
+thanhtra scan . --sarif --output thanhtra.sarif    # tự bật --triage; exit 1 nếu triage không chạy được
+```
+
+22 rule trở thành metadata SARIF `rules[]`; severity map CRITICAL/HIGH → `error`, MEDIUM → `warning`, LOW → `note`. Copy [`examples/github-actions/thanhtra.yml`](examples/github-actions/thanhtra.yml) vào `.github/workflows/` của repo bạn để nối với `codeql-action/upload-sarif` — chạy lúc nào (mỗi PR / push / nightly) là quyền của bạn và quota CI của bạn. Chi tiết trong [docs/vi/usage.md](docs/vi/usage.md).
+
 ## Các lỗ hổng Thanh Tra phát hiện
 
 | # | Mã quy tắc | Mức độ cao nhất | Có quy tắc chuyên sâu cho |
@@ -223,8 +233,9 @@ Danh sách hiện tại có 21 quy tắc và sẽ tiếp tục mở rộng.
 - v0.9 — Provider triage `openai`: một adapter OpenAI-compatible phủ OpenAI, OpenRouter, Groq, Together, DeepSeek, và server local (Ollama/LM Studio/vLLM) qua `--triage-base-url` ✅
 - v0.10 — Overlay Rust: SQLi sqlx/diesel, SSRF reqwest, traversal PathBuf, command injection, error leak (axum/actix) ✅
 - v0.11 — Overlay Swift: secret trong plist/xcconfig + UserDefaults, SQLi GRDB/NSPredicate, XSS WKWebView, deserialization NSKeyedUnarchiver, deep-link URL load, ATS/trust-all cert ✅
-- v0.12 (hiện tại) — Overlay Shell: eval/sh -c, splice biến vào source interpreter khác qua heredoc (python3/osascript/awk), unquoted expansion + biến rỗng rm -rf, temp file đoán được + flock, set -x lộ secret ra CI log, curl|sh không pin/checksum; tiêu chí downgrade theo trust model owner-run ✅
-- v1.0+ — SARIF + GitHub Action (CI gate)
+- v0.12 — Overlay Shell: eval/sh -c, splice biến vào source interpreter khác qua heredoc (python3/osascript/awk), unquoted expansion + biến rỗng rm -rf, temp file đoán được + flock, set -x lộ secret ra CI log, curl|sh không pin/checksum; tiêu chí downgrade theo trust model owner-run ✅
+- v1.0 (hiện tại) — CI gate: `scan --sarif` xuất SARIF 2.1.0 từ findings đã triage (Security tab + annotate inline trên PR) + template GitHub Action copy được (`examples/github-actions/thanhtra.yml`) ✅
+- v1.x — Semgrep làm pre-scan backend tùy chọn (nhận SARIF; reopen trigger đã chạm khi v1.0 lands — xem BACKLOG.md)
 
 ## Miễn trừ trách nhiệm
 

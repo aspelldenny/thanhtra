@@ -3,29 +3,15 @@
 Design context for not-yet-built work. The one-line roadmap lives in `README.md`;
 this file keeps the *why* and the decisions so they survive across sessions.
 
-## v1.0 — SARIF output + GitHub Action (CI gate)
+## v1.x — Semgrep as optional pre-scan backend (NOW ACTIONABLE)
 
-Goal: let Thanh Tra run as an automated gate in CI, not just interactively.
-
-Two separable parts — don't conflate them:
-
-1. **`thanhtra scan --sarif`** (Thanh Tra's job — build once, everyone reuses).
-   - Emit SARIF 2.1.0 JSON so findings show up natively in GitHub's Security tab
-     and as inline annotations on pull requests.
-   - Maps the **triage** findings (not raw hotspots) → SARIF `results[]`:
-     `rule_id` → `ruleId`, `file`/`line` → `physicalLocation`, `severity` → SARIF
-     `level` (CRITICAL/HIGH→error, MEDIUM→warning, LOW→note), `reasoning` →
-     `message`. The 22 rules → SARIF `rules[]` (tool driver metadata).
-   - Prerequisite: **LLM triage** — DONE (v0.8 anthropic, v0.9 openai). CI needs a
-     headless verdict, and that now exists. This is why triage was sequenced first.
-
-2. **Example GitHub Action workflow** (a template users copy — they own it).
-   - A `.github/workflows/*.yml` snippet: install Thanh Tra → `scan --sarif` →
-     upload via `github/codeql-action/upload-sarif`.
-   - **When it runs is the user's call** (per push / per PR / nightly) and **the CI
-     minutes are the user's quota** — Thanh Tra only ships the template, doesn't
-     mandate cadence. (Decision: deferred to the maintainer because of GitHub
-     quota cost.)
+Reopen trigger ("when v1.0 SARIF lands") reached on 2026-06-12 — v1.0 shipped.
+Design intent (from the deferred entry below): accept semgrep's SARIF as a
+*hotspot source* feeding the existing L1–L4 LLM triage — augment, don't replace.
+With default rulesets it weighs about the same as the audit parsers the pre-scan
+already runs (mechanical, no model, same philosophy). Now that `scan --sarif`
+*emits* SARIF (see `thanhtra/core/sarif.py`), *accepting* SARIF shares the same
+vocabulary — rule mapping, level↔severity, physicalLocation — by design.
 
 ## Future axis — non-reasoning analysis layer (DEFER)
 
@@ -93,3 +79,12 @@ hole.
   v0.10 Rust overlay · v0.11 Swift overlay · v0.12 Shell overlay (motivated by the
   soulsign-marketing scan: 12 shell files scanned with generic rules only; the
   heredoc-splice finding is now a first-class pattern).
+- **v1.0 SARIF + GitHub Action (CI gate)** — `scan --sarif` emits SARIF 2.1.0 from
+  the *triage* findings (not raw hotspots): triage-dismissed false positives are
+  excluded from `results[]` (GitHub would open alerts for them) and counted in
+  `run.properties.dismissed_false_positives`; triage failure under `--sarif` exits 1
+  so the gate never silently passes with an empty (= all-clear) log. The 22 rules →
+  `rules[]` with `security-severity` (9.1/7.5) for GitHub's severity buckets.
+  Action template at `examples/github-actions/thanhtra.yml` — cadence and CI
+  minutes stay the user's call, per the original decision. Regression gate:
+  `scripts/validate-sarif.py` (wired into `maintain.sh`).
