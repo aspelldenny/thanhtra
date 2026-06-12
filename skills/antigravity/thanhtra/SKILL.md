@@ -5,7 +5,7 @@ description: Use when scanning code for security vulnerabilities. Use when user 
 
 # Thanh Tra — Security Scanner cho Vibe Coders (Antigravity variant)
 
-Quét lỗ hổng bảo mật cho code do AI sinh ra (vibe code). Thanh Tra kế thừa bộ rule MIT từ vbsec upstream, giữ credit tác giả gốc, và bổ sung CLI/core deterministic để agent bớt phụ thuộc reasoning cơ học. Bộ skill này check 22 lỗi bảo mật phổ biến nhất của vibe code, kế thừa kiến trúc SMALL/LARGE mode, tổng quát hóa cross-language + chuyên sâu cho Go/PHP/Python/TypeScript/Rust/Swift.
+Quét lỗ hổng bảo mật cho code do AI sinh ra (vibe code). Thanh Tra kế thừa bộ rule MIT từ vbsec upstream, giữ credit tác giả gốc, và bổ sung CLI/core deterministic để agent bớt phụ thuộc reasoning cơ học. Bộ skill này check 22 lỗi bảo mật phổ biến nhất của vibe code, kế thừa kiến trúc SMALL/LARGE mode, tổng quát hóa cross-language + chuyên sâu cho Go/PHP/Python/TypeScript/Rust/Swift/Shell.
 
 > Repo: https://github.com/aspelldenny/thanhtra
 > License: MIT
@@ -231,12 +231,12 @@ File i18n chứa bảng key→text cho toàn bộ user-facing strings. Mọi tex
 
 Đọc [`references/language-detection.md`](references/language-detection.md). Tóm tắt:
 
-1. Count extension trong file list: `.go`, `.py`, `.php`, `.js`, `.ts`, `.jsx`, `.tsx`, `.rb`, `.java`, `.rs`, `.cs`
+1. Count extension trong file list: `.go`, `.py`, `.php`, `.js`, `.ts`, `.jsx`, `.tsx`, `.rb`, `.java`, `.rs`, `.cs`, `.sh`
 2. Primary lang = lang chiếm ≥30% tổng files
 3. Có `rules/languages/<lang>/` → load overlay; không có → chỉ dùng generic
 4. Multi-lang repo (Go backend + Vue frontend) → load cả 2 overlay
 
-**Hiện hỗ trợ chuyên sâu:** `go`, `php`, `typescript` (gộp JS+TS), `python`, `rust`, `swift`.
+**Hiện hỗ trợ chuyên sâu:** `go`, `php`, `typescript` (gộp JS+TS), `python`, `rust`, `swift`, `shell` (`.sh` `.bash` `.zsh`).
 
 ---
 
@@ -255,7 +255,7 @@ BẤT KỲ điều kiện nào sang LARGE → dùng LARGE mode.
 
 **Luật cứng — KHÔNG tự hạ mode:** khi ngưỡng đã sang LARGE thì BẮT BUỘC chạy LARGE, kể cả khi repo "trông nhỏ" vì đa số file là docs. Docs nhiều chỉ có nghĩa là không cần chunk cho docs — KHÔNG có nghĩa là phần code được quét nông.
 
-**Repo polyglot** (không lang nào ≥30%): vẫn LARGE nếu vượt ngưỡng — chunk theo nhóm ngôn ngữ (vd: `shell/`, `rust/`, `python/`) thay vì theo folder. Shell script không có overlay nhưng generic rules grep được — phải đọc trọn từng script, không skim theo hotspot.
+**Repo polyglot** (không lang nào ≥30%): vẫn LARGE nếu vượt ngưỡng — chunk theo nhóm ngôn ngữ (vd: `shell/`, `rust/`, `python/`) thay vì theo folder. **Mỗi nhóm load overlay của lang đó nếu có** (kể cả khi lang không đạt 30% toàn repo — chunk shell thì dùng shell overlay). Shell script phải đọc trọn từng script, không skim theo hotspot.
 
 - **SMALL mode:** Read [`workflows/small-review.md`](workflows/small-review.md) — inline scan
 - **LARGE mode:** Read [`workflows/large-review-sequential.md`](workflows/large-review-sequential.md) — chunk + xử lý **tuần tự**

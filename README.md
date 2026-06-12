@@ -27,7 +27,7 @@ Thanh Tra brings production-grade security review into the AI coding loop. It ru
 
 Thanh Tra has been exercised against intentionally vulnerable open-source training apps such as OWASP Juice Shop — and identifies findings that line up with the documented vulnerability challenges across SQL injection, NoSQL injection, JWT misuse, broken access control, mass assignment, deserialization RCE, and more.
 
-Generic rules apply to every language. Specialized rule overlays exist for Go, PHP, TypeScript/JavaScript, Python, Rust, and Swift, covering common frameworks: React, Vue, Angular, Express, NestJS, Next.js, Django, Flask, FastAPI, SQLAlchemy, Sequelize, Prisma, Mongoose, axum, actix-web, sqlx, diesel, WKWebView, GRDB, and Core Data.
+Generic rules apply to every language. Specialized rule overlays exist for Go, PHP, TypeScript/JavaScript, Python, Rust, Swift, and Shell, covering common frameworks and idioms: React, Vue, Angular, Express, NestJS, Next.js, Django, Flask, FastAPI, SQLAlchemy, Sequelize, Prisma, Mongoose, axum, actix-web, sqlx, diesel, WKWebView, GRDB, Core Data, and bash/zsh scripting (heredocs, CI scripts, installers).
 
 ## Authors
 
@@ -220,9 +220,10 @@ The list currently contains 22 rules and will continue to expand.
 - v0.6 — Thanh Tra CLI-first deterministic evidence: `bin/thanhtra scan --json`, dependency audit parsing, audit gaps, file classification ✅
 - v0.7 — Rule #22 PROMPT-INJECTION for LLM/agent apps (direct + context-poisoning); report header records the inspector (model identity) for cross-run comparison ✅
 - v0.8 — Optional LLM triage: `scan --triage` / `thanhtra triage` reasons over the evidence headless (false-positive removal, rule mapping, PASS/WARN/FAIL verdict) via the Claude API, SDK-or-stdlib ✅
-- v0.9 (current) — `openai` triage provider: one OpenAI-compatible adapter covers OpenAI, OpenRouter, Groq, Together, DeepSeek, and local servers (Ollama/LM Studio/vLLM) via `--triage-base-url` ✅
+- v0.9 — `openai` triage provider: one OpenAI-compatible adapter covers OpenAI, OpenRouter, Groq, Together, DeepSeek, and local servers (Ollama/LM Studio/vLLM) via `--triage-base-url` ✅
 - v0.10 — Rust overlay: sqlx/diesel SQLi, reqwest SSRF, PathBuf traversal, Command injection, error leak (axum/actix) ✅
-- v0.11 (current) — Swift overlay: plist/xcconfig + UserDefaults secrets, GRDB/NSPredicate SQLi, WKWebView XSS, NSKeyedUnarchiver deserialization, deep-link URL load, ATS/trust-all certs ✅
+- v0.11 — Swift overlay: plist/xcconfig + UserDefaults secrets, GRDB/NSPredicate SQLi, WKWebView XSS, NSKeyedUnarchiver deserialization, deep-link URL load, ATS/trust-all certs ✅
+- v0.12 (current) — Shell overlay: eval/sh -c, heredoc splice into other interpreters' source (python3/osascript/awk), unquoted expansion + empty-var rm -rf, predictable temp files + flock, set -x leaking secrets into CI logs, curl|sh without pin/checksum; owner-run trust-model downgrade criteria ✅
 - v1.0+ — SARIF + GitHub Action (CI gate)
 
 ## Disclaimer

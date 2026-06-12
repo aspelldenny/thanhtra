@@ -70,6 +70,9 @@ LANG_EXTS = {
     "swift": {".swift"},
     "csharp": {".cs"},
     "kotlin": {".kt", ".kts"},
+    # .sh/.bash/.zsh cũng nằm trong SCRIPT_SUFFIXES; classify_file ưu tiên
+    # SOURCE nên từ v0.12 shell được đếm như ngôn ngữ chính thức (overlay riêng)
+    "shell": {".sh", ".bash", ".zsh"},
 }
 
 SOURCE_SUFFIXES = set().union(*LANG_EXTS.values())

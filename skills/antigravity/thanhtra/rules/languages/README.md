@@ -51,13 +51,19 @@ rules/
     │   ├── 10-path-traversal.md
     │   ├── 17-verbose-error-debug-mode.md
     │   └── 21-command-injection.md
-    └── swift/
-        ├── 01-hardcoded-secret.md     (applies_to: swift)
-        ├── 02-sql-injection.md
-        ├── 03-xss.md
-        ├── 08-insecure-deserialization.md
-        ├── 09-ssrf.md
-        └── 15-cors-misconfig.md
+    ├── swift/
+    │   ├── 01-hardcoded-secret.md     (applies_to: swift)
+    │   ├── 02-sql-injection.md
+    │   ├── 03-xss.md
+    │   ├── 08-insecure-deserialization.md
+    │   ├── 09-ssrf.md
+    │   └── 15-cors-misconfig.md
+    └── shell/
+        ├── 01-hardcoded-secret.md     (applies_to: shell — .sh .bash .zsh)
+        ├── 10-path-traversal.md
+        ├── 19-race-condition.md
+        ├── 20-outdated-dependency.md
+        └── 21-command-injection.md
 ```
 
 **Matching is by frontmatter `id`, not filename.** Filename numeric prefix is convention only, to aid navigation. If `rules/languages/go/02-sql-injection.md` has `id: SQL-INJECTION`, it overrides `rules/generic/02-sql-injection.md` (also `id: SQL-INJECTION`) when scanning a Go repo.
@@ -83,6 +89,7 @@ See `references/language-detection.md` for the detection heuristic. In short:
 | Python | `python/` | 9 | Stable (v0.4) — `.py` and `.pyw` |
 | Rust | `rust/` | 5 | Stable (v0.10) |
 | Swift | `swift/` | 6 | Stable (v0.11) — iOS/macOS apps + Vapor server-side |
+| Shell | `shell/` | 5 | Stable (v0.12) — bash/zsh/POSIX sh: tooling, CI scripts, installers, cron, hooks |
 
 Ruby and Java overlays are intentionally skipped (generic rules still apply) — revisit on real demand.
 

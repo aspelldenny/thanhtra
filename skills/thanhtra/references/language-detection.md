@@ -24,6 +24,7 @@ Cách detect ngôn ngữ code chính trong repo để chọn rule overlay.
    | `swift` | `.swift` | Objective-C `.m`/`.h` KHÔNG tính — repo thuần ObjC dùng generic rules |
    | `csharp` | `.cs` | |
    | `kotlin` | `.kt`, `.kts` | |
+   | `shell` | `.sh`, `.bash`, `.zsh` | script extensionless có shebang `#!/bin/sh\|bash\|zsh` cũng tính nếu agent đã đọc thấy; `.bats` (test) không tính |
 
 3. **Primary language** = lang nào có **≥30% tổng file code** trong scope.
 
@@ -50,6 +51,7 @@ Cách detect ngôn ngữ code chính trong repo để chọn rule overlay.
 | `python` | ✅ v0.4 | SQLAlchemy text() + Django .raw/.extra, pickle/yaml.load (RCE), subprocess shell=True, Flask Werkzeug debugger RCE, Django DEBUG/FastAPI debug, Django ModelForm/Flask `**request.json`/FastAPI Pydantic mass-assignment, PyJWT algorithms allowlist, flask-cors/django-cors-headers/FastAPI CORSMiddleware, Django CSRF middleware |
 | `rust` | ✅ v0.10 | sqlx `query!` macro vs `query(&format!)`, diesel `sql_query` vs typed DSL, reqwest/ureq SSRF + allowlist, `PathBuf::join/push` traversal, `Command` argv vs `sh -c`, `{:?}`/anyhow error leak (axum/actix/sqlx/diesel) |
 | `swift` | ✅ v0.11 | Secret trong plist/xcconfig + UserDefaults-vs-Keychain, GRDB `sql:` vs `literal:` + NSPredicate injection, WKWebView XSS (loadHTMLString/evaluateJavaScript/bridge), NSKeyedUnarchiver insecure, deep-link arbitrary URL load, ATS `NSAllowsArbitraryLoads` + trust-all cert |
+| `shell` | ✅ v0.12 | `eval`/`sh -c` + **heredoc splice vào source interpreter khác** (python3/osascript/awk), unquoted expansion + biến rỗng `rm -rf`, temp file đoán được + `flock`, `set -x` lộ secret ra CI log + secret lên `ps`, `curl\|sh` không pin/checksum; trust-model owner-run L3/L4 ghi rõ tiêu chí downgrade |
 | Khác | (tạm dừng) | Ruby, Java — bỏ qua cho gọn, mở lại theo nhu cầu thực tế |
 
 ## Frontend framework detection (sub-classification)

@@ -27,7 +27,7 @@ Thanh Tra đưa quy trình rà soát bảo mật cấp production vào trong vò
 
 Thanh Tra đã được chạy thử trên các ứng dụng mã nguồn mở có chủ đích chứa lỗ hổng dùng cho mục đích đào tạo (như OWASP Juice Shop) — và phát hiện được các lỗ hổng tương ứng với những challenge đã được tài liệu hoá: SQL Injection, NoSQL Injection, JWT misuse, Broken Access Control, Mass Assignment, RCE qua deserialization, và nhiều nhóm khác.
 
-Bộ quy tắc chung áp dụng cho mọi ngôn ngữ lập trình. Các quy tắc chuyên sâu theo ngôn ngữ hiện có cho Go, PHP, TypeScript/JavaScript, Python, Rust và Swift, bao phủ các framework phổ biến: React, Vue, Angular, Express, NestJS, Next.js, Django, Flask, FastAPI, SQLAlchemy, Sequelize, Prisma, Mongoose, axum, actix-web, sqlx, diesel, WKWebView, GRDB, Core Data.
+Bộ quy tắc chung áp dụng cho mọi ngôn ngữ lập trình. Các quy tắc chuyên sâu theo ngôn ngữ hiện có cho Go, PHP, TypeScript/JavaScript, Python, Rust, Swift và Shell, bao phủ các framework và idiom phổ biến: React, Vue, Angular, Express, NestJS, Next.js, Django, Flask, FastAPI, SQLAlchemy, Sequelize, Prisma, Mongoose, axum, actix-web, sqlx, diesel, WKWebView, GRDB, Core Data, và bash/zsh scripting (heredoc, CI script, installer).
 
 ## Tác giả
 
@@ -220,9 +220,10 @@ Danh sách hiện tại có 21 quy tắc và sẽ tiếp tục mở rộng.
 - v0.6 — Thanh Tra CLI-first deterministic evidence: `bin/thanhtra scan --json`, parse dependency audit, audit gaps, phân loại file ✅
 - v0.7 — Rule #22 PROMPT-INJECTION cho app LLM/agent (direct + context-poisoning); header báo cáo ghi thanh tra viên (model) để so sánh giữa các lần scan ✅
 - v0.8 — Tầng LLM triage tùy chọn: `scan --triage` / `thanhtra triage` cho LLM reasoning headless trên evidence (loại false positive, map rule, verdict PASS/WARN/FAIL) qua Claude API, SDK-hoặc-stdlib ✅
-- v0.9 (hiện tại) — Provider triage `openai`: một adapter OpenAI-compatible phủ OpenAI, OpenRouter, Groq, Together, DeepSeek, và server local (Ollama/LM Studio/vLLM) qua `--triage-base-url` ✅
+- v0.9 — Provider triage `openai`: một adapter OpenAI-compatible phủ OpenAI, OpenRouter, Groq, Together, DeepSeek, và server local (Ollama/LM Studio/vLLM) qua `--triage-base-url` ✅
 - v0.10 — Overlay Rust: SQLi sqlx/diesel, SSRF reqwest, traversal PathBuf, command injection, error leak (axum/actix) ✅
-- v0.11 (hiện tại) — Overlay Swift: secret trong plist/xcconfig + UserDefaults, SQLi GRDB/NSPredicate, XSS WKWebView, deserialization NSKeyedUnarchiver, deep-link URL load, ATS/trust-all cert ✅
+- v0.11 — Overlay Swift: secret trong plist/xcconfig + UserDefaults, SQLi GRDB/NSPredicate, XSS WKWebView, deserialization NSKeyedUnarchiver, deep-link URL load, ATS/trust-all cert ✅
+- v0.12 (hiện tại) — Overlay Shell: eval/sh -c, splice biến vào source interpreter khác qua heredoc (python3/osascript/awk), unquoted expansion + biến rỗng rm -rf, temp file đoán được + flock, set -x lộ secret ra CI log, curl|sh không pin/checksum; tiêu chí downgrade theo trust model owner-run ✅
 - v1.0+ — SARIF + GitHub Action (CI gate)
 
 ## Miễn trừ trách nhiệm

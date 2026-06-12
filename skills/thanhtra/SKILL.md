@@ -6,7 +6,7 @@ userInvocable: true
 
 # Thanh Tra — Security Scanner cho Vibe Coders
 
-Quét lỗ hổng bảo mật cho code do AI sinh ra (vibe code). Thanh Tra kế thừa bộ rule MIT từ vbsec upstream, giữ credit tác giả gốc, và bổ sung CLI/core deterministic để agent bớt phụ thuộc reasoning cơ học. Bộ skill này check 22 lỗi bảo mật phổ biến nhất của vibe code, kế thừa kiến trúc SMALL/LARGE mode từ bộ rule production của SePay, tổng quát hóa cross-language (mặc định) + chuyên sâu cho Go/PHP/TypeScript/Python/Rust/Swift.
+Quét lỗ hổng bảo mật cho code do AI sinh ra (vibe code). Thanh Tra kế thừa bộ rule MIT từ vbsec upstream, giữ credit tác giả gốc, và bổ sung CLI/core deterministic để agent bớt phụ thuộc reasoning cơ học. Bộ skill này check 22 lỗi bảo mật phổ biến nhất của vibe code, kế thừa kiến trúc SMALL/LARGE mode từ bộ rule production của SePay, tổng quát hóa cross-language (mặc định) + chuyên sâu cho Go/PHP/TypeScript/Python/Rust/Swift/Shell.
 
 > Repo: https://github.com/aspelldenny/thanhtra
 > License: MIT (sẽ chốt khi public)
@@ -258,12 +258,12 @@ File i18n chứa bảng key→text cho toàn bộ user-facing strings (section h
 
 Đọc [`references/language-detection.md`](references/language-detection.md) để biết cách detect. Tóm tắt:
 
-1. Count extension trong file list (đã strip vendored): `.go`, `.py`, `.php`, `.js`, `.ts`, `.jsx`, `.tsx`, `.rb`, `.java`, `.rs`, `.cs`
+1. Count extension trong file list (đã strip vendored): `.go`, `.py`, `.php`, `.js`, `.ts`, `.jsx`, `.tsx`, `.rb`, `.java`, `.rs`, `.cs`, `.sh`
 2. Primary lang = lang chiếm ≥30% tổng files
 3. Có `rules/languages/<lang>/` → load overlay; không có → chỉ dùng generic
 4. Multi-lang repo (cả Go backend + Vue frontend) → load cả 2 overlay
 
-**Hiện hỗ trợ chuyên sâu:** `go`, `php`, `typescript` (gộp JS+TS), `python`, `rust`, `swift`. Các lang khác chỉ dùng generic rules.
+**Hiện hỗ trợ chuyên sâu:** `go`, `php`, `typescript` (gộp JS+TS), `python`, `rust`, `swift`, `shell` (`.sh` `.bash` `.zsh`). Các lang khác chỉ dùng generic rules.
 
 ---
 
@@ -282,7 +282,7 @@ BẤT KỲ điều kiện nào sang LARGE → dùng LARGE mode.
 
 **Luật cứng — KHÔNG tự hạ mode:** khi ngưỡng đã sang LARGE thì BẮT BUỘC chạy LARGE, kể cả khi repo "trông nhỏ" vì đa số file là docs. Docs nhiều chỉ có nghĩa là không cần chunk cho docs — KHÔNG có nghĩa là phần code được quét nông. (Bài học thực tế: repo 162 file trong đó 103 markdown, agent tự hạ xuống inline → miss 1 finding HIGH trong shell script mà LARGE mode đã từng bắt được ở bản copy của repo khác.)
 
-**Repo polyglot** (không lang nào ≥30%): vẫn LARGE nếu vượt ngưỡng — chunk theo nhóm ngôn ngữ (vd: `shell/`, `rust/`, `python/`) thay vì theo folder, mỗi nhóm 1 sub-agent. Shell script không có overlay nhưng generic rules grep được — phải có sub-agent đọc trọn từng script, không skim theo hotspot.
+**Repo polyglot** (không lang nào ≥30%): vẫn LARGE nếu vượt ngưỡng — chunk theo nhóm ngôn ngữ (vd: `shell/`, `rust/`, `python/`) thay vì theo folder, mỗi nhóm 1 sub-agent. **Mỗi nhóm load overlay của lang đó nếu có** (kể cả khi lang không đạt 30% toàn repo — sub-agent quét chunk shell thì dùng shell overlay). Shell script phải có sub-agent đọc trọn từng script, không skim theo hotspot.
 
 - **SMALL mode:** Read [`workflows/small-review.md`](workflows/small-review.md) và follow workflow đó (inline, không sub-agent)
 - **LARGE mode:** Read [`workflows/large-review.md`](workflows/large-review.md), trở thành **orchestrator only**:
