@@ -196,6 +196,18 @@ thanhtra scan . --sarif --output thanhtra.sarif    # tự bật --triage; exit 1
 
 22 rule trở thành metadata SARIF `rules[]`; severity map CRITICAL/HIGH → `error`, MEDIUM → `warning`, LOW → `note`. Copy [`examples/github-actions/thanhtra.yml`](examples/github-actions/thanhtra.yml) vào `.github/workflows/` của repo bạn để nối với `codeql-action/upload-sarif` — chạy lúc nào (mỗi PR / push / nightly) là quyền của bạn và quota CI của bạn. Chi tiết trong [docs/vi/usage.md](docs/vi/usage.md).
 
+### Agent-trust signals (quét repo TRƯỚC khi trust folder)
+
+Vừa clone một repo lạ và sắp mở AI agent trong đó? Pre-scan giờ phát hiện nội dung nhắm vào *chính agent* — một cách deterministic (Python thuần, không LLM, không thực thi bất cứ gì từ repo), nên chạy an toàn trên một clone độc hại trước:
+
+```bash
+thanhtra prescan --root /path/to/repo-vua-clone --no-audit   # xem agent_trust_signals
+```
+
+Ba lớp signal trong `agent_trust_signals`: **hidden-unicode** (codepoint zero-width/bidi/Tags-block trong file instruction — lớp tấn công "Rules File Backdoor"), **auto-exec** (config chạy khi mở folder/trust/install: hooks/statusLine/allow-rules trong `.claude/settings.json`, `.mcp.json`, `tasks.json` folderOpen, devcontainer lifecycle, `.envrc`, npm lifecycle scripts, husky), và **injection-marker** (cụm override/giấu-user, `curl|sh`, blob base64 trong file agent đọc). Triage map các signal thật về rule #22 PROMPT-INJECTION.
+
+Repo này tự áp chuẩn đó lên chính mình — xem [SECURITY.md](SECURITY.md) cho threat model ("markdown của repo này chạy bên trong agent của bạn") và CI trust gate đang enforce.
+
 ## Các lỗ hổng Thanh Tra phát hiện
 
 | # | Mã quy tắc | Mức độ cao nhất | Có quy tắc chuyên sâu cho |
@@ -247,7 +259,8 @@ Danh sách hiện tại có 21 quy tắc và sẽ tiếp tục mở rộng.
 - v0.11 — Overlay Swift: secret trong plist/xcconfig + UserDefaults, SQLi GRDB/NSPredicate, XSS WKWebView, deserialization NSKeyedUnarchiver, deep-link URL load, ATS/trust-all cert ✅
 - v0.12 — Overlay Shell: eval/sh -c, splice biến vào source interpreter khác qua heredoc (python3/osascript/awk), unquoted expansion + biến rỗng rm -rf, temp file đoán được + flock, set -x lộ secret ra CI log, curl|sh không pin/checksum; tiêu chí downgrade theo trust model owner-run ✅
 - v1.0 (hiện tại) — CI gate: `scan --sarif` xuất SARIF 2.1.0 từ findings đã triage (Security tab + annotate inline trên PR) + template GitHub Action copy được (`examples/github-actions/thanhtra.yml`) ✅
-- v1.1 (hiện tại) — SAST backend ngoài: `--semgrep` chạy semgrep khi đã cài (best-effort, `p/default`, metrics off), `--sast-sarif` nhận SARIF từ engine bất kỳ; `sast_findings` chuẩn hóa đổ vào cùng tầng LLM triage như hotspot ✅
+- v1.1 — SAST backend ngoài: `--semgrep` chạy semgrep khi đã cài (best-effort, `p/default`, metrics off), `--sast-sarif` nhận SARIF từ engine bất kỳ; `sast_findings` chuẩn hóa đổ vào cùng tầng LLM triage như hotspot ✅
+- v1.2 (hiện tại) — Tầng phòng thủ trust: detector `agent_trust_signals` deterministic (Unicode ẩn / config auto-exec / cụm injection — quét repo *trước khi* trust folder), guardrail chống prompt-injection trong skill + triage, SECURITY.md threat model, CI trust gate với baseline marker đã review ✅
 
 ## Miễn trừ trách nhiệm
 

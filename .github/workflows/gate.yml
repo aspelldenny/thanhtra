@@ -1,0 +1,47 @@
+# Repo gate: every push/PR must pass the full maintenance + trust gate.
+# The trust gate (validate-trust.sh) is the open-source defense layer:
+# hidden Unicode and auto-exec configs hard-fail; new injection phrasing
+# in markdown fails until a human reviews and re-baselines.
+name: gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Skill structure
+        run: ./scripts/validate-skill.sh
+
+      - name: Deterministic pre-scan
+        run: ./scripts/validate-pre-scan.sh
+
+      - name: Regression fixtures
+        run: ./scripts/validate-fixtures.sh
+
+      - name: SARIF emitter
+        run: ./scripts/validate-sarif.sh
+
+      - name: SAST ingest
+        run: ./scripts/validate-sast.sh
+
+      - name: Trust gate (anti agent-hijack)
+        run: ./scripts/validate-trust.sh
+
+      - name: Skill variants in sync
+        run: |
+          ./scripts/sync-skills.sh
+          git diff --exit-code -- skills/ \
+            || { echo "::error::skills/codex + skills/antigravity drifted from canonical — run scripts/sync-skills.sh"; exit 1; }

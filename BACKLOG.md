@@ -86,3 +86,19 @@ hole.
   with the dropped count recorded) feed the same L1–L4 triage as grep hotspots;
   the triage prompt explicitly says not to trust external severity. Gate:
   `scripts/validate-sast.py`.
+- **v1.2 trust defense layer** (pre-open-source requirement). Research-grounded
+  (3 parallel briefs, 2026-06-12) — load-bearing facts: (a) "Rules File Backdoor"
+  (Pillar 2025) hides instructions in agent rules files via invisible Unicode
+  (Tags U+E0000–E007F, zero-width, bidi); vendors ruled it *user responsibility*,
+  so the ecosystem won't catch it for us. (b) In Claude Code the trust click arms
+  project hooks/statusLine/allow-rules with no per-item consent (`.mcp.json` is
+  the lone per-server prompt); `npm install` is the highest-leverage non-AI
+  trigger. (c) Trail of Bits bypassed every LLM/skill scanner — so the gate must
+  be deterministic (regex can't be sweet-talked): hidden Unicode + auto-exec
+  configs hard-FAIL; injection phrases diff against a reviewed baseline
+  (`tests/trust-baseline.json`) because the rule corpus legitimately quotes
+  attack phrasing. Shipped: `thanhtra/core/trust.py` detector (also feeds
+  `agent_trust_signals` into prescan evidence for scanning *other* repos before
+  trusting their folder), skill + triage anti-injection guardrails, SECURITY.md
+  invariants, `.github/workflows/gate.yml` (read-only token, sync-drift check),
+  `scripts/validate-trust.py` self-test + self-scan.

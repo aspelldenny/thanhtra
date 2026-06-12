@@ -36,6 +36,7 @@ def build_scan_document(args: argparse.Namespace, evidence: dict) -> dict:
         "secret_hit_count": len(evidence.get("secret_hits_masked", [])),
         "git_secret_signal_count": len(evidence.get("git_secret_signals", [])),
         "docker_exposure_count": len(evidence.get("docker_exposures", [])),
+        "agent_trust_signal_count": len(evidence.get("agent_trust_signals", [])),
         "sast_finding_count": len(evidence.get("sast_findings", [])),
         "sast_gap_count": len(evidence.get("sast_gaps", [])),
         "hotspot_counts": hotspot_counts(evidence),

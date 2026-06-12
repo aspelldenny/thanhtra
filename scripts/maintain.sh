@@ -30,6 +30,10 @@ echo "==> Validate SAST ingest"
 ./scripts/validate-sast.sh
 
 echo ""
+echo "==> Trust gate (anti agent-hijack)"
+./scripts/validate-trust.sh
+
+echo ""
 echo "==> Verify install plan"
 ./scripts/install.sh --dry-run
 

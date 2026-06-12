@@ -685,6 +685,7 @@ def evidence_fingerprint(evidence: dict) -> str:
         "secret_hits_masked": evidence.get("secret_hits_masked"),
         "git_secret_signals": evidence.get("git_secret_signals"),
         "docker_exposures": evidence.get("docker_exposures"),
+        "agent_trust_signals": evidence.get("agent_trust_signals"),
         "hotspots_by_rule": evidence.get("hotspots_by_rule"),
         "dependency_audits": evidence.get("dependency_audits"),
         "dependency_vulnerabilities": evidence.get("dependency_vulnerabilities"),
@@ -695,6 +696,22 @@ def evidence_fingerprint(evidence: dict) -> str:
     }
     payload = json.dumps(stable, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def _load_trust_collector():
+    """Import the trust detector, working both as a package and standalone."""
+    try:
+        from thanhtra.core.trust import collect_agent_trust_signals
+    except ImportError:  # prescan.py loaded as a lone module (skill wrapper)
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location(
+            "thanhtra_core_trust", Path(__file__).with_name("trust.py")
+        )
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        collect_agent_trust_signals = module.collect_agent_trust_signals
+    return collect_agent_trust_signals
 
 
 def build_evidence(
@@ -709,10 +726,10 @@ def build_evidence(
     max_sast: int = 200,
 ) -> dict:
     root = root.resolve()
+    collect_agent_trust_signals = _load_trust_collector()
     sast_findings: list[dict] = []
     sast_gaps: list[str] = []
     if semgrep or sast_sarif:
-        # Lazy import: prescan.py must stay loadable standalone (skill wrapper).
         from thanhtra.core.sast import cap_findings, ingest_sarif_files, run_semgrep
         if semgrep:
             found, gaps = run_semgrep(root, config=semgrep_config)
@@ -753,6 +770,7 @@ def build_evidence(
         "secret_hits_masked": collect_secret_hits(root, files, max_secrets),
         "git_secret_signals": collect_git_secret_signals(root, is_git),
         "docker_exposures": docker_exposures(root, files),
+        "agent_trust_signals": collect_agent_trust_signals(root, files),
         "hotspots_by_rule": collect_hotspots(root, files, max_per_rule),
         "dependency_audits": dependency_audits,
         "dependency_vulnerabilities": dependency_vulnerabilities,

@@ -196,6 +196,18 @@ thanhtra scan . --sarif --output thanhtra.sarif    # implies --triage; exits 1 i
 
 The 22 rules become SARIF `rules[]` metadata; severity maps CRITICAL/HIGH → `error`, MEDIUM → `warning`, LOW → `note`. Copy [`examples/github-actions/thanhtra.yml`](examples/github-actions/thanhtra.yml) into your repo's `.github/workflows/` to wire it to `codeql-action/upload-sarif` — when it runs (per PR / push / nightly) is your call and your CI quota. Details in [docs/en/usage.md](docs/en/usage.md).
 
+### Agent-trust signals (scan a repo BEFORE you trust the folder)
+
+Cloned an unknown repo and about to open an AI agent in it? The pre-scan now detects content that targets *the agent itself* — deterministically (pure Python, no LLM, nothing from the repo is executed), so it is safe to run on a hostile clone first:
+
+```bash
+thanhtra prescan --root /path/to/cloned-repo --no-audit   # look at agent_trust_signals
+```
+
+Three signal classes in `agent_trust_signals`: **hidden-unicode** (zero-width/bidi/Tags-block codepoints in instruction files — the "Rules File Backdoor" class), **auto-exec** (configs that run on folder open/trust/install: `.claude/settings.json` hooks/statusLine/allow-rules, `.mcp.json`, `tasks.json` folderOpen, devcontainer lifecycle, `.envrc`, npm lifecycle scripts, husky), and **injection-marker** (override/hide-from-user phrasing, `curl|sh`, base64 blobs in agent-read files). The triage maps real ones to rule #22 PROMPT-INJECTION.
+
+This repo holds itself to the same standard — see [SECURITY.md](SECURITY.md) for the threat model ("this repo's markdown runs inside your agent") and the CI trust gate that enforces it.
+
 ## Vulnerabilities Thanh Tra detects
 
 | # | Rule ID | Severity max | Specialized for |
@@ -247,7 +259,8 @@ The list currently contains 22 rules and will continue to expand.
 - v0.11 — Swift overlay: plist/xcconfig + UserDefaults secrets, GRDB/NSPredicate SQLi, WKWebView XSS, NSKeyedUnarchiver deserialization, deep-link URL load, ATS/trust-all certs ✅
 - v0.12 — Shell overlay: eval/sh -c, heredoc splice into other interpreters' source (python3/osascript/awk), unquoted expansion + empty-var rm -rf, predictable temp files + flock, set -x leaking secrets into CI logs, curl|sh without pin/checksum; owner-run trust-model downgrade criteria ✅
 - v1.0 (current) — CI gate: `scan --sarif` emits SARIF 2.1.0 from triaged findings (GitHub Security tab + inline PR annotations) + copyable GitHub Action template (`examples/github-actions/thanhtra.yml`) ✅
-- v1.1 (current) — External SAST backend: `--semgrep` runs semgrep when installed (best-effort, `p/default`, metrics off), `--sast-sarif` ingests any engine's SARIF; normalized `sast_findings` feed the same LLM triage as hotspots ✅
+- v1.1 — External SAST backend: `--semgrep` runs semgrep when installed (best-effort, `p/default`, metrics off), `--sast-sarif` ingests any engine's SARIF; normalized `sast_findings` feed the same LLM triage as hotspots ✅
+- v1.2 (current) — Trust defense layer: deterministic `agent_trust_signals` detector (hidden Unicode / auto-exec configs / injection markers — scan a repo *before* trusting the folder), anti-prompt-injection guardrails in skill + triage, SECURITY.md threat model, CI trust gate with reviewed marker baseline ✅
 
 ## Disclaimer
 
