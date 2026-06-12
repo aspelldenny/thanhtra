@@ -76,6 +76,9 @@ services:
         encoding="utf-8",
     )
     run(["git", "init"], root)
+    # CI runners have no git identity; the fixture repo sets its own.
+    run(["git", "config", "user.email", "ci@thanhtra.invalid"], root)
+    run(["git", "config", "user.name", "Thanh Tra CI"], root)
     run(["git", "add", "."], root)
     run(["git", "commit", "-m", "fixture with token cleanup signal"], root)
     # Untracked file: vibe code thường chưa commit, pre-scan vẫn phải thấy.
