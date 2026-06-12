@@ -8,6 +8,10 @@
     "pipe-to-shell"
   ],
   [
+    "SECURITY.md",
+    "pipe-to-shell"
+  ],
+  [
     "docs/en/usage.md",
     "pipe-to-shell"
   ],
