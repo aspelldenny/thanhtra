@@ -19,6 +19,16 @@ Thanh Tra là scanner bảo mật CLI-first kiêm skill agent đa nền tảng, 
 
 ---
 
+## Bắt đầu nhanh
+
+```bash
+git clone --branch v1.2.0 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra
+~/thanhtra/bin/thanhtra scan /path/to/repo --json --no-audit   # CLI — không cần cài gì, Python 3.10+ stdlib thuần
+~/thanhtra/scripts/install.sh                                  # hoặc cài agent skill, rồi gõ /thanhtra
+```
+
+Clone theo **tag release đã pin** (release là immutable), đừng theo branch đang chạy — markdown của repo này chạy bên trong agent của bạn, nên cập nhật nó như cập nhật dependency. Vì sao: [SECURITY.md](SECURITY.md). Tag mới nhất: [Releases](https://github.com/aspelldenny/thanhtra/releases).
+
 ## Giới thiệu
 
 Mã nguồn do AI sinh ra hiện chiếm tỷ trọng đáng kể trong các commit mới của ngành phần mềm. Các trợ lý lập trình hiện đại rất giỏi tạo ra mã nguồn *chạy được*, nhưng chúng vẫn thường xuyên xuất ra mã mắc những lỗi bảo mật kinh điển: Hardcoded Secret, SQL Injection, Broken Access Control, Weak Password Hashing, JWT misuse, CORS misconfiguration. Những lỗi này hiếm khi lộ ra trong kiểm thử chức năng — chúng chỉ lộ ra khi đã xảy ra sự cố.
@@ -70,10 +80,12 @@ Người contribute: sửa rule trong `skills/thanhtra/` (folder canonical của
 
 ## Cài đặt
 
+Yêu cầu: **Python 3.10+** (chỉ standard library — CLI và installer zero dependencies), cộng ít nhất một agent platform được hỗ trợ cho phần skill.
+
 Thanh Tra tự động detect mọi platform hỗ trợ có sẵn trên máy và cấu hình skill. Chạy:
 
 ```bash
-git clone https://github.com/aspelldenny/thanhtra ~/thanhtra
+git clone --branch v1.2.0 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra   # pin theo tag release (xem SECURITY.md)
 cd ~/thanhtra
 ./scripts/install.sh         # auto-detect, cài cho platform có sẵn
 ./scripts/install.sh --all   # ép cài cho cả 3 platform bất kể detection
@@ -86,10 +98,12 @@ Cách detect:
 
 Antigravity là IDE (như VS Code), không phải CLI. Với user mới chưa cài Antigravity skill nào, folder `~/.gemini/antigravity/skills/` không tồn tại — installer sẽ tự tạo.
 
-Installer symlink folder skill phù hợp vào vị trí của từng platform. Để cập nhật về sau:
+Installer symlink folder skill phù hợp vào vị trí của từng platform. Để cập nhật về sau, chuyển sang tag release kế tiếp — và đọc diff `.md` như đọc diff khi nâng dependency:
 
 ```bash
-cd ~/thanhtra && git pull
+cd ~/thanhtra && git fetch --tags
+git diff v1.2.0..v1.3.0 -- skills/ SECURITY.md   # review những gì sẽ chạy trong agent của bạn
+git checkout v1.3.0
 ```
 
 (Symlink tự load phiên bản mới; khởi động lại CLI/IDE nếu cần.)

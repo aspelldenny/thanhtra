@@ -19,6 +19,16 @@ Thanh Tra is a CLI-first security scanner and multi-platform agent skill that pe
 
 ---
 
+## Quick start
+
+```bash
+git clone --branch v1.2.0 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra
+~/thanhtra/bin/thanhtra scan /path/to/repo --json --no-audit   # CLI — zero install, Python 3.10+ stdlib only
+~/thanhtra/scripts/install.sh                                  # or install the agent skill, then type /thanhtra
+```
+
+Clone a **pinned release tag** (releases are immutable), not a moving branch — this repo's markdown runs inside your agent, so treat updates like dependency upgrades. Why that matters: [SECURITY.md](SECURITY.md). Latest tag: [Releases](https://github.com/aspelldenny/thanhtra/releases).
+
 ## Introduction
 
 AI-generated code now represents a meaningful share of new commits across the industry. While modern coding assistants excel at producing code that *works*, they routinely ship code with classic security pitfalls: hardcoded secrets, SQL injection, missing access controls, weak password hashing, JWT misuse, and broken CORS configurations. These mistakes rarely surface in functional testing — they surface in incident reports.
@@ -70,10 +80,12 @@ Contributors: edit rules in `skills/thanhtra/` (the canonical Claude folder), th
 
 ## Installation
 
+Requirements: **Python 3.10+** (standard library only — the CLI and installer have zero dependencies), plus at least one supported agent platform for the skill.
+
 Thanh Tra auto-detects every supported platform you have installed and wires up the skill. Run:
 
 ```bash
-git clone https://github.com/aspelldenny/thanhtra ~/thanhtra
+git clone --branch v1.2.0 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra   # pin a release tag (see SECURITY.md)
 cd ~/thanhtra
 ./scripts/install.sh         # auto-detect, install for what's present
 ./scripts/install.sh --all   # force install for all 3 platforms regardless
@@ -86,10 +98,12 @@ Detection logic:
 
 Antigravity is an IDE (like VS Code), not a CLI. For a brand-new Antigravity user, the folder `~/.gemini/antigravity/skills/` does not exist by default — the installer creates it for you.
 
-The installer symlinks the appropriate skill folder into each platform's expected location. To update later:
+The installer symlinks the appropriate skill folder into each platform's expected location. To update later, move to the next release tag — and read the `.md` diff like you would a dependency upgrade:
 
 ```bash
-cd ~/thanhtra && git pull
+cd ~/thanhtra && git fetch --tags
+git diff v1.2.0..v1.3.0 -- skills/ SECURITY.md   # review what will run in your agent
+git checkout v1.3.0
 ```
 
 (Symlinks pick up the new version automatically; restart the CLI / IDE if needed.)
