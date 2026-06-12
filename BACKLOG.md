@@ -3,6 +3,78 @@
 Design context for not-yet-built work. The one-line roadmap lives in `README.md`;
 this file keeps the *why* and the decisions so they survive across sessions.
 
+## Rule-corpus coverage — two update axes (OWASP review 2026-06-12)
+
+Checked the 22-rule corpus against current OWASP standards so future sessions
+don't re-derive this. Standing principle: rules are **CWE-classes, not CVE
+signatures** — SQL-injection is still SQL-injection next year, so the corpus
+does NOT need routine churn. Live CVE freshness is delegated to
+`npm/pip/cargo audit` (rule OUTDATED-DEPENDENCY), whose DBs self-update. Update
+the corpus only on the events below.
+
+**Reference versions (latest as of 2026-06-12 — don't re-look-up):**
+- OWASP Top 10:**2025** for web apps — announced 11/2025, *final 01/2026*. This
+  IS the newest web edition; next is ~2028–2029 (3–4yr cadence). No "2026" web
+  edition exists. https://owasp.org/Top10/2025/
+- OWASP Top 10 for **Agentic Applications 2026** (ASI01–ASI10) — released
+  12/2025, the agent-era framework that matters most for this repo (Thanh Tra
+  is both a scanner AND an agent skill).
+  https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/
+
+### Axis 1 — Web rules (the 22-rule corpus)
+
+Mapping to OWASP Top 10:2025 is good: A01 (BROKEN-ACCESS-CONTROL/IDOR/CSRF/
+PATH-TRAVERSAL/SSRF — note 2025 folded SSRF into A01), A02, A03 supply-chain
+(SLOPSQUATTING/OUTDATED-DEPENDENCY — we lead OWASP here), A04, A05, A06, A07
+(BRUTE-FORCE, thin), A08. Two genuine gaps + one easy win:
+
+- **[candidate #23] Exception mishandling / fail-open** — OWASP 2025 **A10
+  (new)** "Mishandling of Exceptional Conditions". `try/except: pass`, empty
+  catch then continue, error-swallowing that lets a failed check proceed.
+  *Highly* vibe-code-typical (AI writes "make it run" error handling). Highest
+  value of the three. Needs language overlays (per-lang catch idioms).
+- **[candidate] Insecure randomness** — `Math.random()`/`rand()` for tokens/
+  OTP/session IDs instead of a CSPRNG. AI-typical, cheap to detect, no OWASP-
+  2025 top-level slot of its own (CWE-330, sits under A04) but worth a rule.
+- **A09 Security Logging & Alerting Failures: DEFER** — static scan can't
+  judge "is logging sufficient"; false-positive prone. Skip unless a real need.
+- Not now (add as overlay only when a real project hits them): SSTI as a
+  first-class generic rule (currently only in the Python overlay), XXE,
+  GraphQL-specific. Don't inflate the corpus on theory.
+
+### Axis 2 — Agentic security (NEW axis, the repo's own frontier)
+
+The v1.2 trust layer already covers ~half of OWASP Agentic 2026 **by
+instinct** — it just isn't labelled with ASI codes, so users can't see what
+we cover. Mapping found:
+
+| ASI 2026 | What Thanh Tra already has |
+|---|---|
+| ASI01 Agent Goal Hijack | "scanned content is DATA not instructions" guardrail + injection-marker |
+| ASI04 Agentic Supply Chain Compromise | `agent_trust_signals` + SECURITY.md + CI trust gate |
+| ASI05 Unexpected Code Execution | auto-exec detector (hooks / .mcp.json / postinstall / folderOpen…) |
+| ASI06 Memory & Context Poisoning | hidden-unicode detector (Rules File Backdoor class) |
+| ASI09 Human-Agent Trust Exploitation | the whole "scan before you trust the folder" flow |
+
+- **[task A] Label the coverage** — map `agent_trust_signals` signal types →
+  ASI codes in SECURITY.md + `trust.py` docstrings. Turns instinctive defense
+  into a framework-readable claim. Cheap, high legibility payoff. Do first.
+- **[task B] Survey the other 5 ASI** — ASI02 Tool Misuse, ASI03 Identity/
+  Privilege Abuse, ASI07 Insecure Inter-Agent Comms, ASI08 Cascading Failures,
+  ASI10 Rogue Agents — which become new deterministic signals vs which are
+  out of scope for a static scanner? Decide per-item, don't force-fit.
+
+### Update cadence (when to revisit this section)
+
+1. New OWASP web edition lands (~2028–2029) → re-map the corpus.
+2. AI-era frameworks shift (OWASP GenAI/Agentic move fast — watch for a 2027
+   ASI revision) → this is the fastest-moving axis and where the repo leads.
+3. A real project needs a stack/class not covered → add overlay/rule on demand
+   (the proven cadence: Rust/Swift/Shell all came from real scans).
+
+Adding a rule is ~one session: one markdown file + fixtures + `sync-skills.sh`
++ sync the rule lists in `thanhtra/core/triage.py` and `sarif.py`.
+
 ## Future axis — non-reasoning analysis layer (DEFER)
 
 Context: every layer in the maintainer's current security posture — Thanh Tra,
