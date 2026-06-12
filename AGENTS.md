@@ -27,6 +27,6 @@ Security scanner for AI-generated code, shipped in two forms from this one repo:
 
 - **The `.md` files in `skills/` run inside users' agents.** A diff to a rule file is security-sensitive content, not just docs — see `SECURITY.md`. Review such diffs as if they were executable code.
 - **Trust gate** (`scripts/validate-trust.sh`, part of `maintain.sh` and CI): hidden/invisible Unicode or auto-executing configs anywhere in the repo are a hard FAIL. New imperative-injection phrasing in markdown fails until a human reviews it and runs `scripts/validate-trust.sh --rebaseline` — and rebaseline reads `git ls-files`, so **`git add` new files first**, then rebaseline.
-- Never commit literal invisible Unicode characters, even in tests — use escape sequences (`​`, `\U000E0041`, …).
+- Never commit literal invisible Unicode characters, even in tests — write them as escape sequences in code/string form (backslash-u200b, `\U000E0041`, …). This very rule has been tripped three times while building the gate; it catches everyone.
 - Severity caps, the 22 rule IDs, and the L1–L4 trust model are defined in `skills/thanhtra/rules/` and mirrored in `thanhtra/core/triage.py` — keep them in sync when adding a rule.
 - Reports and skill output are bilingual (vi default, `lang=en`); CLI/JSON stays English.
