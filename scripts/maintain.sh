@@ -26,6 +26,10 @@ echo "==> Validate SARIF emitter"
 ./scripts/validate-sarif.sh
 
 echo ""
+echo "==> Validate SAST ingest"
+./scripts/validate-sast.sh
+
+echo ""
 echo "==> Verify install plan"
 ./scripts/install.sh --dry-run
 

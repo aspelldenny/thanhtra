@@ -98,6 +98,10 @@ Method — reason, do not pattern-match:
    rule: CRITICAL only for {critical_rules}; all other rules cap at HIGH.
 4. Dependency CVEs from the audit are real findings (rule OUTDATED-DEPENDENCY,
    severity HIGH) unless clearly unreachable.
+5. sast_findings (if present) come from an external engine (e.g. semgrep) with
+   real dataflow analysis — judge them like hotspots: map each to one of the
+   22 canonical rules, dismiss false positives, and apply the same L1-L4
+   source tracing. Do not trust the external engine's severity blindly.
 
 Verdict gate (mechanical — apply exactly):
 - Any real (non-false-positive) CRITICAL finding -> FAIL
@@ -135,6 +139,8 @@ def build_messages(evidence: dict, *, max_hotspots: int = 400) -> list[dict]:
         "secret_hits_masked": evidence.get("secret_hits_masked"),
         "git_secret_signals": evidence.get("git_secret_signals"),
         "docker_exposures": evidence.get("docker_exposures"),
+        "sast_findings": evidence.get("sast_findings"),
+        "sast_gaps": evidence.get("sast_gaps"),
         "hotspots_by_rule": trimmed,
     }
     dropped = sum(len(v) for v in hotspots.values()) - sum(len(v) for v in trimmed.values())

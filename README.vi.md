@@ -174,6 +174,18 @@ Tầng triage **tùy chọn và pluggable**, có 2 provider:
 
 Chọn qua `--triage-provider` / `THANHTRA_TRIAGE_PROVIDER`. Triage degrade nhẹ nhàng — không có key thì `scan --triage` vẫn xuất đầy đủ evidence cơ học và ghi `triage_error`.
 
+### SAST backend ngoài (semgrep / engine SARIF bất kỳ)
+
+Hotspot của pre-scan là grep-pattern; một SAST engine thật bổ sung dataflow analysis như một nguồn evidence cơ học nữa, đổ vào cùng tầng LLM triage — bổ sung, không thay thế:
+
+```bash
+thanhtra scan . --semgrep                          # chạy semgrep nếu đã cài (best-effort, thiếu thì ghi gap note)
+thanhtra scan . --semgrep --semgrep-config p/security-audit
+thanhtra scan . --sast-sarif codeql.sarif --sast-sarif semgrep.sarif   # nhận SARIF từ engine bất kỳ
+```
+
+Findings vào evidence dưới key `sast_findings` (engine, rule, file, line, message) và triage phán xét chúng bằng đúng L1–L4 source tracing như hotspot — không tin severity của engine ngoài một cách mù quáng. Config semgrep mặc định là `p/default` với `--metrics=off`; đổi qua `--semgrep-config` / `THANHTRA_SEMGREP_CONFIG`.
+
 ### SARIF output + GitHub code scanning (CI gate)
 
 `scan --sarif` xuất SARIF 2.1.0 từ findings **đã triage** (false positive đã loại), nên findings hiện thẳng trong Security tab của GitHub và annotate inline trên PR:
@@ -235,7 +247,7 @@ Danh sách hiện tại có 21 quy tắc và sẽ tiếp tục mở rộng.
 - v0.11 — Overlay Swift: secret trong plist/xcconfig + UserDefaults, SQLi GRDB/NSPredicate, XSS WKWebView, deserialization NSKeyedUnarchiver, deep-link URL load, ATS/trust-all cert ✅
 - v0.12 — Overlay Shell: eval/sh -c, splice biến vào source interpreter khác qua heredoc (python3/osascript/awk), unquoted expansion + biến rỗng rm -rf, temp file đoán được + flock, set -x lộ secret ra CI log, curl|sh không pin/checksum; tiêu chí downgrade theo trust model owner-run ✅
 - v1.0 (hiện tại) — CI gate: `scan --sarif` xuất SARIF 2.1.0 từ findings đã triage (Security tab + annotate inline trên PR) + template GitHub Action copy được (`examples/github-actions/thanhtra.yml`) ✅
-- v1.x — Semgrep làm pre-scan backend tùy chọn (nhận SARIF; reopen trigger đã chạm khi v1.0 lands — xem BACKLOG.md)
+- v1.1 (hiện tại) — SAST backend ngoài: `--semgrep` chạy semgrep khi đã cài (best-effort, `p/default`, metrics off), `--sast-sarif` nhận SARIF từ engine bất kỳ; `sast_findings` chuẩn hóa đổ vào cùng tầng LLM triage như hotspot ✅
 
 ## Miễn trừ trách nhiệm
 

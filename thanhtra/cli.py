@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -35,6 +36,8 @@ def build_scan_document(args: argparse.Namespace, evidence: dict) -> dict:
         "secret_hit_count": len(evidence.get("secret_hits_masked", [])),
         "git_secret_signal_count": len(evidence.get("git_secret_signals", [])),
         "docker_exposure_count": len(evidence.get("docker_exposures", [])),
+        "sast_finding_count": len(evidence.get("sast_findings", [])),
+        "sast_gap_count": len(evidence.get("sast_gaps", [])),
         "hotspot_counts": hotspot_counts(evidence),
     }
     return {
@@ -54,6 +57,10 @@ def scan(args: argparse.Namespace) -> int:
         max_per_rule=args.max_per_rule,
         max_secrets=args.max_secrets,
         no_audit=args.no_audit,
+        semgrep=args.semgrep,
+        semgrep_config=args.semgrep_config,
+        sast_sarif=args.sast_sarif,
+        max_sast=args.max_sast,
     )
     document = build_scan_document(args, evidence)
     if sarif or getattr(args, "triage", False):
@@ -114,6 +121,10 @@ def prescan(args: argparse.Namespace) -> int:
         max_per_rule=args.max_per_rule,
         max_secrets=args.max_secrets,
         no_audit=args.no_audit,
+        semgrep=args.semgrep,
+        semgrep_config=args.semgrep_config,
+        sast_sarif=args.sast_sarif,
+        max_sast=args.max_sast,
     )
     output = json.dumps(evidence, ensure_ascii=False, indent=None if args.compact else 2)
     if args.output:
@@ -124,6 +135,26 @@ def prescan(args: argparse.Namespace) -> int:
     else:
         sys.stdout.write(output + "\n")
     return 0
+
+
+def add_sast_args(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--semgrep",
+        action="store_true",
+        help="run semgrep as an extra SAST backend if installed (best-effort)",
+    )
+    parser.add_argument(
+        "--semgrep-config",
+        default=os.environ.get("THANHTRA_SEMGREP_CONFIG"),
+        help="semgrep ruleset (default p/default; 'auto' needs semgrep metrics on)",
+    )
+    parser.add_argument(
+        "--sast-sarif",
+        action="append",
+        metavar="PATH",
+        help="ingest findings from an existing SARIF file (repeatable, any engine)",
+    )
+    parser.add_argument("--max-sast", type=int, default=200)
 
 
 def build_parser(prog: str = "thanhtra") -> argparse.ArgumentParser:
@@ -139,6 +170,7 @@ def build_parser(prog: str = "thanhtra") -> argparse.ArgumentParser:
     scan_parser.add_argument("--no-audit", action="store_true", help="skip dependency audit commands")
     scan_parser.add_argument("--max-per-rule", type=int, default=80)
     scan_parser.add_argument("--max-secrets", type=int, default=100)
+    add_sast_args(scan_parser)
     scan_parser.add_argument(
         "--triage",
         action="store_true",
@@ -178,6 +210,7 @@ def build_parser(prog: str = "thanhtra") -> argparse.ArgumentParser:
     prescan_parser.add_argument("--no-audit", action="store_true", help="skip dependency audit commands")
     prescan_parser.add_argument("--max-per-rule", type=int, default=80)
     prescan_parser.add_argument("--max-secrets", type=int, default=100)
+    add_sast_args(prescan_parser)
     prescan_parser.set_defaults(func=prescan)
     return parser
 

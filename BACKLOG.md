@@ -3,16 +3,6 @@
 Design context for not-yet-built work. The one-line roadmap lives in `README.md`;
 this file keeps the *why* and the decisions so they survive across sessions.
 
-## v1.x — Semgrep as optional pre-scan backend (NOW ACTIONABLE)
-
-Reopen trigger ("when v1.0 SARIF lands") reached on 2026-06-12 — v1.0 shipped.
-Design intent (from the deferred entry below): accept semgrep's SARIF as a
-*hotspot source* feeding the existing L1–L4 LLM triage — augment, don't replace.
-With default rulesets it weighs about the same as the audit parsers the pre-scan
-already runs (mechanical, no model, same philosophy). Now that `scan --sarif`
-*emits* SARIF (see `thanhtra/core/sarif.py`), *accepting* SARIF shares the same
-vocabulary — rule mapping, level↔severity, physicalLocation — by design.
-
 ## Future axis — non-reasoning analysis layer (DEFER)
 
 Context: every layer in the maintainer's current security posture — Thanh Tra,
@@ -88,3 +78,11 @@ hole.
   Action template at `examples/github-actions/thanhtra.yml` — cadence and CI
   minutes stay the user's call, per the original decision. Regression gate:
   `scripts/validate-sarif.py` (wired into `maintain.sh`).
+- **v1.1 external SAST backend** (reopen trigger "when v1.0 SARIF lands" fired same
+  day) — `thanhtra/core/sast.py`: `--semgrep` runs semgrep when installed
+  (best-effort like the audit parsers; default `p/default` + `--metrics=off`
+  because `auto` requires metrics on), `--sast-sarif` ingests any engine's SARIF.
+  Normalized `sast_findings` (suppressed results skipped, capped at `--max-sast`
+  with the dropped count recorded) feed the same L1–L4 triage as grep hotspots;
+  the triage prompt explicitly says not to trust external severity. Gate:
+  `scripts/validate-sast.py`.

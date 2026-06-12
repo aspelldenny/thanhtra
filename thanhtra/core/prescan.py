@@ -690,6 +690,8 @@ def evidence_fingerprint(evidence: dict) -> str:
         "dependency_vulnerabilities": evidence.get("dependency_vulnerabilities"),
         "dependency_warnings": evidence.get("dependency_warnings"),
         "audit_gaps": evidence.get("audit_gaps"),
+        "sast_findings": evidence.get("sast_findings"),
+        "sast_gaps": evidence.get("sast_gaps"),
     }
     payload = json.dumps(stable, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
@@ -701,8 +703,27 @@ def build_evidence(
     max_per_rule: int = 80,
     max_secrets: int = 100,
     no_audit: bool = False,
+    semgrep: bool = False,
+    semgrep_config: str | None = None,
+    sast_sarif: list[str] | None = None,
+    max_sast: int = 200,
 ) -> dict:
     root = root.resolve()
+    sast_findings: list[dict] = []
+    sast_gaps: list[str] = []
+    if semgrep or sast_sarif:
+        # Lazy import: prescan.py must stay loadable standalone (skill wrapper).
+        from thanhtra.core.sast import cap_findings, ingest_sarif_files, run_semgrep
+        if semgrep:
+            found, gaps = run_semgrep(root, config=semgrep_config)
+            sast_findings += found
+            sast_gaps += gaps
+        if sast_sarif:
+            found, gaps = ingest_sarif_files([Path(p) for p in sast_sarif], root)
+            sast_findings += found
+            sast_gaps += gaps
+        sast_findings, cap_gaps = cap_findings(sast_findings, max_sast)
+        sast_gaps += cap_gaps
     is_git, files = collect_files(root)
     dep_files = collect_dependency_files(root, files)
     hotspot_files = [f for f in files if is_hotspot_candidate(f)]
@@ -737,6 +758,8 @@ def build_evidence(
         "dependency_vulnerabilities": dependency_vulnerabilities,
         "dependency_warnings": dependency_warnings,
         "audit_gaps": audit_gaps,
+        "sast_findings": sast_findings,
+        "sast_gaps": sast_gaps,
     }
     evidence["fingerprint_sha256"] = evidence_fingerprint(evidence)
     return evidence
@@ -749,6 +772,10 @@ def main() -> int:
     parser.add_argument("--max-per-rule", type=int, default=80)
     parser.add_argument("--max-secrets", type=int, default=100)
     parser.add_argument("--no-audit", action="store_true", help="skip dependency audit commands")
+    parser.add_argument("--semgrep", action="store_true", help="run semgrep as SAST backend if installed")
+    parser.add_argument("--semgrep-config", default=os.environ.get("THANHTRA_SEMGREP_CONFIG"))
+    parser.add_argument("--sast-sarif", action="append", help="ingest an existing SARIF file (repeatable)")
+    parser.add_argument("--max-sast", type=int, default=200)
     args = parser.parse_args()
 
     root = Path(args.root).resolve()
@@ -757,6 +784,10 @@ def main() -> int:
         max_per_rule=args.max_per_rule,
         max_secrets=args.max_secrets,
         no_audit=args.no_audit,
+        semgrep=args.semgrep,
+        semgrep_config=args.semgrep_config,
+        sast_sarif=args.sast_sarif,
+        max_sast=args.max_sast,
     )
     output = json.dumps(evidence, ensure_ascii=False, indent=2) + "\n"
     if args.output:

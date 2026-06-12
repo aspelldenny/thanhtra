@@ -174,6 +174,18 @@ The triage layer is **optional and pluggable**, with two providers:
 
 Select via `--triage-provider` / `THANHTRA_TRIAGE_PROVIDER`. Triage degrades gracefully — without a key, `scan --triage` still emits the full mechanical evidence and notes `triage_error`.
 
+### External SAST backend (semgrep / any SARIF engine)
+
+The pre-scan's own hotspots are grep-pattern; a real SAST engine adds dataflow analysis as another deterministic evidence source feeding the same LLM triage — augmenting, not replacing it:
+
+```bash
+thanhtra scan . --semgrep                          # run semgrep if installed (best-effort, gap note if not)
+thanhtra scan . --semgrep --semgrep-config p/security-audit
+thanhtra scan . --sast-sarif codeql.sarif --sast-sarif semgrep.sarif   # ingest any engine's SARIF
+```
+
+Findings land in evidence as `sast_findings` (engine, rule, file, line, message) and the triage judges them with the same L1–L4 source tracing as hotspots — external severity is not trusted blindly. Default semgrep config is `p/default` with `--metrics=off`; override via `--semgrep-config` / `THANHTRA_SEMGREP_CONFIG`.
+
 ### SARIF output + GitHub code scanning (CI gate)
 
 `scan --sarif` emits SARIF 2.1.0 from the **triaged** findings (false positives already dismissed), so they show up natively in GitHub's Security tab and as inline PR annotations:
@@ -235,7 +247,7 @@ The list currently contains 22 rules and will continue to expand.
 - v0.11 — Swift overlay: plist/xcconfig + UserDefaults secrets, GRDB/NSPredicate SQLi, WKWebView XSS, NSKeyedUnarchiver deserialization, deep-link URL load, ATS/trust-all certs ✅
 - v0.12 — Shell overlay: eval/sh -c, heredoc splice into other interpreters' source (python3/osascript/awk), unquoted expansion + empty-var rm -rf, predictable temp files + flock, set -x leaking secrets into CI logs, curl|sh without pin/checksum; owner-run trust-model downgrade criteria ✅
 - v1.0 (current) — CI gate: `scan --sarif` emits SARIF 2.1.0 from triaged findings (GitHub Security tab + inline PR annotations) + copyable GitHub Action template (`examples/github-actions/thanhtra.yml`) ✅
-- v1.x — Semgrep as optional pre-scan backend (SARIF ingest; reopen trigger reached at v1.0 — see BACKLOG.md)
+- v1.1 (current) — External SAST backend: `--semgrep` runs semgrep when installed (best-effort, `p/default`, metrics off), `--sast-sarif` ingests any engine's SARIF; normalized `sast_findings` feed the same LLM triage as hotspots ✅
 
 ## Disclaimer
 
