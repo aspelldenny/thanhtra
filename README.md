@@ -68,7 +68,7 @@ Generic rules apply to every language. Specialized rule overlays exist for Go, P
 
 Thanh Tra is engineered around a small set of design choices that distinguish it from conventional pattern scanners.
 
-- **Reasoning-first, not pattern counting.** Thanh Tra does not blindly grep for `eval(` or `query(`. Each potential finding is verified by reading the surrounding code, tracing data flow (L1 untrusted user input through L4 trusted system data), and confirming the data reaches a dangerous sink without sanitization. This eliminates the false-positive flood typical of regex-based scanners.
+- **Reasoning-first, not pattern counting.** Thanh Tra does not blindly grep for `eval(` or `query(`. Each potential finding is verified by reading the surrounding code, tracing data flow (L1 untrusted user input through L4 trusted system data), and confirming the data reaches a dangerous sink without sanitization. This eliminates the false-positive flood typical of regex-based scanners. **Hotspots are not findings:** the deterministic pre-scan casts a wide, high-recall net (a keyword like `password` or `admin` is enough to flag a *candidate*); only the reasoning/triage pass promotes a candidate into a confirmed finding. Running `--no-audit` (raw evidence, no triage) shows the unfiltered hotspots — intentionally broad.
 
 - **Size-aware routing.** Small scans (≤20 main-language files AND ≤30 total) run inline in 30-60 seconds. Larger scans automatically delegate work to sub-agents that run in parallel — one chunk per top-level folder — and aggregate findings centrally. The user experience is identical; only the execution strategy changes.
 

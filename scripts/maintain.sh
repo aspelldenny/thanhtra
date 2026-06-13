@@ -10,6 +10,10 @@ echo "==> Sync shared skill content"
 ./scripts/sync-skills.sh
 
 echo ""
+echo "==> Validate package version vs release tag"
+./scripts/validate-version.sh
+
+echo ""
 echo "==> Validate skill structure"
 ./scripts/validate-skill.sh
 
@@ -20,6 +24,10 @@ echo "==> Validate deterministic pre-scan"
 echo ""
 echo "==> Validate regression fixtures"
 ./scripts/validate-fixtures.sh
+
+echo ""
+echo "==> Run unit tests"
+./scripts/validate-tests.sh
 
 echo ""
 echo "==> Validate SARIF emitter"
