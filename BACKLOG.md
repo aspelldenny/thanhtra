@@ -270,6 +270,18 @@ checkpoints (pre-release, a security gate decision), run **≥2 models, ideally
 report. This is inherent to reasoning-based scanning — not a bug to "fix" in the
 tool (no prison); it's how to operate the third-party auditor well.
 
+**Refinement — higher finding-count ≠ better (media-rating, same day).** Re-run
+with Sonnet 4.6 produced 3 CRITICAL / 22 HIGH vs Opus 4.8's 1 / 9 — but verifying
+in code showed most of the delta was **severity inflation + over-calls**, not 13
+real new HIGHs: the same `${POSTGRES_PASSWORD:-changeme}` compose default rated
+MEDIUM by Opus → CRITICAL by Sonnet; a letterboxd fetch with a **hardcoded host**
+(only the path varies) labelled SSRF (it isn't); a `dev.sh` debug flag rated HIGH
+(it's a dev script). Sonnet did catch some real things Opus missed (an avatar
+upload with no type/magic check), so it's higher recall AND higher noise — not
+"better." Lesson: when models disagree, **do NOT blind-union — triage severity**
+(the in-house owner is ground truth); never read "the model that returned more
+findings" as the more accurate one.
+
 ## Paused — reopen on real need
 
 - **Ruby / Java overlays.** Skipped intentionally: not worth the complexity for the
