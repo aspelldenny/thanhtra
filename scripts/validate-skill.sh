@@ -5,7 +5,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CANONICAL="$ROOT/skills/thanhtra"
-CODEX="$ROOT/skills/codex/thanhtra"
+CODEX="$ROOT/skills/codex/plugins/thanhtra/skills/thanhtra"
 ANTIGRAVITY="$ROOT/skills/antigravity/thanhtra"
 
 failures=0

@@ -38,7 +38,7 @@ Then pick **one of two ways to use it**:
 
 Now open your agent inside any project and trigger it:
 - **Claude Code** — type `/thanhtra`
-- **OpenAI Codex CLI** — type `$thanhtra` (or `/skills`, then pick it)
+- **OpenAI Codex CLI** — ask *"scan security"* (installed as a plugin; the skill is model-invoked)
 - **Google Antigravity** — just ask: *"scan security for this repo"*
 
 **② As a standalone CLI** — no agent, no install step, no API key. Pure Python 3.10+ (standard library only):
@@ -62,7 +62,7 @@ thanhtra scan /path/to/repo --json --no-audit
 
 AI-generated code now represents a meaningful share of new commits across the industry. While modern coding assistants excel at producing code that *works*, they routinely ship code with classic security pitfalls: hardcoded secrets, SQL injection, missing access controls, weak password hashing, JWT misuse, and broken CORS configurations. These mistakes rarely surface in functional testing — they surface in incident reports.
 
-Thanh Tra brings production-grade security review into the AI coding loop. It runs as a native agent skill on three platforms — type `/thanhtra` in Claude Code, `$thanhtra` (or `/skills`) in OpenAI Codex CLI, or simply ask Google Antigravity to "scan security" — and receive a structured report covering 20+ categories of vulnerabilities. It also ships a CLI-first deterministic scanner via `bin/thanhtra scan --json`.
+Thanh Tra brings production-grade security review into the AI coding loop. It runs as a native agent skill on three platforms — type `/thanhtra` in Claude Code, ask "scan security" in OpenAI Codex CLI, or simply ask Google Antigravity to "scan security" — and receive a structured report covering 20+ categories of vulnerabilities. It also ships a CLI-first deterministic scanner via `bin/thanhtra scan --json`.
 
 Thanh Tra has been exercised against intentionally vulnerable open-source training apps such as OWASP Juice Shop — and identifies findings that line up with the documented vulnerability challenges across SQL injection, NoSQL injection, JWT misuse, broken access control, mass assignment, deserialization RCE, and more.
 
@@ -100,7 +100,7 @@ Thanh Tra ships three variants from a single source of truth:
 | Platform | Skill folder | Install target | LARGE mode strategy |
 |---|---|---|---|
 | Claude Code | `skills/thanhtra/` | `~/.claude/skills/thanhtra` | Parallel sub-agents (3 concurrent) |
-| OpenAI Codex CLI | `skills/codex/thanhtra/` | `~/.agents/skills/thanhtra` | Sequential chunking |
+| OpenAI Codex CLI | `skills/codex/` (plugin marketplace) | `codex plugin add thanhtra@thanhtra-local` | Sequential chunking |
 | Google Antigravity | `skills/antigravity/thanhtra/` | `~/.gemini/antigravity/skills/thanhtra` | Sequential chunking |
 
 All three share the same 24 rules, language overlays, i18n strings, and output format. Findings are identical; only execution strategy differs. Sequential variants are ~3× slower wall-clock than Claude Code's parallel mode on large repositories, but produce the same JSON summary and the same Markdown report.
@@ -127,7 +127,7 @@ Detection logic:
 
 Antigravity is an IDE (like VS Code), not a CLI. For a brand-new Antigravity user, the folder `~/.gemini/antigravity/skills/` does not exist by default — the installer creates it for you.
 
-The installer symlinks the appropriate skill folder into each platform's expected location. To update later, move to the next release tag — and read the `.md` diff like you would a dependency upgrade:
+The installer symlinks the skill folder for Claude Code / Antigravity, and registers a **Codex plugin** for Codex CLI (v0.139+ uses a plugin marketplace, not a skill-folder symlink). To update later, move to the next release tag — and read the `.md` diff like you would a dependency upgrade:
 
 ```bash
 cd ~/thanhtra && git fetch --tags
@@ -143,8 +143,10 @@ git checkout v1.3.4
 # Claude Code
 ln -sfn ~/thanhtra/skills/thanhtra              ~/.claude/skills/thanhtra
 
-# OpenAI Codex CLI
-ln -sfn ~/thanhtra/skills/codex/thanhtra        ~/.agents/skills/thanhtra
+# OpenAI Codex CLI (v0.139+: a plugin marketplace, not a symlink)
+codex plugin marketplace add ~/thanhtra/skills/codex
+codex plugin add thanhtra@thanhtra-local
+# (after a version bump, re-run `codex plugin add thanhtra@thanhtra-local` to refresh the cached copy)
 
 # Google Antigravity
 ln -sfn ~/thanhtra/skills/antigravity/thanhtra  ~/.gemini/antigravity/skills/thanhtra
@@ -154,7 +156,7 @@ Verify the install on each platform:
 
 ```
 Claude Code:   /thanhtra
-Codex:         $thanhtra        (or /skills, then pick)
+Codex:         ask "scan security" / "kiểm tra bảo mật"  (plugin skill — model-invoked, not a slash command)
 Antigravity:   "scan security cho repo này"  (auto-trigger by description)
 ```
 

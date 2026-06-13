@@ -64,47 +64,47 @@
     "pipe-to-shell"
   ],
   [
-    "skills/codex/thanhtra/SKILL.md",
+    "skills/codex/plugins/thanhtra/skills/thanhtra/SKILL.md",
     "override-instructions"
   ],
   [
-    "skills/codex/thanhtra/references/language-detection.md",
+    "skills/codex/plugins/thanhtra/skills/thanhtra/references/language-detection.md",
     "pipe-to-shell"
   ],
   [
-    "skills/codex/thanhtra/references/sub-agent-prompts.md",
+    "skills/codex/plugins/thanhtra/skills/thanhtra/references/sub-agent-prompts.md",
     "pipe-to-shell"
   ],
   [
-    "skills/codex/thanhtra/rules/generic/21-command-injection.md",
+    "skills/codex/plugins/thanhtra/skills/thanhtra/rules/generic/21-command-injection.md",
     "pipe-to-shell"
   ],
   [
-    "skills/codex/thanhtra/rules/generic/22-prompt-injection.md",
+    "skills/codex/plugins/thanhtra/skills/thanhtra/rules/generic/22-prompt-injection.md",
     "override-instructions"
   ],
   [
-    "skills/codex/thanhtra/rules/languages/go/21-command-injection.md",
+    "skills/codex/plugins/thanhtra/skills/thanhtra/rules/languages/go/21-command-injection.md",
     "pipe-to-shell"
   ],
   [
-    "skills/codex/thanhtra/rules/languages/python/21-command-injection.md",
+    "skills/codex/plugins/thanhtra/skills/thanhtra/rules/languages/python/21-command-injection.md",
     "pipe-to-shell"
   ],
   [
-    "skills/codex/thanhtra/rules/languages/rust/21-command-injection.md",
+    "skills/codex/plugins/thanhtra/skills/thanhtra/rules/languages/rust/21-command-injection.md",
     "pipe-to-shell"
   ],
   [
-    "skills/codex/thanhtra/rules/languages/shell/20-outdated-dependency.md",
+    "skills/codex/plugins/thanhtra/skills/thanhtra/rules/languages/shell/20-outdated-dependency.md",
     "pipe-to-shell"
   ],
   [
-    "skills/codex/thanhtra/rules/languages/shell/21-command-injection.md",
+    "skills/codex/plugins/thanhtra/skills/thanhtra/rules/languages/shell/21-command-injection.md",
     "pipe-to-shell"
   ],
   [
-    "skills/codex/thanhtra/rules/languages/shell/README.md",
+    "skills/codex/plugins/thanhtra/skills/thanhtra/rules/languages/shell/README.md",
     "pipe-to-shell"
   ],
   [

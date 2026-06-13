@@ -1,0 +1,10 @@
+{
+  "name": "thanhtra-local",
+  "interface": { "displayName": "Thanh Tra" },
+  "plugins": [
+    { "name": "thanhtra",
+      "source": { "source": "local", "path": "./plugins/thanhtra" },
+      "policy": { "installation": "AVAILABLE" },
+      "category": "Security" }
+  ]
+}

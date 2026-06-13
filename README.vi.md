@@ -38,7 +38,7 @@ Rồi chọn **một trong hai cách dùng**:
 
 Giờ mở agent trong bất kỳ project nào và kích hoạt:
 - **Claude Code** — gõ `/thanhtra`
-- **OpenAI Codex CLI** — gõ `$thanhtra` (hoặc `/skills` rồi chọn)
+- **OpenAI Codex CLI** — nói *"scan security"* (cài dạng plugin; skill được model tự gọi)
 - **Google Antigravity** — chỉ cần nói: *"scan security cho repo này"*
 
 **② Dùng như CLI độc lập** — không cần agent, không cần cài, không cần API key. Python 3.10+ thuần (chỉ stdlib):
@@ -62,7 +62,7 @@ thanhtra scan /path/to/repo --json --no-audit
 
 Mã nguồn do AI sinh ra hiện chiếm tỷ trọng đáng kể trong các commit mới của ngành phần mềm. Các trợ lý lập trình hiện đại rất giỏi tạo ra mã nguồn *chạy được*, nhưng chúng vẫn thường xuyên xuất ra mã mắc những lỗi bảo mật kinh điển: Hardcoded Secret, SQL Injection, Broken Access Control, Weak Password Hashing, JWT misuse, CORS misconfiguration. Những lỗi này hiếm khi lộ ra trong kiểm thử chức năng — chúng chỉ lộ ra khi đã xảy ra sự cố.
 
-Thanh Tra đưa quy trình rà soát bảo mật cấp production vào trong vòng lặp lập trình với AI. Skill chạy native trên ba nền tảng — gõ `/thanhtra` trong Claude Code, `$thanhtra` (hoặc `/skills`) trong OpenAI Codex CLI, hoặc đơn giản nói *"scan security cho repo này"* với Google Antigravity — và nhận một báo cáo có cấu trúc rõ ràng, bao phủ hơn 20 nhóm lỗ hổng phổ biến. Thanh Tra cũng có scanner CLI-first qua `bin/thanhtra scan --json`.
+Thanh Tra đưa quy trình rà soát bảo mật cấp production vào trong vòng lặp lập trình với AI. Skill chạy native trên ba nền tảng — gõ `/thanhtra` trong Claude Code, nói "scan security" trong OpenAI Codex CLI, hoặc đơn giản nói *"scan security cho repo này"* với Google Antigravity — và nhận một báo cáo có cấu trúc rõ ràng, bao phủ hơn 20 nhóm lỗ hổng phổ biến. Thanh Tra cũng có scanner CLI-first qua `bin/thanhtra scan --json`.
 
 Thanh Tra đã được chạy thử trên các ứng dụng mã nguồn mở có chủ đích chứa lỗ hổng dùng cho mục đích đào tạo (như OWASP Juice Shop) — và phát hiện được các lỗ hổng tương ứng với những challenge đã được tài liệu hoá: SQL Injection, NoSQL Injection, JWT misuse, Broken Access Control, Mass Assignment, RCE qua deserialization, và nhiều nhóm khác.
 
@@ -100,7 +100,7 @@ Thanh Tra ship ba bản variant từ một nguồn duy nhất:
 | Nền tảng | Folder skill | Vị trí cài đặt | Chiến lược LARGE mode |
 |---|---|---|---|
 | Claude Code | `skills/thanhtra/` | `~/.claude/skills/thanhtra` | Sub-agent song song (3 concurrent) |
-| OpenAI Codex CLI | `skills/codex/thanhtra/` | `~/.agents/skills/thanhtra` | Sequential chunking |
+| OpenAI Codex CLI | `skills/codex/` (plugin marketplace) | `codex plugin add thanhtra@thanhtra-local` | Sequential chunking |
 | Google Antigravity | `skills/antigravity/thanhtra/` | `~/.gemini/antigravity/skills/thanhtra` | Sequential chunking |
 
 Cả ba chia sẻ cùng 24 rule, language overlay, chuỗi i18n và format output. Findings identical; chỉ chiến lược thực thi khác. Sequential variant chậm hơn ~3× wall-clock so với parallel mode của Claude Code trên repo lớn, nhưng tạo ra cùng JSON summary và cùng báo cáo Markdown.
@@ -127,7 +127,7 @@ Cách detect:
 
 Antigravity là IDE (như VS Code), không phải CLI. Với user mới chưa cài Antigravity skill nào, folder `~/.gemini/antigravity/skills/` không tồn tại — installer sẽ tự tạo.
 
-Installer symlink folder skill phù hợp vào vị trí của từng platform. Để cập nhật về sau, chuyển sang tag release kế tiếp — và đọc diff `.md` như đọc diff khi nâng dependency:
+Installer symlink folder skill cho Claude Code / Antigravity, và đăng ký **plugin Codex** cho Codex CLI (v0.139+ dùng plugin marketplace, không phải symlink folder skill). Để cập nhật về sau, chuyển sang tag release kế tiếp — và đọc diff `.md` như đọc diff khi nâng dependency:
 
 ```bash
 cd ~/thanhtra && git fetch --tags
@@ -143,8 +143,10 @@ git checkout v1.3.4
 # Claude Code
 ln -sfn ~/thanhtra/skills/thanhtra              ~/.claude/skills/thanhtra
 
-# OpenAI Codex CLI
-ln -sfn ~/thanhtra/skills/codex/thanhtra        ~/.agents/skills/thanhtra
+# OpenAI Codex CLI (v0.139+: plugin marketplace, không phải symlink)
+codex plugin marketplace add ~/thanhtra/skills/codex
+codex plugin add thanhtra@thanhtra-local
+# (sau khi bump version, chạy lại `codex plugin add thanhtra@thanhtra-local` để refresh bản cache)
 
 # Google Antigravity
 ln -sfn ~/thanhtra/skills/antigravity/thanhtra  ~/.gemini/antigravity/skills/thanhtra
@@ -154,7 +156,7 @@ Verify trên từng platform:
 
 ```
 Claude Code:   /thanhtra
-Codex:         $thanhtra        (hoặc /skills, rồi chọn)
+Codex:         nói "scan security" / "kiểm tra bảo mật"  (plugin skill — model tự gọi, không phải slash command)
 Antigravity:   "scan security cho repo này"  (auto-trigger qua description)
 ```
 

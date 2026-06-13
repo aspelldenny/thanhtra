@@ -13,7 +13,7 @@ If the user wants to **scan their code** (not modify this repo), there are two w
    ```bash
    ./scripts/install.sh    # auto-detects Claude Code / Codex / Antigravity, symlinks the skill
    ```
-   Then trigger it: `/thanhtra` (Claude Code), `$thanhtra` or `/skills` (Codex CLI), or just ask Antigravity to *"scan security"*. The agent reads the rules and produces a bilingual report (Vietnamese default, add `lang=en` for English).
+   Then trigger it: `/thanhtra` (Claude Code). On **Codex CLI** it installs as a plugin (`codex plugin add thanhtra@thanhtra-local`) and the skill is model-invoked — just ask *"scan security"* / *"kiểm tra bảo mật"*. On Antigravity, ask *"scan security"*. The agent reads the rules and produces a bilingual report (Vietnamese default, add `lang=en` for English).
 2. **CLI** — no install, no API key, pure Python:
    ```bash
    ./bin/thanhtra scan <repo> --json --no-audit
@@ -32,7 +32,7 @@ Full A-to-Z for humans: [README.md](README.md). Everything below this section is
 
 ## Repo map
 
-- `skills/thanhtra/` — **canonical** skill (rules, references, workflows). `skills/codex/` and `skills/antigravity/` are generated copies: never edit them directly; edit canonical then run `./scripts/sync-skills.sh`. CI fails on drift.
+- `skills/thanhtra/` — **canonical** skill (rules, references, workflows). `skills/antigravity/thanhtra/` is a generated copy; `skills/codex/` is a **Codex plugin marketplace** wrapping the generated skill at `plugins/thanhtra/skills/thanhtra/` (manifests `.agents/plugins/marketplace.json` + `plugins/thanhtra/.codex-plugin/plugin.json` are hand-maintained). Never edit the generated skill dirs directly; edit canonical then run `./scripts/sync-skills.sh`. CI fails on drift.
 - `thanhtra/` — Python package (prescan / triage / sarif / sast / trust).
 - `scripts/validate-*.sh` — per-area regression gates, all wired into `maintain.sh`.
 - `BACKLOG.md` — design context and decisions; `SECURITY.md` — threat model.

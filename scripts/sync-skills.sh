@@ -24,7 +24,7 @@ if ! command -v rsync >/dev/null 2>&1; then
 fi
 
 targets=(
-  "$ROOT/skills/codex/thanhtra"
+  "$ROOT/skills/codex/plugins/thanhtra/skills/thanhtra"
   "$ROOT/skills/antigravity/thanhtra"
 )
 

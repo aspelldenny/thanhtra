@@ -64,7 +64,7 @@ detect_antigravity()  {
 # Map: short-key|platform-name|detect-function|source-folder|target-dir
 platforms=(
   "claude|Claude Code|detect_claude|$ROOT/skills/thanhtra|$HOME/.claude/skills/thanhtra"
-  "codex|OpenAI Codex|detect_codex|$ROOT/skills/codex/thanhtra|$HOME/.agents/skills/thanhtra"
+  "codex|OpenAI Codex|detect_codex|$ROOT/skills/codex|(codex plugin marketplace)"
   "antigravity|Google Antigravity|detect_antigravity|$ROOT/skills/antigravity/thanhtra|$HOME/.gemini/antigravity/skills/thanhtra"
 )
 
@@ -97,6 +97,27 @@ for entry in "${platforms[@]}"; do
       skipped=$((skipped+1))
       continue
     fi
+  fi
+
+  # Codex (v0.139+) uses a plugin marketplace, not a skill-folder symlink.
+  if [ "$short" = "codex" ]; then
+    if [ $DRY_RUN -eq 1 ]; then
+      echo "  [dry-run] would: codex plugin marketplace add $source && codex plugin add thanhtra@thanhtra-local"
+      continue
+    fi
+    codex plugin marketplace add "$source" >/dev/null 2>&1 \
+      || codex plugin marketplace upgrade thanhtra-local >/dev/null 2>&1 || true
+    codex plugin add thanhtra@thanhtra-local >/dev/null 2>&1 || true
+    if codex plugin list 2>/dev/null | grep -Eq 'thanhtra@thanhtra-local[[:space:]]+installed'; then
+      echo "  ✅ Installed as Codex plugin (thanhtra@thanhtra-local)"
+      echo "     Invoke in Codex: ask \"scan security\" / \"kiểm tra bảo mật\" (skill is model-invoked, not a slash command)"
+      installed=$((installed+1))
+    else
+      echo "  ⚠  Codex plugin install may have failed. Run manually:"
+      echo "      codex plugin marketplace add $source && codex plugin add thanhtra@thanhtra-local"
+      skipped=$((skipped+1))
+    fi
+    continue
   fi
 
   echo "  Source: $source"

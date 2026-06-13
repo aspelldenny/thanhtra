@@ -1,0 +1,19 @@
+{
+  "name": "thanhtra",
+  "version": "1.3.4",
+  "description": "Security scanner for AI-generated (vibe) code — 24 rules across OWASP + AI-typical classes, bilingual (vi/en) reports.",
+  "author": { "name": "Bui Tan Viet & Phan Quoc Hien" },
+  "license": "MIT",
+  "homepage": "https://github.com/aspelldenny/thanhtra",
+  "keywords": ["security","sast","scanner","ai","vibe-coding","owasp"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Thanh Tra",
+    "shortDescription": "Scan code for security vulnerabilities",
+    "longDescription": "Security scanner for AI-generated (vibe) code: 24 rules (OWASP 2025 + Agentic 2026 + AI-typical), generic + language overlays, bilingual vi/en reports.",
+    "developerName": "SePay / 123HOST",
+    "category": "Security",
+    "capabilities": ["Interactive","Write"],
+    "defaultPrompt": ["scan security cho repo này"]
+  }
+}
