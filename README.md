@@ -39,7 +39,7 @@ Then pick **one of two ways to use it**:
 Now open your agent inside any project and trigger it:
 - **Claude Code** — type `/thanhtra`
 - **OpenAI Codex CLI** — ask *"scan security"* (installed as a plugin; the skill is model-invoked)
-- **Google Antigravity** — just ask: *"scan security for this repo"*
+- **Google Antigravity** — type `/thanhtra` (slash command, same as Claude Code)
 
 **② As a standalone CLI** — no agent, no install step, no API key. Pure Python 3.10+ (standard library only):
 
@@ -62,7 +62,7 @@ thanhtra scan /path/to/repo --json --no-audit
 
 AI-generated code now represents a meaningful share of new commits across the industry. While modern coding assistants excel at producing code that *works*, they routinely ship code with classic security pitfalls: hardcoded secrets, SQL injection, missing access controls, weak password hashing, JWT misuse, and broken CORS configurations. These mistakes rarely surface in functional testing — they surface in incident reports.
 
-Thanh Tra brings production-grade security review into the AI coding loop. It runs as a native agent skill on three platforms — type `/thanhtra` in Claude Code, ask "scan security" in OpenAI Codex CLI, or simply ask Google Antigravity to "scan security" — and receive a structured report covering 20+ categories of vulnerabilities. It also ships a CLI-first deterministic scanner via `bin/thanhtra scan --json`.
+Thanh Tra brings production-grade security review into the AI coding loop. It runs as a native agent skill on three platforms — type `/thanhtra` in Claude Code or Google Antigravity, or ask "scan security" in OpenAI Codex CLI — and receive a structured report covering 20+ categories of vulnerabilities. It also ships a CLI-first deterministic scanner via `bin/thanhtra scan --json`.
 
 Thanh Tra has been exercised against intentionally vulnerable open-source training apps such as OWASP Juice Shop — and identifies findings that line up with the documented vulnerability challenges across SQL injection, NoSQL injection, JWT misuse, broken access control, mass assignment, deserialization RCE, and more.
 
@@ -157,7 +157,7 @@ Verify the install on each platform:
 ```
 Claude Code:   /thanhtra
 Codex:         ask "scan security" / "kiểm tra bảo mật"  (plugin skill — model-invoked, not a slash command)
-Antigravity:   "scan security cho repo này"  (auto-trigger by description)
+Antigravity:   /thanhtra        (slash command, same as Claude Code)
 ```
 
 See [docs/en/installation.md](docs/en/installation.md) for prerequisites, troubleshooting, and update procedures.

@@ -39,7 +39,7 @@ Rồi chọn **một trong hai cách dùng**:
 Giờ mở agent trong bất kỳ project nào và kích hoạt:
 - **Claude Code** — gõ `/thanhtra`
 - **OpenAI Codex CLI** — nói *"scan security"* (cài dạng plugin; skill được model tự gọi)
-- **Google Antigravity** — chỉ cần nói: *"scan security cho repo này"*
+- **Google Antigravity** — gõ `/thanhtra` (slash command, như Claude Code)
 
 **② Dùng như CLI độc lập** — không cần agent, không cần cài, không cần API key. Python 3.10+ thuần (chỉ stdlib):
 
@@ -62,7 +62,7 @@ thanhtra scan /path/to/repo --json --no-audit
 
 Mã nguồn do AI sinh ra hiện chiếm tỷ trọng đáng kể trong các commit mới của ngành phần mềm. Các trợ lý lập trình hiện đại rất giỏi tạo ra mã nguồn *chạy được*, nhưng chúng vẫn thường xuyên xuất ra mã mắc những lỗi bảo mật kinh điển: Hardcoded Secret, SQL Injection, Broken Access Control, Weak Password Hashing, JWT misuse, CORS misconfiguration. Những lỗi này hiếm khi lộ ra trong kiểm thử chức năng — chúng chỉ lộ ra khi đã xảy ra sự cố.
 
-Thanh Tra đưa quy trình rà soát bảo mật cấp production vào trong vòng lặp lập trình với AI. Skill chạy native trên ba nền tảng — gõ `/thanhtra` trong Claude Code, nói "scan security" trong OpenAI Codex CLI, hoặc đơn giản nói *"scan security cho repo này"* với Google Antigravity — và nhận một báo cáo có cấu trúc rõ ràng, bao phủ hơn 20 nhóm lỗ hổng phổ biến. Thanh Tra cũng có scanner CLI-first qua `bin/thanhtra scan --json`.
+Thanh Tra đưa quy trình rà soát bảo mật cấp production vào trong vòng lặp lập trình với AI. Skill chạy native trên ba nền tảng — gõ `/thanhtra` trong Claude Code hoặc Google Antigravity, hoặc nói "scan security" trong OpenAI Codex CLI — và nhận một báo cáo có cấu trúc rõ ràng, bao phủ hơn 20 nhóm lỗ hổng phổ biến. Thanh Tra cũng có scanner CLI-first qua `bin/thanhtra scan --json`.
 
 Thanh Tra đã được chạy thử trên các ứng dụng mã nguồn mở có chủ đích chứa lỗ hổng dùng cho mục đích đào tạo (như OWASP Juice Shop) — và phát hiện được các lỗ hổng tương ứng với những challenge đã được tài liệu hoá: SQL Injection, NoSQL Injection, JWT misuse, Broken Access Control, Mass Assignment, RCE qua deserialization, và nhiều nhóm khác.
 
@@ -157,7 +157,7 @@ Verify trên từng platform:
 ```
 Claude Code:   /thanhtra
 Codex:         nói "scan security" / "kiểm tra bảo mật"  (plugin skill — model tự gọi, không phải slash command)
-Antigravity:   "scan security cho repo này"  (auto-trigger qua description)
+Antigravity:   /thanhtra        (slash command, như Claude Code)
 ```
 
 Xem [docs/vi/installation.md](docs/vi/installation.md) để biết yêu cầu chi tiết, xử lý sự cố và quy trình cập nhật.

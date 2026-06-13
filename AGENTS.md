@@ -15,7 +15,7 @@ If the user wants to **scan their code** (not modify this repo), there are two w
    ```bash
    ./scripts/install.sh    # auto-detects Claude Code / Codex / Antigravity, symlinks the skill
    ```
-   Then trigger it: `/thanhtra` (Claude Code). On **Codex CLI** it installs as a plugin (`codex plugin add thanhtra@thanhtra-local`) and the skill is model-invoked — just ask *"scan security"* / *"kiểm tra bảo mật"*. On Antigravity, ask *"scan security"*. The agent reads the rules and produces a bilingual report (Vietnamese default, add `lang=en` for English).
+   Then trigger it: `/thanhtra` (Claude Code). On **Codex CLI** it installs as a plugin (`codex plugin add thanhtra@thanhtra-local`) and the skill is model-invoked — just ask *"scan security"* / *"kiểm tra bảo mật"*. On **Antigravity** it loads as a skill invoked by `/thanhtra` (slash command, like Claude Code). The agent reads the rules and produces a bilingual report (Vietnamese default, add `lang=en` for English).
 2. **CLI** — no install, no API key, pure Python:
    ```bash
    ./bin/thanhtra scan <repo> --json --no-audit
