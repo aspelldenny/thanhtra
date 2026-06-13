@@ -143,6 +143,49 @@ chains) is exactly where those repos are already hardened by multiple review
 rounds. The reasoning-x2-vendor ceiling is the *current* limit, not an *urgent*
 hole.
 
+## Validation philosophy — benchmarks are a floor, not the mission metric (2026-06-13)
+
+Hard-won during the v1.3.x integration-test work. Persist this so a future
+session doesn't burn effort optimising the wrong axis.
+
+- **The mission is vibe-code security:** catch what *AI assistants actually
+  generate wrong*, for users who are not security experts. NOT "be a complete
+  generic SAST."
+- **External benchmarks (Bandit examples, OWASP NodeGoat) are a REGRESSION
+  FLOOR, not the target distribution.** They are hand-written OWASP teaching
+  corpora, not AI-generated code. `scripts/validate-integration.sh` (Bandit,
+  deterministic recall 56% floor) is cheap insurance that the engine still
+  detects known classes — keep it, but **do NOT optimise toward it**. A high
+  benchmark score = good generic SAST, which is a *different axis* from the
+  mission.
+- **Rejected: a CODE-INJECTION rule (#25).** NodeGoat's `eval(req.body)` made it
+  look like a gap (both a hand-written answer key and the live skill force-fit
+  it — to COMMAND-INJECTION and INSECURE-DESERIALIZATION respectively). But
+  `eval(userInput)` is **not AI-typical** — modern assistants are trained to
+  avoid `eval`; it was a benchmark artifact. Adding it would be benchmark-driven
+  drift. Reaffirms the standing rule: **add a rule only when it's AI-typical OR
+  a real project hits it** (the proven Rust/Swift/Shell cadence), never because
+  a teaching corpus contains it.
+- **Mission-true validation = run on REAL AI-generated / real-world code**, not
+  teaching apps. On real repos the measurable that matters is **precision /
+  false-positive rate** (does it cry wolf on a non-expert's real code?) — the
+  one thing all-vulnerable benchmarks *cannot* measure. Recall on real repos has
+  no ground truth (the maintainer's own blind-spot insight), so don't chase a
+  recall number there.
+
+### LARGE-mode routing: wording is stricter than reality (note, low priority)
+
+The size router trips LARGE on **file count** (>20 main-lang / >30 total), but a
+capable model reasons about **LOC / context fit**. On small-LOC repos that cross
+the file-count threshold (Bandit 765 LOC, NodeGoat ~2.2k LOC) the model
+correctly reads inline (better: full cross-file context, no fragmentation) — and
+on genuinely large repos it *does* spawn sub-agents (maintainer confirmed in the
+field). So delegation works; the only friction is that `SKILL.md` says "hard
+rule — KHÔNG tự hạ mode" while the model sensibly downgrades. Consider relaxing
+the wording to "downgrade allowed when you full-read every security-relevant
+file and state coverage" instead of an absolute ban the model rationalises
+around. Not urgent — behaviour is already good.
+
 ## Paused — reopen on real need
 
 - **Ruby / Java overlays.** Skipped intentionally: not worth the complexity for the
