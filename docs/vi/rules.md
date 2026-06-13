@@ -1,4 +1,4 @@
-# 22 Rule bảo mật của Thanh Tra
+# 24 Rule bảo mật của Thanh Tra
 
 Tổng quan ngắn gọn từng rule với ví dụ unsafe/safe. Để đọc đầy đủ reasoning, search pattern và edge case, mở file rule tương ứng trong [`skill/rules/generic/`](../../skill/rules/generic/).
 
@@ -34,6 +34,8 @@ Tổng quan ngắn gọn từng rule với ví dụ unsafe/safe. Để đọc đ
 | 20 | [OUTDATED-DEPENDENCY](#rule-20--outdated-dependency) | HIGH | — |
 | 21 | [COMMAND-INJECTION](#rule-21--command-injection) | CRITICAL | go, php, typescript, python |
 | 22 | [PROMPT-INJECTION](#rule-22--prompt-injection) | HIGH | — |
+| 23 | [EXCEPTION-MISHANDLING](#rule-23--exception-mishandling) | HIGH | — |
+| 24 | [INSECURE-RANDOMNESS](#rule-24--insecure-randomness) | HIGH | — |
 
 ---
 
@@ -603,6 +605,62 @@ if resp.category not in ALLOWED_CATEGORIES:        # validate field model trả 
 
 ---
 
+### Rule 23 — EXCEPTION-MISHANDLING
+
+**Severity max:** HIGH
+**Applies to:** all
+
+Code bắt exception rồi nuốt im (`except: pass`, empty `catch {}`) khiến một **bước kiểm tra bảo mật thất bại nhưng luồng vẫn chạy tiếp như đã pass** — fail-open. Nguy nhất khi exception bị nuốt bọc verify chữ ký/JWT, check quyền, xác thực mật khẩu, kiểm tra payment: lỗi → bypass bảo mật. Cực kỳ vibe-code-typical: AI bọc `try/except` rộng cho "chạy được đã", vô tình biến một check thành no-op. Map sang OWASP Top 10:2025 **A10** (Mishandling of Exceptional Conditions, CWE-703/755).
+
+**Unsafe (fail-open):**
+```python
+def is_admin(token):
+    try:
+        claims = verify_jwt(token)            # ném nếu chữ ký sai / hết hạn
+        return claims.get("role") == "admin"
+    except Exception:
+        pass
+    return True                               # verify lỗi → vẫn cấp admin
+```
+
+**Safe (fail-closed):**
+```python
+def is_admin(token):
+    try:
+        claims = verify_jwt(token)
+    except InvalidTokenError:
+        logger.warning("token verify failed")
+        return False                          # lỗi → từ chối
+    return claims.get("role") == "admin"
+```
+
+[Đầy đủ →](../../skill/rules/generic/23-exception-mishandling.md)
+
+---
+
+### Rule 24 — INSECURE-RANDOMNESS
+
+**Severity max:** HIGH
+**Applies to:** all
+
+PRNG không mật mã (`Math.random()`, `random.random()`, `rand()`, `mt_rand()`) sinh giá trị bảo mật — token, OTP, session ID, password-reset token, CSRF token, API key. Các PRNG này predictable (state nhỏ, seed theo thời gian), kẻ tấn công đoán/tái dựng được giá trị đáng lẽ bí mật. AI hay dùng `Math.random()` vì đó là hàm random "ai cũng biết", trong khi CSPRNG nằm ở import riêng. CWE-330, dưới OWASP A04 / A02.
+
+**Unsafe:**
+```javascript
+// token reset mật khẩu từ PRNG đoán được
+const token = Math.random().toString(36).slice(2);
+```
+
+**Safe:**
+```javascript
+import { randomBytes } from "crypto";
+const token = randomBytes(32).toString("hex");   // CSPRNG 256-bit
+```
+
+[Đầy đủ →](../../skill/rules/generic/24-insecure-randomness.md)
+
+---
+
 ## Specialization
 
 Một số rule có override chuyên sâu cho ngôn ngữ cụ thể. Khi Thanh Tra detect ngôn ngữ chính, nó tự load overlay:
@@ -623,4 +681,4 @@ Nếu bạn thêm rule mới (22, 23...) hoặc cập nhật severity, nhớ upd
 1. File này (`docs/vi/rules.md`)
 2. [`docs/en/rules.md`](../en/rules.md)
 3. Bảng trong [SKILL.md](../../skill/SKILL.md) Step 4
-4. README.vi.md + README.en.md (section "Danh sách 22 lỗi")
+4. README.vi.md + README.en.md (section "Danh sách 24 lỗi")

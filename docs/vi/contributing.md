@@ -55,7 +55,7 @@ git init
 | Cải thiện rule existing (thêm pattern, giảm false positive) | Cao | `skill/rules/generic/NN-*.md` |
 | Sửa lỗi reasoning trong rule | Cao | `skill/rules/generic/NN-*.md` |
 | Thêm test case (positive + negative) | Trung | `tests/` (chưa có infra, kèm trong PR description) |
-| Thêm rule mới (rule 22, 23...) | Trung | Cần thảo luận trước qua issue |
+| Thêm rule mới (rule 25, 26...) | Trung | Cần thảo luận trước qua issue |
 | Cập nhật CVE list cho OUTDATED-DEPENDENCY | Trung | `skill/rules/generic/20-outdated-dependency.md` |
 | Docs (typo, ví dụ, cải thiện workflow) | Thấp-Trung | `docs/`, `README.*.md` |
 
@@ -89,9 +89,9 @@ git init
 
 ### 1. Đặt tên + chọn số
 
-Rule kế tiếp là **22**. Tên ID dạng `KEBAB-CASE-UPPERCASE`, ví dụ: `OPEN-REDIRECT`, `XML-XXE`, `LDAP-INJECTION`.
+Rule kế tiếp là **25**. Tên ID dạng `KEBAB-CASE-UPPERCASE`, ví dụ: `OPEN-REDIRECT`, `XML-XXE`, `LDAP-INJECTION`.
 
-File: `skill/rules/generic/22-open-redirect.md`
+File: `skill/rules/generic/25-open-redirect.md`
 
 ### 2. Template frontmatter
 
@@ -154,8 +154,8 @@ grep -rE 'res\.redirect\(req\.(query|body|params)' src/
 
 | File | Cần làm gì |
 |---|---|
-| [`skill/SKILL.md`](../../skill/SKILL.md) | Thêm row vào bảng "21 rules generic" ở Step 4 (đổi thành "22 rules") |
-| [`docs/vi/rules.md`](rules.md) | Thêm section `### Rule 22 — OPEN-REDIRECT` |
+| [`skill/SKILL.md`](../../skill/SKILL.md) | Thêm row vào bảng "24 rules generic" ở Step 4 (đổi thành "25 rules") |
+| [`docs/vi/rules.md`](rules.md) | Thêm section `### Rule 25 — OPEN-REDIRECT` |
 | [`docs/en/rules.md`](../en/rules.md) | Thêm tương ứng |
 | [`README.vi.md`](../../README.vi.md) | Update danh sách 21 → 22 (cả bảng) |
 | [`README.en.md`](../../README.en.md) | Update tương ứng |
@@ -176,7 +176,7 @@ Specialization = override rule generic cho 1 ngôn ngữ cụ thể, với patte
 mkdir -p skill/rules/languages/ruby
 ```
 
-Chọn rule muốn specialize (không cần toàn bộ 22 — chọn rule nào Ruby có pattern đặc thù). Ví dụ:
+Chọn rule muốn specialize (không cần toàn bộ 24 — chọn rule nào Ruby có pattern đặc thù). Ví dụ:
 
 - SQL-INJECTION → ActiveRecord `.where("...")` raw vs parameterized
 - MASS-ASSIGNMENT → `User.update(params)` thiếu `permit`
@@ -367,7 +367,7 @@ Trong mô tả PR, bao gồm:
 
 | Prefix | Khi nào dùng | Ví dụ |
 |---|---|---|
-| `feat:` | Thêm tính năng / rule mới | `feat: add OPEN-REDIRECT rule (22)` |
+| `feat:` | Thêm tính năng / rule mới | `feat: add OPEN-REDIRECT rule (25)` |
 | `fix:` | Sửa bug, giảm false positive | `fix: reduce false positive in SQL-INJECTION for parameterized GORM` |
 | `docs:` | Cập nhật docs / README | `docs: clarify SMALL vs LARGE thresholds` |
 | `lang:` | Thêm/sửa language specialization | `lang: add Ruby specialization for SQL-INJECTION` |

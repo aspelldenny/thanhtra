@@ -83,7 +83,7 @@ def main() -> int:
     driver = run["tool"]["driver"]
     check(driver["name"] == "Thanh Tra", "driver name")
     rules = driver["rules"]
-    check(len(rules) == 22, "driver declares all 22 rules")
+    check(len(rules) == 24, "driver declares all 24 rules")
     check([r["id"] for r in rules] == sorted(ALL_RULES, key=[r[0] for r in RULES].index),
           "rule ids cover the canonical corpus")
     check({r[0] for r in RULES} == set(ALL_RULES), "sarif rule table matches triage ALL_RULES")

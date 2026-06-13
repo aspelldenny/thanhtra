@@ -74,7 +74,7 @@ Thanh Tra ship ba bản variant từ một nguồn duy nhất:
 | OpenAI Codex CLI | `skills/codex/thanhtra/` | `~/.agents/skills/thanhtra` | Sequential chunking |
 | Google Antigravity | `skills/antigravity/thanhtra/` | `~/.gemini/antigravity/skills/thanhtra` | Sequential chunking |
 
-Cả ba chia sẻ cùng 22 rule, language overlay, chuỗi i18n và format output. Findings identical; chỉ chiến lược thực thi khác. Sequential variant chậm hơn ~3× wall-clock so với parallel mode của Claude Code trên repo lớn, nhưng tạo ra cùng JSON summary và cùng báo cáo Markdown.
+Cả ba chia sẻ cùng 24 rule, language overlay, chuỗi i18n và format output. Findings identical; chỉ chiến lược thực thi khác. Sequential variant chậm hơn ~3× wall-clock so với parallel mode của Claude Code trên repo lớn, nhưng tạo ra cùng JSON summary và cùng báo cáo Markdown.
 
 Người contribute: sửa rule trong `skills/thanhtra/` (folder canonical của Claude), rồi chạy `./scripts/sync-skills.sh` để propagate sang Codex và Antigravity. File platform-specific (`SKILL.md`, `workflows/large-review*.md`) maintain riêng từng platform.
 
@@ -208,7 +208,7 @@ Findings vào evidence dưới key `sast_findings` (engine, rule, file, line, me
 thanhtra scan . --sarif --output thanhtra.sarif    # tự bật --triage; exit 1 nếu triage không chạy được
 ```
 
-22 rule trở thành metadata SARIF `rules[]`; severity map CRITICAL/HIGH → `error`, MEDIUM → `warning`, LOW → `note`. Copy [`examples/github-actions/thanhtra.yml`](examples/github-actions/thanhtra.yml) vào `.github/workflows/` của repo bạn để nối với `codeql-action/upload-sarif` — chạy lúc nào (mỗi PR / push / nightly) là quyền của bạn và quota CI của bạn. Chi tiết trong [docs/vi/usage.md](docs/vi/usage.md).
+24 rule trở thành metadata SARIF `rules[]`; severity map CRITICAL/HIGH → `error`, MEDIUM → `warning`, LOW → `note`. Copy [`examples/github-actions/thanhtra.yml`](examples/github-actions/thanhtra.yml) vào `.github/workflows/` của repo bạn để nối với `codeql-action/upload-sarif` — chạy lúc nào (mỗi PR / push / nightly) là quyền của bạn và quota CI của bạn. Chi tiết trong [docs/vi/usage.md](docs/vi/usage.md).
 
 ### Agent-trust signals (quét repo TRƯỚC khi trust folder)
 
@@ -247,8 +247,11 @@ Repo này tự áp chuẩn đó lên chính mình — xem [SECURITY.md](SECURITY
 | 19 | `RACE-CONDITION` | CAO | — |
 | 20 | `OUTDATED-DEPENDENCY` | CAO | — |
 | 21 | `COMMAND-INJECTION` | NGHIÊM TRỌNG | go, php, typescript |
+| 22 | `PROMPT-INJECTION` | CAO | — |
+| 23 | `EXCEPTION-MISHANDLING` | CAO | — |
+| 24 | `INSECURE-RANDOMNESS` | CAO | — |
 
-Danh sách hiện tại có 21 quy tắc và sẽ tiếp tục mở rộng.
+Danh sách hiện tại có 24 quy tắc và sẽ tiếp tục mở rộng.
 
 ## Tài liệu
 
@@ -272,9 +275,10 @@ Danh sách hiện tại có 21 quy tắc và sẽ tiếp tục mở rộng.
 - v0.10 — Overlay Rust: SQLi sqlx/diesel, SSRF reqwest, traversal PathBuf, command injection, error leak (axum/actix) ✅
 - v0.11 — Overlay Swift: secret trong plist/xcconfig + UserDefaults, SQLi GRDB/NSPredicate, XSS WKWebView, deserialization NSKeyedUnarchiver, deep-link URL load, ATS/trust-all cert ✅
 - v0.12 — Overlay Shell: eval/sh -c, splice biến vào source interpreter khác qua heredoc (python3/osascript/awk), unquoted expansion + biến rỗng rm -rf, temp file đoán được + flock, set -x lộ secret ra CI log, curl|sh không pin/checksum; tiêu chí downgrade theo trust model owner-run ✅
-- v1.0 (hiện tại) — CI gate: `scan --sarif` xuất SARIF 2.1.0 từ findings đã triage (Security tab + annotate inline trên PR) + template GitHub Action copy được (`examples/github-actions/thanhtra.yml`) ✅
+- v1.0 — CI gate: `scan --sarif` xuất SARIF 2.1.0 từ findings đã triage (Security tab + annotate inline trên PR) + template GitHub Action copy được (`examples/github-actions/thanhtra.yml`) ✅
 - v1.1 — SAST backend ngoài: `--semgrep` chạy semgrep khi đã cài (best-effort, `p/default`, metrics off), `--sast-sarif` nhận SARIF từ engine bất kỳ; `sast_findings` chuẩn hóa đổ vào cùng tầng LLM triage như hotspot ✅
-- v1.2 (hiện tại) — Tầng phòng thủ trust: detector `agent_trust_signals` deterministic (Unicode ẩn / config auto-exec / cụm injection — quét repo *trước khi* trust folder), guardrail chống prompt-injection trong skill + triage, SECURITY.md threat model, CI trust gate với baseline marker đã review ✅
+- v1.2 — Tầng phòng thủ trust: detector `agent_trust_signals` deterministic (Unicode ẩn / config auto-exec / cụm injection — quét repo *trước khi* trust folder), guardrail chống prompt-injection trong skill + triage, SECURITY.md threat model, CI trust gate với baseline marker đã review ✅
+- v1.3 (hiện tại) — Gắn nhãn agentic-security (`agent_trust_signals` map sang OWASP Agentic 2026 ASI codes) + mở rộng corpus lên 24 rule: EXCEPTION-MISHANDLING (OWASP 2025 A10 fail-open) và INSECURE-RANDOMNESS (PRNG không mật mã cho token/OTP) ✅
 
 ## Miễn trừ trách nhiệm
 

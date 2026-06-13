@@ -34,7 +34,7 @@ Mặc định Thanh Tra sẽ:
 1. Lấy tất cả file trong repo (toàn bộ, không chỉ uncommitted)
 2. Detect ngôn ngữ chính (Go/PHP/JS/Python/...)
 3. Route SMALL hoặc LARGE mode theo số file
-4. Áp 22 rule generic + overlay language (nếu có)
+4. Áp 24 rule generic + overlay language (nếu có)
 5. In báo cáo Markdown + JSON summary lên stdout
 6. Lưu một bản báo cáo vào `thanhtra-reports/scan-<timestamp>.md` trong repo
 
@@ -52,7 +52,7 @@ thanhtra scan . --json --triage                              # thêm verdict LLM
 
 `scan` xuất `schema: "thanhtra-scan/v1"`. `summary` ở top-level ổn định cho tooling; `evidence` chứa raw pre-scan payload để LLM agent reasoning ở bước sau. `prescan` xuất thẳng raw evidence (`thanhtra-pre-scan/v1`) — đây là lệnh agent skill gọi ở Step 1.5; script bundled trong skill chỉ là wrapper fallback cho máy chưa có CLI trên PATH.
 
-`--triage` thêm một bước LLM reasoning trên evidence cơ học: loại false positive, map finding về 22 rule canonical, và ra verdict `PASS`/`WARN`/`FAIL` — tương đương chạy skill `/thanhtra` nhưng headless. Default dùng Anthropic Claude API (`claude-opus-4-8`; override bằng `THANHTRA_TRIAGE_MODEL`), cần `ANTHROPIC_API_KEY`, dùng SDK `anthropic` nếu có hoặc gọi HTTP bằng stdlib. Không có key thì `scan --triage` vẫn xuất đầy đủ evidence và ghi `triage_error`. Subcommand `thanhtra triage --evidence <file|->` triage một file prescan/scan JSON có sẵn.
+`--triage` thêm một bước LLM reasoning trên evidence cơ học: loại false positive, map finding về 24 rule canonical, và ra verdict `PASS`/`WARN`/`FAIL` — tương đương chạy skill `/thanhtra` nhưng headless. Default dùng Anthropic Claude API (`claude-opus-4-8`; override bằng `THANHTRA_TRIAGE_MODEL`), cần `ANTHROPIC_API_KEY`, dùng SDK `anthropic` nếu có hoặc gọi HTTP bằng stdlib. Không có key thì `scan --triage` vẫn xuất đầy đủ evidence và ghi `triage_error`. Subcommand `thanhtra triage --evidence <file|->` triage một file prescan/scan JSON có sẵn.
 
 ---
 
@@ -477,5 +477,5 @@ fi
 
 ## Bước tiếp theo
 
-- Đọc [rules.md](rules.md) để hiểu chi tiết 22 rule
+- Đọc [rules.md](rules.md) để hiểu chi tiết 24 rule
 - Muốn thêm rule mới hoặc support ngôn ngữ mới? Xem [contributing.md](contributing.md)

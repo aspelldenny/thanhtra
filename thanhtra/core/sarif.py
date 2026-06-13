@@ -35,7 +35,7 @@ LEVEL_BY_SEVERITY = {
 # alerts: >=9.0 critical, 7.0–8.9 high.
 SECURITY_SEVERITY = {"CRITICAL": "9.1", "HIGH": "7.5"}
 
-# The 22 canonical rules, in corpus order (NN matches the rule file prefix).
+# The 24 canonical rules, in corpus order (NN matches the rule file prefix).
 # severity_max mirrors CRITICAL_RULES in triage.py.
 RULES: list[tuple[str, str, str]] = [
     ("HARDCODED-SECRET", "CRITICAL", "API key, DB password, or token embedded in source or committed to git."),
@@ -60,6 +60,8 @@ RULES: list[tuple[str, str, str]] = [
     ("OUTDATED-DEPENDENCY", "HIGH", "Dependency with known CVEs reported by the ecosystem audit tool."),
     ("COMMAND-INJECTION", "CRITICAL", "Untrusted input reaching a shell or process invocation."),
     ("PROMPT-INJECTION", "HIGH", "Untrusted content reaching an LLM prompt or agent context without isolation (direct or context-poisoning)."),
+    ("EXCEPTION-MISHANDLING", "HIGH", "Swallowed exception / empty catch around a security check, letting a failed check proceed (fail-open)."),
+    ("INSECURE-RANDOMNESS", "HIGH", "Non-cryptographic PRNG (Math.random, rand, mt_rand) used for tokens, OTPs, session IDs, or other security values."),
 ]
 
 _RULE_INDEX = {rule_id: i for i, (rule_id, _, _) in enumerate(RULES)}

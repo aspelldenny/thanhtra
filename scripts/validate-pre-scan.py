@@ -185,7 +185,7 @@ def validate_triage_build(evidence: dict) -> None:
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
 
-    assert_true(len(module.ALL_RULES) == 22, "triage should know 22 rules")
+    assert_true(len(module.ALL_RULES) == 24, "triage should know 24 rules")
     assert_true(module.CRITICAL_RULES <= set(module.ALL_RULES), "critical rules must be a subset")
     assert_true("PROMPT-INJECTION" in module.ALL_RULES, "rule #22 missing from triage")
     json.dumps(module.TRIAGE_SCHEMA)  # schema must be JSON-serializable

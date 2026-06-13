@@ -94,7 +94,7 @@ Sau khi có report:
 
 Ưu tiên theo thứ tự:
 
-1. Mở rộng fixture cho đủ 22 rule.
+1. Mở rộng fixture cho đủ 24 rule.
 2. Thêm manifest machine-readable cho rule ID, severity và language overlay.
 3. Tích hợp scanner phụ trợ như `gitleaks`, `pnpm audit`, `pip-audit`, `govulncheck`, `osv-scanner` để bổ sung bằng chứng, không thay thế reasoning của agent.
 4. Tạo wrapper nội bộ để scan nhiều repo và gom report theo dự án.

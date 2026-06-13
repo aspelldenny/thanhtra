@@ -44,6 +44,7 @@ ALL_RULES = sorted(CRITICAL_RULES | {
     "XSS", "IDOR", "BRUTE-FORCE", "SSRF", "PATH-TRAVERSAL", "CSRF",
     "CORS-MISCONFIG", "VERBOSE-ERROR-DEBUG-MODE", "MISSING-RATE-LIMIT",
     "RACE-CONDITION", "OUTDATED-DEPENDENCY", "PROMPT-INJECTION",
+    "EXCEPTION-MISHANDLING", "INSECURE-RANDOMNESS",
 })
 
 TRIAGE_SCHEMA = {
@@ -94,13 +95,13 @@ Method — reason, do not pattern-match:
    usually safe. A hotspot whose value is L3/L4 is a false positive.
 2. Mark false positives explicitly (false_positive: true) and exclude them from
    the verdict, but still list them so the operator sees what was dismissed.
-3. Map every finding to one of the 22 canonical rule IDs. Severity is capped by
+3. Map every finding to one of the 24 canonical rule IDs. Severity is capped by
    rule: CRITICAL only for {critical_rules}; all other rules cap at HIGH.
 4. Dependency CVEs from the audit are real findings (rule OUTDATED-DEPENDENCY,
    severity HIGH) unless clearly unreachable.
 5. sast_findings (if present) come from an external engine (e.g. semgrep) with
    real dataflow analysis — judge them like hotspots: map each to one of the
-   22 canonical rules, dismiss false positives, and apply the same L1-L4
+   24 canonical rules, dismiss false positives, and apply the same L1-L4
    source tracing. Do not trust the external engine's severity blindly.
 6. agent_trust_signals are deterministic detections of content targeting AI
    coding agents (hidden Unicode in instruction files, auto-executing configs,

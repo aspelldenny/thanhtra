@@ -28,14 +28,15 @@ PATH-TRAVERSAL/SSRF — note 2025 folded SSRF into A01), A02, A03 supply-chain
 (SLOPSQUATTING/OUTDATED-DEPENDENCY — we lead OWASP here), A04, A05, A06, A07
 (BRUTE-FORCE, thin), A08. Two genuine gaps + one easy win:
 
-- **[candidate #23] Exception mishandling / fail-open** — OWASP 2025 **A10
-  (new)** "Mishandling of Exceptional Conditions". `try/except: pass`, empty
-  catch then continue, error-swallowing that lets a failed check proceed.
-  *Highly* vibe-code-typical (AI writes "make it run" error handling). Highest
-  value of the three. Needs language overlays (per-lang catch idioms).
-- **[candidate] Insecure randomness** — `Math.random()`/`rand()` for tokens/
-  OTP/session IDs instead of a CSPRNG. AI-typical, cheap to detect, no OWASP-
-  2025 top-level slot of its own (CWE-330, sits under A04) but worth a rule.
+- **[rule 23 — SHIPPED v1.3] EXCEPTION-MISHANDLING / fail-open** — OWASP 2025
+  **A10** "Mishandling of Exceptional Conditions" (CWE-703/755). Generic rule +
+  prescan hotspots (broad/bare catch discriminates from specific `except X:`) +
+  fixtures. Per-language catch-idiom overlays still deferred — add on demand
+  when a real project's idiom is missed (the proven Rust/Swift/Shell cadence).
+- **[rule 24 — SHIPPED v1.3] INSECURE-RANDOMNESS** — `Math.random()`/`rand()`/
+  `mt_rand()` for tokens/OTP/session IDs instead of a CSPRNG (CWE-330, under
+  A04). Generic rule + prescan hotspots (flags weak PRNG, not `crypto`/`secrets`)
+  + fixtures.
 - **A09 Security Logging & Alerting Failures: DEFER** — static scan can't
   judge "is logging sufficient"; false-positive prone. Skip unless a real need.
 - Not now (add as overlay only when a real project hits them): SSTI as a
@@ -56,9 +57,11 @@ we cover. Mapping found:
 | ASI06 Memory & Context Poisoning | hidden-unicode detector (Rules File Backdoor class) |
 | ASI09 Human-Agent Trust Exploitation | the whole "scan before you trust the folder" flow |
 
-- **[task A] Label the coverage** — map `agent_trust_signals` signal types →
-  ASI codes in SECURITY.md + `trust.py` docstrings. Turns instinctive defense
-  into a framework-readable claim. Cheap, high legibility payoff. Do first.
+- **[task A — DONE v1.3] Label the coverage** — `agent_trust_signals` signal
+  types now carry their ASI codes in `trust.py` docstrings + a mapping table in
+  SECURITY.md ("What we cover in OWASP Agentic 2026 terms"): injection-marker→
+  ASI01, auto-exec→ASI05, hidden-unicode→ASI06, the whole stream+CI gate→ASI04,
+  prescan-before-trust→ASI09.
 - **[task B] Survey the other 5 ASI** — ASI02 Tool Misuse, ASI03 Identity/
   Privilege Abuse, ASI07 Insecure Inter-Agent Comms, ASI08 Cascading Failures,
   ASI10 Rogue Agents — which become new deterministic signals vs which are

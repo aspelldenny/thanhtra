@@ -1,4 +1,4 @@
-# The 22 Thanh Tra Security Rules
+# The 24 Thanh Tra Security Rules
 
 Compact overview of each rule with unsafe/safe examples. For the full reasoning, search patterns, and edge cases, open the corresponding rule file under [`skill/rules/generic/`](../../skill/rules/generic/).
 
@@ -34,6 +34,8 @@ Compact overview of each rule with unsafe/safe examples. For the full reasoning,
 | 20 | [OUTDATED-DEPENDENCY](#rule-20--outdated-dependency) | HIGH | — |
 | 21 | [COMMAND-INJECTION](#rule-21--command-injection) | CRITICAL | go, php, typescript, python |
 | 22 | [PROMPT-INJECTION](#rule-22--prompt-injection) | HIGH | — |
+| 23 | [EXCEPTION-MISHANDLING](#rule-23--exception-mishandling) | HIGH | — |
+| 24 | [INSECURE-RANDOMNESS](#rule-24--insecure-randomness) | HIGH | — |
 
 ---
 
@@ -603,6 +605,62 @@ if resp.category not in ALLOWED_CATEGORIES:        # validate model-produced con
 
 ---
 
+### Rule 23 — EXCEPTION-MISHANDLING
+
+**Severity max:** HIGH
+**Applies to:** all
+
+Code catches an exception and swallows it (`except: pass`, empty `catch {}`) so that a **failed security check proceeds as if it had passed** — fail-open. Most dangerous when the swallowed exception wraps signature/JWT verification, an authorization check, password validation, or a payment check: the error becomes a security bypass. Very vibe-code-typical: AI wraps a broad `try/except` to "make it run" and quietly turns a check into a no-op. Maps to OWASP Top 10:2025 **A10** (Mishandling of Exceptional Conditions, CWE-703/755).
+
+**Unsafe (fail-open):**
+```python
+def is_admin(token):
+    try:
+        claims = verify_jwt(token)            # raises on bad signature / expiry
+        return claims.get("role") == "admin"
+    except Exception:
+        pass
+    return True                               # verify failed → still grant admin
+```
+
+**Safe (fail-closed):**
+```python
+def is_admin(token):
+    try:
+        claims = verify_jwt(token)
+    except InvalidTokenError:
+        logger.warning("token verify failed")
+        return False                          # error → deny
+    return claims.get("role") == "admin"
+```
+
+[Full reasoning →](../../skill/rules/generic/23-exception-mishandling.md)
+
+---
+
+### Rule 24 — INSECURE-RANDOMNESS
+
+**Severity max:** HIGH
+**Applies to:** all
+
+A non-cryptographic PRNG (`Math.random()`, `random.random()`, `rand()`, `mt_rand()`) generates a security value — token, OTP, session ID, password-reset token, CSRF token, API key. These generators are predictable (small state, time-seedable), so an attacker can guess or reconstruct a value meant to be secret. AI reaches for `Math.random()` because it's the "obvious" random function, while the CSPRNG lives in a separate import. CWE-330, under OWASP A04 / A02.
+
+**Unsafe:**
+```javascript
+// password-reset token from a predictable PRNG
+const token = Math.random().toString(36).slice(2);
+```
+
+**Safe:**
+```javascript
+import { randomBytes } from "crypto";
+const token = randomBytes(32).toString("hex");   // 256-bit CSPRNG
+```
+
+[Full reasoning →](../../skill/rules/generic/24-insecure-randomness.md)
+
+---
+
 ## Specializations
 
 Some rules have language-specific overrides that catch idioms more accurately. When Thanh Tra detects the primary language, it loads the matching overlay:
@@ -623,4 +681,4 @@ If you add a new rule (22, 23...) or change a severity, remember to update:
 1. This file (`docs/en/rules.md`)
 2. [`docs/vi/rules.md`](../vi/rules.md)
 3. The table in [SKILL.md](../../skill/SKILL.md) Step 4
-4. README.vi.md + README.en.md (the "22 vulnerabilities" section)
+4. README.vi.md + README.en.md (the "24 vulnerabilities" section)

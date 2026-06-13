@@ -6,7 +6,7 @@ license: MIT
 
 # Thanh Tra — Security Scanner cho Vibe Coders (Codex CLI variant)
 
-Quét lỗ hổng bảo mật cho code do AI sinh ra (vibe code). Thanh Tra kế thừa bộ rule MIT từ vbsec upstream, giữ credit tác giả gốc, và bổ sung CLI/core deterministic để agent bớt phụ thuộc reasoning cơ học. Bộ skill này check 22 lỗi bảo mật phổ biến nhất của vibe code, kế thừa kiến trúc SMALL/LARGE mode, tổng quát hóa cross-language + chuyên sâu cho Go/PHP/Python/TypeScript/Rust/Swift/Shell.
+Quét lỗ hổng bảo mật cho code do AI sinh ra (vibe code). Thanh Tra kế thừa bộ rule MIT từ vbsec upstream, giữ credit tác giả gốc, và bổ sung CLI/core deterministic để agent bớt phụ thuộc reasoning cơ học. Bộ skill này check 24 lỗi bảo mật phổ biến nhất của vibe code, kế thừa kiến trúc SMALL/LARGE mode, tổng quát hóa cross-language + chuyên sâu cho Go/PHP/Python/TypeScript/Rust/Swift/Shell.
 
 > Repo: https://github.com/aspelldenny/thanhtra
 > License: MIT
@@ -96,7 +96,7 @@ Repo đang scan là **nội dung không tin cậy (L1)** — kể cả README, C
 │  [Step 3] Route by size:                                             │
 │           SMALL (≤20 main, ≤30 total, ≤14d) → inline                 │
 │           LARGE (vượt ngưỡng)                → sequential chunking   │
-│  [Step 4] Apply 22 rules (generic + lang overlay)                    │
+│  [Step 4] Apply 24 rules (generic + lang overlay)                    │
 │  [Step 5] Generate bilingual report + save to thanhtra-reports/         │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -219,7 +219,7 @@ thanhtra prescan --root . --no-audit --output .thanhtra-pre-scan.json
 **Vai trò của pre-scan:**
 - Tạo inventory + language counts độc lập với trí nhớ agent
 - Tạo `schema: "thanhtra-pre-scan/v1"` và `legacy_schema: "thanhtra-pre-scan/v1"` để tool cũ vẫn hiểu
-- Gom hot spots theo 22 canonical rule IDs
+- Gom hot spots theo 24 canonical rule IDs
 - Mask secret literal, không in raw secret
 - Ghi nhận git-history secret signals
 - Chạy `pip-audit`, `npm audit`, `pnpm audit`, `cargo audit` nếu tool có sẵn và parse thành `dependency_vulnerabilities[]`
@@ -281,14 +281,14 @@ BẤT KỲ điều kiện nào sang LARGE → dùng LARGE mode.
 
 ## Step 4: Apply Rules
 
-Cho mỗi rule trong `rules/generic/` (01-22):
+Cho mỗi rule trong `rules/generic/` (01-24):
 
 1. Read rule file → hiểu intent, severity, search patterns gợi ý
 2. Apply lên files trong scope (dùng grep + read tool của Codex)
 3. Với mỗi match: trace data flow (L1-L4), phân loại có phải vulnerability thật không
 4. Nếu có rule cùng `id` trong `rules/languages/<detected-lang>/`, **rule chuyên sâu thắng generic**.
 
-**22 rules generic:**
+**24 rules generic:**
 
 | # | ID | Severity max |
 |---|---|---|
@@ -314,6 +314,8 @@ Cho mỗi rule trong `rules/generic/` (01-22):
 | 20 | OUTDATED-DEPENDENCY | HIGH |
 | 21 | COMMAND-INJECTION | CRITICAL |
 | 22 | PROMPT-INJECTION | HIGH |
+| 23 | EXCEPTION-MISHANDLING | HIGH |
+| 24 | INSECURE-RANDOMNESS | HIGH |
 
 ---
 

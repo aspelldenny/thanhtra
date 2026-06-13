@@ -14,7 +14,7 @@ Templates cho prompt khi main orchestrator delegate quét 1 chunk cho sub-agent.
 
 ```
 You are a security scanner agent for the Thanh Tra skill (github.com/aspelldenny/thanhtra).
-Your job: scan a chunk of files for the 22 Thanh Tra security rules and report findings.
+Your job: scan a chunk of files for the 24 Thanh Tra security rules and report findings.
 
 # Context
 - Repository: {repo_path}
@@ -30,7 +30,7 @@ Start with them, then read full context and apply L1-L4 reasoning.
 {chunk_pre_scan_evidence}
 
 # Rules to check
-For each file, look for these 22 vulnerability categories:
+For each file, look for these 24 vulnerability categories:
 
 1. HARDCODED-SECRET — API keys/passwords in source or committed config
 2. SQL-INJECTION — untrusted input concatenated into SQL without parameterization
@@ -54,6 +54,8 @@ For each file, look for these 22 vulnerability categories:
 20. OUTDATED-DEPENDENCY — package.json/requirements.txt/go.mod with known-CVE versions
 21. COMMAND-INJECTION — exec/system/spawn/shell=True with user input
 22. PROMPT-INJECTION — untrusted input/stored content fed into LLM prompt or tool calls without trust boundary (direct injection, context/memory poisoning, model-output-as-control)
+23. EXCEPTION-MISHANDLING — swallowed exception / empty catch around a security check, letting a failed check proceed (fail-open); CRITICAL never — cap HIGH
+24. INSECURE-RANDOMNESS — non-crypto PRNG (Math.random, random.*, rand, mt_rand) for tokens/OTP/session IDs/reset tokens instead of a CSPRNG
 
 # Methodology — Reasoning, not pattern-matching
 
@@ -123,7 +125,7 @@ Use EN canonical (do not translate). Format:
   line: 42
   description: Brief description of the issue
   suggested_new_rule_id: SUGGESTED-NEW-RULE (only if you believe this is a class of vulnerability worth a new rule)
-  reasoning: Why none of the 22 canonical rules fit
+  reasoning: Why none of the 24 canonical rules fit
 - ... (issues you couldn't map — usually empty; only add when truly novel)
 ```
 
@@ -131,9 +133,9 @@ Use EN canonical (do not translate). Format:
 
 ## Rule ID discipline (CRITICAL — read carefully)
 
-**ONLY use the 22 canonical rule IDs listed above.** Do NOT invent new rule IDs like `INSECURE-COOKIE`, `AUTH-BYPASS`, `WEAK-CRYPTO`, `DATA-IN-URL`, `OAUTH-MISCONFIG`, `SUPPLY-CHAIN`, `INFO-DISCLOSURE`, `DATA-AT-REST`, `DEPRECATED-API`, `INSECURE-SESSION`, etc.
+**ONLY use the 24 canonical rule IDs listed above.** Do NOT invent new rule IDs like `INSECURE-COOKIE`, `AUTH-BYPASS`, `WEAK-CRYPTO`, `DATA-IN-URL`, `OAUTH-MISCONFIG`, `SUPPLY-CHAIN`, `INFO-DISCLOSURE`, `DATA-AT-REST`, `DEPRECATED-API`, `INSECURE-SESSION`, etc.
 
-When you encounter a real security issue that doesn't obviously fit one of the 22 IDs, map it to the closest canonical rule using this mapping table:
+When you encounter a real security issue that doesn't obviously fit one of the 24 IDs, map it to the closest canonical rule using this mapping table:
 
 | If you'd want to call it... | Use this canonical ID instead | Note in `issue` |
 |---|---|---|
@@ -149,7 +151,7 @@ When you encounter a real security issue that doesn't obviously fit one of the 2
 | DEPRECATED-API (apt-key, old syscall) | `OUTDATED-DEPENDENCY` | "deprecated API: ..." |
 | DEPENDENCY-HARDENING (lockfile ignored) | `OUTDATED-DEPENDENCY` | "dependency hardening missing" |
 
-If you genuinely cannot map a finding to any of the 22 rules, **skip it** and mention it ONLY in the `## NOT_MAPPED` section at the end of your findings file (see format below) — main agent will decide whether to surface or propose adding a new rule in future versions.
+If you genuinely cannot map a finding to any of the 24 rules, **skip it** and mention it ONLY in the `## NOT_MAPPED` section at the end of your findings file (see format below) — main agent will decide whether to surface or propose adding a new rule in future versions.
 
 ## One finding = one primary rule_id
 
@@ -173,7 +175,7 @@ Example:
 ## Other constraints
 
 - Only report findings WITH high confidence (you traced the data flow)
-- Severity is CAPPED by rule. CRITICAL rules: 01,02,05,07,08,12,13,14,16,21. HIGH max for others (03,04,06,09,10,11,15,17,18,19,20,22).
+- Severity is CAPPED by rule. CRITICAL rules: 01,02,05,07,08,12,13,14,16,21. HIGH max for others (03,04,06,09,10,11,15,17,18,19,20,22,23,24).
 - You MAY downgrade severity if context reduces risk (note reason in `issue`)
 - Do NOT recommend specific library versions (main agent will check OUTDATED-DEPENDENCY)
 - Do NOT output JSON. Use the markdown format above. Main agent will parse.

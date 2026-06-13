@@ -3,7 +3,7 @@
 
 This script gives the LLM stable "eyes and hands" before reasoning:
 - inventory files and language counts
-- collect security hot spots mapped to the 22 canonical rule IDs
+- collect security hot spots mapped to the 24 canonical rule IDs
 - mask possible secrets
 - collect git-history secret signals without printing secret values
 - run dependency audit tools when already available
@@ -247,6 +247,25 @@ HOTSPOT_PATTERNS = {
         r"\b(tool_calls|function_call|tool_use)\b",
         r"(similarity_search|as_retriever|vector_?store)",
         r"(user_knowledge|user_facts|user_memory|memory)\b.*\b(insert|update|upsert|save|store)\b",
+    ],
+    "EXCEPTION-MISHANDLING": [
+        # broad/bare catch — the swallow point; specific `except X:` is NOT flagged
+        r"except\s*:\s*",
+        r"except\s+(Exception|BaseException)\s*(\bas\b\s*\w+\s*)?:",
+        r"except[^\n:]*:\s*pass\b",
+        r"contextlib\.suppress\s*\(",
+        r"catch\s*\([^)]*\)\s*\{\s*\}",
+        r"catch\s*\{\s*\}",
+        r"\.catch\s*\(\s*\(\s*\)\s*=>\s*\{?\s*\}?\s*\)",
+        r"rescue\s+nil\b",
+        r"recover\s*\(\s*\)",
+    ],
+    "INSECURE-RANDOMNESS": [
+        r"Math\.random\s*\(",
+        r"random\.(random|randint|randrange|choice|choices|sample|getrandbits|shuffle)\s*\(",
+        r"\bmt_rand\s*\(|\bmt_srand\s*\(|\buniqid\s*\(",
+        r"\bmath/rand\b",
+        r"\bnew\s+Random\s*\(",
     ],
 }
 

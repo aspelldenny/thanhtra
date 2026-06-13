@@ -55,7 +55,7 @@ git init
 | Improving an existing rule (more patterns, fewer false positives) | High | `skill/rules/generic/NN-*.md` |
 | Fixing reasoning bugs in a rule | High | `skill/rules/generic/NN-*.md` |
 | Adding test cases (positive + negative) | Medium | `tests/` (no infra yet — bundle in PR description) |
-| Adding a brand-new rule (22, 23...) | Medium | Discuss via issue first |
+| Adding a brand-new rule (25, 26...) | Medium | Discuss via issue first |
 | CVE list updates for OUTDATED-DEPENDENCY | Medium | `skill/rules/generic/20-outdated-dependency.md` |
 | Docs (typos, examples, workflow improvements) | Low-Medium | `docs/`, `README.*.md` |
 
@@ -89,9 +89,9 @@ git init
 
 ### 1. Pick a name + number
 
-The next rule number is **22**. ID is `UPPERCASE-KEBAB-CASE`, e.g.: `OPEN-REDIRECT`, `XML-XXE`, `LDAP-INJECTION`.
+The next rule number is **25**. ID is `UPPERCASE-KEBAB-CASE`, e.g.: `OPEN-REDIRECT`, `XML-XXE`, `LDAP-INJECTION`.
 
-File: `skill/rules/generic/22-open-redirect.md`
+File: `skill/rules/generic/25-open-redirect.md`
 
 ### 2. Frontmatter template
 
@@ -154,8 +154,8 @@ grep -rE 'res\.redirect\(req\.(query|body|params)' src/
 
 | File | What to do |
 |---|---|
-| [`skill/SKILL.md`](../../skill/SKILL.md) | Add a row to the rules table in Step 4 (renumber from "21 rules" to "22 rules") |
-| [`docs/vi/rules.md`](../vi/rules.md) | Add a `### Rule 22 — OPEN-REDIRECT` section |
+| [`skill/SKILL.md`](../../skill/SKILL.md) | Add a row to the rules table in Step 4 (renumber from "24 rules" to "25 rules") |
+| [`docs/vi/rules.md`](../vi/rules.md) | Add a `### Rule 25 — OPEN-REDIRECT` section |
 | [`docs/en/rules.md`](rules.md) | Same |
 | [`README.vi.md`](../../README.vi.md) | Update the 21→22 list (the table) |
 | [`README.en.md`](../../README.en.md) | Same |
@@ -176,7 +176,7 @@ A specialization overrides a generic rule for a specific language with patterns 
 mkdir -p skill/rules/languages/ruby
 ```
 
-Pick the rules worth specializing (not all 22 — focus on ones with idiomatic Ruby patterns). Examples:
+Pick the rules worth specializing (not all 24 — focus on ones with idiomatic Ruby patterns). Examples:
 
 - SQL-INJECTION → ActiveRecord `.where("...")` raw vs parameterized
 - MASS-ASSIGNMENT → `User.update(params)` missing `permit`
@@ -366,7 +366,7 @@ Include in the PR description:
 
 | Prefix | When to use | Example |
 |---|---|---|
-| `feat:` | Add a feature / new rule | `feat: add OPEN-REDIRECT rule (22)` |
+| `feat:` | Add a feature / new rule | `feat: add OPEN-REDIRECT rule (25)` |
 | `fix:` | Bug fix, false-positive reduction | `fix: reduce false positive in SQL-INJECTION for parameterized GORM` |
 | `docs:` | Docs / README updates | `docs: clarify SMALL vs LARGE thresholds` |
 | `lang:` | Add/modify a language specialization | `lang: add Ruby specialization for SQL-INJECTION` |

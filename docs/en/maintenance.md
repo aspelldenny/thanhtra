@@ -94,7 +94,7 @@ After the report:
 
 Prioritize:
 
-1. Expand fixtures until all 22 rules are covered.
+1. Expand fixtures until all 24 rules are covered.
 2. Add a machine-readable manifest for rule IDs, severities, and overlays.
 3. Integrate supporting scanners such as `gitleaks`, `pnpm audit`, `pip-audit`, `govulncheck`, and `osv-scanner` as evidence providers, not replacements for agent reasoning.
 4. Build an internal wrapper that scans multiple repositories and aggregates reports by project.

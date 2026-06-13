@@ -34,7 +34,7 @@ By default Thanh Tra will:
 1. Collect every file in the repo (full tree, not just uncommitted)
 2. Detect the primary language (Go/PHP/JS/Python/...)
 3. Route to SMALL or LARGE mode based on file count
-4. Apply 22 generic rules + language overlay (if available)
+4. Apply 24 generic rules + language overlay (if available)
 5. Print a Markdown report + JSON summary to stdout
 6. Save a copy of the report to `thanhtra-reports/scan-<timestamp>.md` in the repo
 
@@ -52,7 +52,7 @@ thanhtra scan . --json --triage                              # add LLM verdict (
 
 `scan` emits `schema: "thanhtra-scan/v1"`. The top-level `summary` is stable for tooling; `evidence` contains the raw pre-scan payload used by LLM agents for later reasoning. `prescan` emits the raw evidence document (`thanhtra-pre-scan/v1`) directly — this is what the agent skills call in Step 1.5; the script bundled inside the skill is only a fallback wrapper for machines without the CLI on PATH.
 
-`--triage` adds an optional LLM reasoning pass on top of the mechanical evidence: it removes false positives, maps findings to the 22 canonical rules, and produces a `PASS`/`WARN`/`FAIL` verdict — the headless equivalent of running the `/thanhtra` skill. It defaults to the Anthropic Claude API (`claude-opus-4-8`; override with `THANHTRA_TRIAGE_MODEL`), needs `ANTHROPIC_API_KEY`, and uses the `anthropic` SDK when installed or a stdlib HTTP call otherwise. Without a key, `scan --triage` still emits the full evidence and records `triage_error`. The standalone `thanhtra triage --evidence <file|->` triages an existing prescan/scan JSON.
+`--triage` adds an optional LLM reasoning pass on top of the mechanical evidence: it removes false positives, maps findings to the 24 canonical rules, and produces a `PASS`/`WARN`/`FAIL` verdict — the headless equivalent of running the `/thanhtra` skill. It defaults to the Anthropic Claude API (`claude-opus-4-8`; override with `THANHTRA_TRIAGE_MODEL`), needs `ANTHROPIC_API_KEY`, and uses the `anthropic` SDK when installed or a stdlib HTTP call otherwise. Without a key, `scan --triage` still emits the full evidence and records `triage_error`. The standalone `thanhtra triage --evidence <file|->` triages an existing prescan/scan JSON.
 
 ---
 
@@ -478,5 +478,5 @@ fi
 
 ## Next steps
 
-- Read [rules.md](rules.md) for full details on the 22 rules
+- Read [rules.md](rules.md) for full details on the 24 rules
 - Want to add a new rule or language? See [contributing.md](contributing.md)

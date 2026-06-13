@@ -49,10 +49,10 @@ check_generic_rules() {
   local count
   count="$(find "$rule_dir" -maxdepth 1 -type f -name '[0-9][0-9]-*.md' | wc -l | tr -d ' ')"
 
-  if [ "$count" = "22" ]; then
-    pass "canonical generic rule count is 22"
+  if [ "$count" = "24" ]; then
+    pass "canonical generic rule count is 24"
   else
-    fail "canonical generic rule count is $count, expected 22"
+    fail "canonical generic rule count is $count, expected 24"
   fi
 
   local tmp_ids

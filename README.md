@@ -74,7 +74,7 @@ Thanh Tra ships three variants from a single source of truth:
 | OpenAI Codex CLI | `skills/codex/thanhtra/` | `~/.agents/skills/thanhtra` | Sequential chunking |
 | Google Antigravity | `skills/antigravity/thanhtra/` | `~/.gemini/antigravity/skills/thanhtra` | Sequential chunking |
 
-All three share the same 22 rules, language overlays, i18n strings, and output format. Findings are identical; only execution strategy differs. Sequential variants are ~3× slower wall-clock than Claude Code's parallel mode on large repositories, but produce the same JSON summary and the same Markdown report.
+All three share the same 24 rules, language overlays, i18n strings, and output format. Findings are identical; only execution strategy differs. Sequential variants are ~3× slower wall-clock than Claude Code's parallel mode on large repositories, but produce the same JSON summary and the same Markdown report.
 
 Contributors: edit rules in `skills/thanhtra/` (the canonical Claude folder), then run `./scripts/sync-skills.sh` to propagate to the Codex and Antigravity variants. Platform-specific files (`SKILL.md`, `workflows/large-review*.md`) are hand-maintained.
 
@@ -208,7 +208,7 @@ Findings land in evidence as `sast_findings` (engine, rule, file, line, message)
 thanhtra scan . --sarif --output thanhtra.sarif    # implies --triage; exits 1 if triage can't run
 ```
 
-The 22 rules become SARIF `rules[]` metadata; severity maps CRITICAL/HIGH → `error`, MEDIUM → `warning`, LOW → `note`. Copy [`examples/github-actions/thanhtra.yml`](examples/github-actions/thanhtra.yml) into your repo's `.github/workflows/` to wire it to `codeql-action/upload-sarif` — when it runs (per PR / push / nightly) is your call and your CI quota. Details in [docs/en/usage.md](docs/en/usage.md).
+The 24 rules become SARIF `rules[]` metadata; severity maps CRITICAL/HIGH → `error`, MEDIUM → `warning`, LOW → `note`. Copy [`examples/github-actions/thanhtra.yml`](examples/github-actions/thanhtra.yml) into your repo's `.github/workflows/` to wire it to `codeql-action/upload-sarif` — when it runs (per PR / push / nightly) is your call and your CI quota. Details in [docs/en/usage.md](docs/en/usage.md).
 
 ### Agent-trust signals (scan a repo BEFORE you trust the folder)
 
@@ -247,8 +247,11 @@ This repo holds itself to the same standard — see [SECURITY.md](SECURITY.md) f
 | 19 | `RACE-CONDITION` | HIGH | — |
 | 20 | `OUTDATED-DEPENDENCY` | HIGH | — |
 | 21 | `COMMAND-INJECTION` | CRITICAL | go, php, typescript |
+| 22 | `PROMPT-INJECTION` | HIGH | — |
+| 23 | `EXCEPTION-MISHANDLING` | HIGH | — |
+| 24 | `INSECURE-RANDOMNESS` | HIGH | — |
 
-The list currently contains 22 rules and will continue to expand.
+The list currently contains 24 rules and will continue to expand.
 
 ## Documentation
 
@@ -272,9 +275,10 @@ The list currently contains 22 rules and will continue to expand.
 - v0.10 — Rust overlay: sqlx/diesel SQLi, reqwest SSRF, PathBuf traversal, Command injection, error leak (axum/actix) ✅
 - v0.11 — Swift overlay: plist/xcconfig + UserDefaults secrets, GRDB/NSPredicate SQLi, WKWebView XSS, NSKeyedUnarchiver deserialization, deep-link URL load, ATS/trust-all certs ✅
 - v0.12 — Shell overlay: eval/sh -c, heredoc splice into other interpreters' source (python3/osascript/awk), unquoted expansion + empty-var rm -rf, predictable temp files + flock, set -x leaking secrets into CI logs, curl|sh without pin/checksum; owner-run trust-model downgrade criteria ✅
-- v1.0 (current) — CI gate: `scan --sarif` emits SARIF 2.1.0 from triaged findings (GitHub Security tab + inline PR annotations) + copyable GitHub Action template (`examples/github-actions/thanhtra.yml`) ✅
+- v1.0 — CI gate: `scan --sarif` emits SARIF 2.1.0 from triaged findings (GitHub Security tab + inline PR annotations) + copyable GitHub Action template (`examples/github-actions/thanhtra.yml`) ✅
 - v1.1 — External SAST backend: `--semgrep` runs semgrep when installed (best-effort, `p/default`, metrics off), `--sast-sarif` ingests any engine's SARIF; normalized `sast_findings` feed the same LLM triage as hotspots ✅
-- v1.2 (current) — Trust defense layer: deterministic `agent_trust_signals` detector (hidden Unicode / auto-exec configs / injection markers — scan a repo *before* trusting the folder), anti-prompt-injection guardrails in skill + triage, SECURITY.md threat model, CI trust gate with reviewed marker baseline ✅
+- v1.2 — Trust defense layer: deterministic `agent_trust_signals` detector (hidden Unicode / auto-exec configs / injection markers — scan a repo *before* trusting the folder), anti-prompt-injection guardrails in skill + triage, SECURITY.md threat model, CI trust gate with reviewed marker baseline ✅
+- v1.3 (current) — Agentic-security labelling (`agent_trust_signals` mapped to OWASP Agentic 2026 ASI codes) + corpus expansion to 24 rules: EXCEPTION-MISHANDLING (OWASP 2025 A10 fail-open) and INSECURE-RANDOMNESS (non-CSPRNG for tokens/OTP) ✅
 
 ## Disclaimer
 

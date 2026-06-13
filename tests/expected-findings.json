@@ -241,6 +241,44 @@
       "path": "tests/fixtures/negative/race-condition-shell",
       "language": "shell",
       "expected_findings": []
+    },
+    {
+      "name": "positive/exception-mishandling-python",
+      "path": "tests/fixtures/positive/exception-mishandling-python",
+      "language": "python",
+      "expected_findings": [
+        {
+          "rule_id": "EXCEPTION-MISHANDLING",
+          "severity": "HIGH",
+          "file": "auth.py",
+          "line": 13
+        }
+      ]
+    },
+    {
+      "name": "negative/exception-mishandling-python",
+      "path": "tests/fixtures/negative/exception-mishandling-python",
+      "language": "python",
+      "expected_findings": []
+    },
+    {
+      "name": "positive/insecure-randomness-typescript",
+      "path": "tests/fixtures/positive/insecure-randomness-typescript",
+      "language": "typescript",
+      "expected_findings": [
+        {
+          "rule_id": "INSECURE-RANDOMNESS",
+          "severity": "HIGH",
+          "file": "token.ts",
+          "line": 3
+        }
+      ]
+    },
+    {
+      "name": "negative/insecure-randomness-typescript",
+      "path": "tests/fixtures/negative/insecure-randomness-typescript",
+      "language": "typescript",
+      "expected_findings": []
     }
   ]
 }
