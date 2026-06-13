@@ -235,6 +235,41 @@ The disease to avoid is "saw a false positive → change a rule." ~24 rules
 covering the AI-typical classes is *enough*; the model's reasoning + the second
 line do the rest.
 
+## Model & vendor variance — cross-check, never trust one report (2026-06-13)
+
+Operational discipline for USING Thanh Tra (not a tool change). Recall is
+reasoning-dependent, so it varies by model and by vendor.
+
+**Empirical proof (same repo `tarot`, same skill, same prescan evidence):**
+- **Opus 4.8** → verdict PASS, 0 HIGH.
+- **Sonnet 4.6** → found a real HIGH that Opus missed: `auth/lite/route.ts`
+  rate-limits only the new-account branch; the existing-lite-user refresh path
+  returns a fresh session token *before* the limit → unlimited token minting for
+  a known lite email. **Verified in code** (rate-limit at line ~132 sits after
+  the `if (existing) { … return }` block at ~99–127).
+
+So: **a single model's PASS ≠ clean code** — it means "this model, this run,
+found nothing more." (We initially over-praised the Opus PASS as proof the repo
+was clean; it wasn't — Opus just didn't find it.)
+
+**Precision/recall trades off between models, neither dominates:** Sonnet had
+higher recall (caught the HIGH + more) but lower precision (its sub-agents
+over-rated PROMPT-INJECTION → needed downgrade; several "new" findings were
+correctness/hygiene, not security). Opus had higher precision, lower recall.
+
+**Go further than same-vendor — cross-VENDOR matters most.** Models differ by
+training data, and each training run differs; OpenAI (GPT) and Anthropic
+(Claude) diverge MORE than two Claude models do, so cross-vendor checking gives
+the most diverse blind-spot coverage. This is exactly why Codex (GPT) plugin
+support (the v1.x Codex fix) is worth having — it enables a genuinely
+out-of-Anthropic second opinion, not just Opus-vs-Sonnet.
+
+**The rule:** treat any one report as a single opinion. For important
+checkpoints (pre-release, a security gate decision), run **≥2 models, ideally
+≥2 vendors** (Claude + GPT), union the findings, then triage. Do NOT trust one
+report. This is inherent to reasoning-based scanning — not a bug to "fix" in the
+tool (no prison); it's how to operate the third-party auditor well.
+
 ## Paused — reopen on real need
 
 - **Ruby / Java overlays.** Skipped intentionally: not worth the complexity for the
