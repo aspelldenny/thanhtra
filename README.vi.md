@@ -25,7 +25,7 @@ Thanh Tra là scanner bảo mật CLI-first kiêm skill agent đa nền tảng, 
 Trước hết, tải repo về (luôn pin theo **tag release**, đừng theo branch đang chạy — lý do ở dưới):
 
 ```bash
-git clone --branch v1.3.2 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra
+git clone --branch v1.3.3 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra
 ```
 
 Rồi chọn **một trong hai cách dùng**:
@@ -114,7 +114,7 @@ Yêu cầu: **Python 3.10+** (chỉ standard library — CLI và installer zero 
 Thanh Tra tự động detect mọi platform hỗ trợ có sẵn trên máy và cấu hình skill. Chạy:
 
 ```bash
-git clone --branch v1.3.2 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra   # pin theo tag release (xem SECURITY.md)
+git clone --branch v1.3.3 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra   # pin theo tag release (xem SECURITY.md)
 cd ~/thanhtra
 ./scripts/install.sh         # auto-detect, cài cho platform có sẵn
 ./scripts/install.sh --all   # ép cài cho cả 3 platform bất kể detection
@@ -131,8 +131,8 @@ Installer symlink folder skill phù hợp vào vị trí của từng platform. 
 
 ```bash
 cd ~/thanhtra && git fetch --tags
-git diff v1.3.1..v1.3.2 -- skills/ SECURITY.md   # review những gì sẽ chạy trong agent của bạn
-git checkout v1.3.2
+git diff v1.3.2..v1.3.3 -- skills/ SECURITY.md   # review những gì sẽ chạy trong agent của bạn
+git checkout v1.3.3
 ```
 
 (Symlink tự load phiên bản mới; khởi động lại CLI/IDE nếu cần.)
