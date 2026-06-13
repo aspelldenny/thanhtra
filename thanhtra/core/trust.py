@@ -8,20 +8,29 @@ folder is trusted, or natural-language injection in agent-consumed markdown.
 
 This detector is deliberately deterministic (no model): it can be run on an
 untrusted folder BEFORE any LLM reads its content, because regexes cannot be
-prompt-injected. Three signal classes:
+prompt-injected. Three signal classes, each mapped to its OWASP Top 10 for
+Agentic Applications 2026 (ASI) category:
 
-- ``hidden-unicode``: invisible/bidi codepoints in any text file — Tags block
-  (U+E0000–E007F), zero-width (U+200B–D, U+2060, U+FEFF, U+2063), bidi
-  controls (U+202A–E, U+2066–69), private use areas. VS15/VS16 are exempt
-  (legitimate emoji selectors).
-- ``auto-exec``: configs that run or load commands when the folder is opened
-  or trusted — agent hooks, project MCP servers, folder-open tasks,
-  devcontainer lifecycle commands, direnv, package-manager lifecycle
-  scripts, committed git-hook managers.
-- ``injection-marker``: imperative-injection phrases, curl|sh, or large
-  base64 blobs inside files agents auto-read as instructions. Heuristic
-  (visible text can also be judged by a human/triage), so callers usually
-  treat these as review tripwires, not hard failures.
+- ``hidden-unicode`` [ASI06 Memory & Context Poisoning]: invisible/bidi
+  codepoints in any text file — Tags block (U+E0000–E007F), zero-width
+  (U+200B–D, U+2060, U+FEFF, U+2063), bidi controls (U+202A–E, U+2066–69),
+  private use areas. VS15/VS16 are exempt (legitimate emoji selectors).
+- ``auto-exec`` [ASI05 Unexpected Code Execution]: configs that run or load
+  commands when the folder is opened or trusted — agent hooks, project MCP
+  servers, folder-open tasks, devcontainer lifecycle commands, direnv,
+  package-manager lifecycle scripts, committed git-hook managers.
+- ``injection-marker`` [ASI01 Agent Goal Hijack]: imperative-injection
+  phrases, curl|sh, or large base64 blobs inside files agents auto-read as
+  instructions. Heuristic (visible text can also be judged by a human/
+  triage), so callers usually treat these as review tripwires, not hard
+  failures.
+
+Two framework categories are covered at the system level rather than by a
+single signal type: the whole ``agent_trust_signals`` evidence stream plus
+the CI trust gate is the repo's defense against **ASI04 Agentic Supply Chain
+Compromise**, and running this deterministic prescan *before* an agent trusts
+a cloned folder is the mitigation for **ASI09 Human-Agent Trust
+Exploitation**.
 """
 
 from __future__ import annotations
