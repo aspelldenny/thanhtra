@@ -25,7 +25,7 @@ Thanh Tra is a CLI-first security scanner and multi-platform agent skill that pe
 First, download the repo (always pin a **release tag**, never a moving branch — see why below):
 
 ```bash
-git clone --branch v1.3.1 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra
+git clone --branch v1.3.2 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra
 ```
 
 Then pick **one of two ways to use it**:
@@ -105,7 +105,7 @@ Requirements: **Python 3.10+** (standard library only — the CLI and installer 
 Thanh Tra auto-detects every supported platform you have installed and wires up the skill. Run:
 
 ```bash
-git clone --branch v1.3.1 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra   # pin a release tag (see SECURITY.md)
+git clone --branch v1.3.2 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra   # pin a release tag (see SECURITY.md)
 cd ~/thanhtra
 ./scripts/install.sh         # auto-detect, install for what's present
 ./scripts/install.sh --all   # force install for all 3 platforms regardless
@@ -122,8 +122,8 @@ The installer symlinks the appropriate skill folder into each platform's expecte
 
 ```bash
 cd ~/thanhtra && git fetch --tags
-git diff v1.3.0..v1.3.1 -- skills/ SECURITY.md   # review what will run in your agent
-git checkout v1.3.1
+git diff v1.3.1..v1.3.2 -- skills/ SECURITY.md   # review what will run in your agent
+git checkout v1.3.2
 ```
 
 (Symlinks pick up the new version automatically; restart the CLI / IDE if needed.)
