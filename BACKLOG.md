@@ -186,6 +186,55 @@ the wording to "downgrade allowed when you full-read every security-relevant
 file and state coverage" instead of an absolute ban the model rationalises
 around. Not urgent — behaviour is already good.
 
+## Rule-evolution governance — resist building a prison (2026-06-13)
+
+The single most important principle for evolving this tool. Read before adding
+or tightening ANY rule.
+
+**Thanh Tra's role: a third-party periodic auditor, NOT the in-house guardian.**
+It scans every 1–2 weeks and produces a signal. It is the smoke detector, not
+the fire brigade. There is always a *second line of defence*: the developer /
+in-house agent / architect who knows the codebase and triages the report with
+full context. Therefore:
+
+- **Blind spots are acceptable.** The second line covers what Thanh Tra misses.
+  Do NOT chase 100% recall or a rule for every CWE — that is not this tool's job.
+- **Optimise SIGNAL over COMPLETENESS.** Be trustworthy (high precision, low
+  noise, catch the big obvious things — the P0 secret, the real XSS) so people
+  *act* on the report. A tool that floods false positives gets ignored; a tool
+  that misses an edge case is fine because the second line exists.
+
+**More rules → a prison.** Thanh Tra is reasoning-first: rules are a *lens for
+the model's intelligence*, not a rigid checklist. The model already reasons
+about context (in real runs it independently spotted `debug=True` is under
+`if __name__=="__main__"`, that Jinja autoescape doesn't cover JS-context, that
+an L3 `exec()` is safe). Encoding those as case-law rules:
+- duplicates what the model already does (waste);
+- is brittle (the next variation — a different guard, a different idiom —
+  slips past the hard-coded condition);
+- trains the model to pattern-match the exact condition instead of reasoning
+  about the principle — i.e. it makes the model *dumber*, and results get worse.
+
+**The bar to change a rule (the middle way — not too strict, not too loose):**
+1. The issue **recurs across MULTIPLE real repos** — never act on n=1.
+2. The fix is an **intent clarification** (sharpen the principle, ≤1 line —
+   e.g. "WEAK-PASSWORD-HASHING is about the *algorithm* md5/sha1/plaintext, not
+   password policy"), **NOT a situational exception**. Clarifying intent sharpens
+   the model's reasoning; adding exceptions adds bars to the cage.
+
+**Precedent (rejected tunes, recorded so the rationale persists):**
+- *Down-rate `debug=True` under `__main__`* → REJECTED. Textbook prison: the
+  model already reasons it; a HIGH-vs-MEDIUM judgement call is not worth a rule;
+  brittle to the next guard idiom.
+- *Tighten WEAK-PASSWORD-HASHING so it stops tagging "empty password accepted"*
+  → DEFERRED. Seen once (n=1) on a real repo (the hashing was correct Werkzeug
+  pbkdf2; the model mis-tagged a password-policy issue). Watch for recurrence;
+  if it repeats, a one-line intent clarification — not an exception.
+
+The disease to avoid is "saw a false positive → change a rule." ~24 rules
+covering the AI-typical classes is *enough*; the model's reasoning + the second
+line do the rest.
+
 ## Paused — reopen on real need
 
 - **Ruby / Java overlays.** Skipped intentionally: not worth the complexity for the
