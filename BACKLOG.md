@@ -62,10 +62,26 @@ we cover. Mapping found:
   SECURITY.md ("What we cover in OWASP Agentic 2026 terms"): injection-marker→
   ASI01, auto-exec→ASI05, hidden-unicode→ASI06, the whole stream+CI gate→ASI04,
   prescan-before-trust→ASI09.
-- **[task B] Survey the other 5 ASI** — ASI02 Tool Misuse, ASI03 Identity/
-  Privilege Abuse, ASI07 Insecure Inter-Agent Comms, ASI08 Cascading Failures,
-  ASI10 Rogue Agents — which become new deterministic signals vs which are
-  out of scope for a static scanner? Decide per-item, don't force-fit.
+- **[task B — DONE v1.3] Survey the other 5 ASI.** Verdict: a *static, pre-LLM,
+  repo-level* scanner already covers essentially all of OWASP Agentic 2026 that
+  it CAN cover (ASI01/04/05/06/09). The remaining five are runtime/behavioral —
+  don't force-fit. Per-item:
+  - **ASI02 Tool Misuse — PARTIAL, one candidate signal.** Static angle: grade
+    the *scope* of agent tool grants, not just their presence. Today `auto-exec`
+    flags that a `.mcp.json` / `permissions.allow` exists; a refinement could
+    flag *over-broad* grants (a `.mcp.json` server exposing shell/filesystem, an
+    `allow` list with `Bash(*)`/wildcards). Low priority, additive to the trust
+    layer — build when a real over-permissive agent repo shows up.
+  - **ASI03 Identity & Privilege Abuse — OUT (runtime).** Excessive privilege /
+    credential reuse is a runtime identity property; the only static slice is
+    hardcoded agent credentials, already caught by HARDCODED-SECRET.
+  - **ASI07 Insecure Inter-Agent Comms — OUT / DEFER.** No stable static
+    signature; revisit only when a real multi-agent (A2A) repo needs it.
+  - **ASI08 Cascading Failures — OUT.** An architecture/resilience property a
+    static scan cannot judge.
+  - **ASI10 Rogue Agents — OUT (runtime/behavioral).** Detection is environment
+    monitoring; the repo-level analog (a malicious agent-instruction file) is
+    already ASI06/ASI04 in the trust layer.
 
 ### Update cadence (when to revisit this section)
 
