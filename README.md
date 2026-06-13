@@ -25,7 +25,7 @@ Thanh Tra is a CLI-first security scanner and multi-platform agent skill that pe
 First, download the repo (always pin a **release tag**, never a moving branch — see why below):
 
 ```bash
-git clone --branch v1.3.4 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra
+git clone --branch v1.4.0 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra
 ```
 
 Then pick **one of two ways to use it**:
@@ -50,7 +50,7 @@ Now open your agent inside any project and trigger it:
 Prefer it on your `PATH`? Install the CLI from the pinned tag with [pipx](https://pipx.pypa.io/) (still zero-dependency, still from an auditable git tag — not PyPI):
 
 ```bash
-pipx install "git+https://github.com/aspelldenny/thanhtra@v1.3.4"
+pipx install "git+https://github.com/aspelldenny/thanhtra@v1.4.0"
 thanhtra scan /path/to/repo --json --no-audit
 ```
 
@@ -114,7 +114,7 @@ Requirements: **Python 3.10+** (standard library only — the CLI and installer 
 Thanh Tra auto-detects every supported platform you have installed and wires up the skill. Run:
 
 ```bash
-git clone --branch v1.3.4 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra   # pin a release tag (see SECURITY.md)
+git clone --branch v1.4.0 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra   # pin a release tag (see SECURITY.md)
 cd ~/thanhtra
 ./scripts/install.sh         # auto-detect, install for what's present
 ./scripts/install.sh --all   # force install for all 3 platforms regardless
@@ -131,8 +131,8 @@ The installer symlinks the skill folder for Claude Code / Antigravity, and regis
 
 ```bash
 cd ~/thanhtra && git fetch --tags
-git diff v1.3.3..v1.3.4 -- skills/ SECURITY.md   # review what will run in your agent
-git checkout v1.3.4
+git diff v1.3.4..v1.4.0 -- skills/ SECURITY.md   # review what will run in your agent
+git checkout v1.4.0
 ```
 
 (Symlinks pick up the new version automatically; restart the CLI / IDE if needed.)
@@ -309,7 +309,8 @@ The list currently contains 24 rules and will continue to expand.
 - v1.0 — CI gate: `scan --sarif` emits SARIF 2.1.0 from triaged findings (GitHub Security tab + inline PR annotations) + copyable GitHub Action template (`examples/github-actions/thanhtra.yml`) ✅
 - v1.1 — External SAST backend: `--semgrep` runs semgrep when installed (best-effort, `p/default`, metrics off), `--sast-sarif` ingests any engine's SARIF; normalized `sast_findings` feed the same LLM triage as hotspots ✅
 - v1.2 — Trust defense layer: deterministic `agent_trust_signals` detector (hidden Unicode / auto-exec configs / injection markers — scan a repo *before* trusting the folder), anti-prompt-injection guardrails in skill + triage, SECURITY.md threat model, CI trust gate with reviewed marker baseline ✅
-- v1.3 (current) — Agentic-security labelling (`agent_trust_signals` mapped to OWASP Agentic 2026 ASI codes) + corpus expansion to 24 rules: EXCEPTION-MISHANDLING (OWASP 2025 A10 fail-open) and INSECURE-RANDOMNESS (non-CSPRNG for tokens/OTP) ✅
+- v1.3 — Agentic-security labelling (`agent_trust_signals` mapped to OWASP Agentic 2026 ASI codes) + corpus expansion to 24 rules: EXCEPTION-MISHANDLING (OWASP 2025 A10 fail-open) and INSECURE-RANDOMNESS (non-CSPRNG for tokens/OTP) ✅
+- v1.4 (current) — Real OpenAI Codex CLI support: `skills/codex/` is now a Codex plugin marketplace (v0.139+), `install.sh` registers it via `codex plugin marketplace add` / `codex plugin add` and the skill is model-invoked (the old `~/.agents/skills` symlink + `$thanhtra`/`/skills` invocation never worked on current Codex). Also: stdlib unit-test suite + `validate-version.sh` drift guard, `pyproject.toml` for `pipx install` from a pinned tag, and an external-corpus integration harness (`scripts/validate-integration.sh`, Bandit) ✅
 
 ## Disclaimer
 

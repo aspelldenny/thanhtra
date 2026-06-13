@@ -25,7 +25,7 @@ Thanh Tra là scanner bảo mật CLI-first kiêm skill agent đa nền tảng, 
 Trước hết, tải repo về (luôn pin theo **tag release**, đừng theo branch đang chạy — lý do ở dưới):
 
 ```bash
-git clone --branch v1.3.4 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra
+git clone --branch v1.4.0 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra
 ```
 
 Rồi chọn **một trong hai cách dùng**:
@@ -50,7 +50,7 @@ Giờ mở agent trong bất kỳ project nào và kích hoạt:
 Muốn nó nằm trên `PATH`? Cài CLI từ tag đã pin bằng [pipx](https://pipx.pypa.io/) (vẫn zero-dependency, vẫn từ git tag đọc được — không phải PyPI):
 
 ```bash
-pipx install "git+https://github.com/aspelldenny/thanhtra@v1.3.4"
+pipx install "git+https://github.com/aspelldenny/thanhtra@v1.4.0"
 thanhtra scan /path/to/repo --json --no-audit
 ```
 
@@ -114,7 +114,7 @@ Yêu cầu: **Python 3.10+** (chỉ standard library — CLI và installer zero 
 Thanh Tra tự động detect mọi platform hỗ trợ có sẵn trên máy và cấu hình skill. Chạy:
 
 ```bash
-git clone --branch v1.3.4 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra   # pin theo tag release (xem SECURITY.md)
+git clone --branch v1.4.0 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra   # pin theo tag release (xem SECURITY.md)
 cd ~/thanhtra
 ./scripts/install.sh         # auto-detect, cài cho platform có sẵn
 ./scripts/install.sh --all   # ép cài cho cả 3 platform bất kể detection
@@ -131,8 +131,8 @@ Installer symlink folder skill cho Claude Code / Antigravity, và đăng ký **p
 
 ```bash
 cd ~/thanhtra && git fetch --tags
-git diff v1.3.3..v1.3.4 -- skills/ SECURITY.md   # review những gì sẽ chạy trong agent của bạn
-git checkout v1.3.4
+git diff v1.3.4..v1.4.0 -- skills/ SECURITY.md   # review những gì sẽ chạy trong agent của bạn
+git checkout v1.4.0
 ```
 
 (Symlink tự load phiên bản mới; khởi động lại CLI/IDE nếu cần.)
@@ -309,7 +309,8 @@ Danh sách hiện tại có 24 quy tắc và sẽ tiếp tục mở rộng.
 - v1.0 — CI gate: `scan --sarif` xuất SARIF 2.1.0 từ findings đã triage (Security tab + annotate inline trên PR) + template GitHub Action copy được (`examples/github-actions/thanhtra.yml`) ✅
 - v1.1 — SAST backend ngoài: `--semgrep` chạy semgrep khi đã cài (best-effort, `p/default`, metrics off), `--sast-sarif` nhận SARIF từ engine bất kỳ; `sast_findings` chuẩn hóa đổ vào cùng tầng LLM triage như hotspot ✅
 - v1.2 — Tầng phòng thủ trust: detector `agent_trust_signals` deterministic (Unicode ẩn / config auto-exec / cụm injection — quét repo *trước khi* trust folder), guardrail chống prompt-injection trong skill + triage, SECURITY.md threat model, CI trust gate với baseline marker đã review ✅
-- v1.3 (hiện tại) — Gắn nhãn agentic-security (`agent_trust_signals` map sang OWASP Agentic 2026 ASI codes) + mở rộng corpus lên 24 rule: EXCEPTION-MISHANDLING (OWASP 2025 A10 fail-open) và INSECURE-RANDOMNESS (PRNG không mật mã cho token/OTP) ✅
+- v1.3 — Gắn nhãn agentic-security (`agent_trust_signals` map sang OWASP Agentic 2026 ASI codes) + mở rộng corpus lên 24 rule: EXCEPTION-MISHANDLING (OWASP 2025 A10 fail-open) và INSECURE-RANDOMNESS (PRNG không mật mã cho token/OTP) ✅
+- v1.4 (hiện tại) — Hỗ trợ OpenAI Codex CLI thật: `skills/codex/` giờ là Codex plugin marketplace (v0.139+), `install.sh` đăng ký qua `codex plugin marketplace add` / `codex plugin add`, skill được model tự gọi (kiểu symlink `~/.agents/skills` + `$thanhtra`/`/skills` cũ chưa từng chạy trên Codex hiện tại). Thêm: unit-test stdlib + guard `validate-version.sh`, `pyproject.toml` để `pipx install` từ tag pin, harness chấm corpus ngoài (`scripts/validate-integration.sh`, Bandit) ✅
 
 ## Miễn trừ trách nhiệm
 
