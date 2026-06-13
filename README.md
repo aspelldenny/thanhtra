@@ -12,6 +12,7 @@ Thanh Tra is a CLI-first security scanner and multi-platform agent skill that pe
 
 > Credit: Thanh Tra is built from the MIT-licensed `vbsec` skill shared from the original project by **Bùi Tấn Việt** and **Phan Quốc Hiên**. The upstream rule corpus and platform-skill foundation remain credited in this fork.
 
+[![Latest release](https://img.shields.io/github/v/release/aspelldenny/thanhtra?label=release&color=brightgreen)](https://github.com/aspelldenny/thanhtra/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-blue)](https://docs.claude.com/claude-code)
 [![OpenAI Codex](https://img.shields.io/badge/OpenAI%20Codex-Skill-black)](https://developers.openai.com/codex/skills)
@@ -21,13 +22,32 @@ Thanh Tra is a CLI-first security scanner and multi-platform agent skill that pe
 
 ## Quick start
 
+First, download the repo (always pin a **release tag**, never a moving branch — see why below):
+
 ```bash
-git clone --branch v1.2.0 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra
-~/thanhtra/bin/thanhtra scan /path/to/repo --json --no-audit   # CLI — zero install, Python 3.10+ stdlib only
-~/thanhtra/scripts/install.sh                                  # or install the agent skill, then type /thanhtra
+git clone --branch v1.3.0 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra
 ```
 
-Clone a **pinned release tag** (releases are immutable), not a moving branch — this repo's markdown runs inside your agent, so treat updates like dependency upgrades. Why that matters: [SECURITY.md](SECURITY.md). Latest tag: [Releases](https://github.com/aspelldenny/thanhtra/releases).
+Then pick **one of two ways to use it**:
+
+**① As an agent skill** — the main experience. You get a full reasoned, bilingual report. Install once, then talk to your AI coding agent:
+
+```bash
+~/thanhtra/scripts/install.sh     # auto-detects Claude Code / Codex / Antigravity, wires up the skill
+```
+
+Now open your agent inside any project and trigger it:
+- **Claude Code** — type `/thanhtra`
+- **OpenAI Codex CLI** — type `$thanhtra` (or `/skills`, then pick it)
+- **Google Antigravity** — just ask: *"scan security for this repo"*
+
+**② As a standalone CLI** — no agent, no install step, no API key. Pure Python 3.10+ (standard library only):
+
+```bash
+~/thanhtra/bin/thanhtra scan /path/to/repo --json --no-audit
+```
+
+> **Why pin a tag?** Releases are immutable; a moving branch is not. This repo's markdown runs *inside* your agent, so treat every update like a dependency upgrade and read the diff first. Full reasoning: [SECURITY.md](SECURITY.md). Latest version: [Releases](https://github.com/aspelldenny/thanhtra/releases/latest).
 
 ## Introduction
 
@@ -85,7 +105,7 @@ Requirements: **Python 3.10+** (standard library only — the CLI and installer 
 Thanh Tra auto-detects every supported platform you have installed and wires up the skill. Run:
 
 ```bash
-git clone --branch v1.2.0 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra   # pin a release tag (see SECURITY.md)
+git clone --branch v1.3.0 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra   # pin a release tag (see SECURITY.md)
 cd ~/thanhtra
 ./scripts/install.sh         # auto-detect, install for what's present
 ./scripts/install.sh --all   # force install for all 3 platforms regardless

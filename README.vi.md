@@ -12,6 +12,7 @@ Thanh Tra là scanner bảo mật CLI-first kiêm skill agent đa nền tảng, 
 
 > Credit: Thanh Tra được phát triển từ skill `vbsec` giấy phép MIT do project gốc của **Bùi Tấn Việt** và **Phan Quốc Hiên** chia sẻ. Bộ rule và nền tảng skill upstream vẫn được ghi nhận credit trong fork này.
 
+[![Latest release](https://img.shields.io/github/v/release/aspelldenny/thanhtra?label=release&color=brightgreen)](https://github.com/aspelldenny/thanhtra/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-blue)](https://docs.claude.com/claude-code)
 [![OpenAI Codex](https://img.shields.io/badge/OpenAI%20Codex-Skill-black)](https://developers.openai.com/codex/skills)
@@ -21,13 +22,32 @@ Thanh Tra là scanner bảo mật CLI-first kiêm skill agent đa nền tảng, 
 
 ## Bắt đầu nhanh
 
+Trước hết, tải repo về (luôn pin theo **tag release**, đừng theo branch đang chạy — lý do ở dưới):
+
 ```bash
-git clone --branch v1.2.0 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra
-~/thanhtra/bin/thanhtra scan /path/to/repo --json --no-audit   # CLI — không cần cài gì, Python 3.10+ stdlib thuần
-~/thanhtra/scripts/install.sh                                  # hoặc cài agent skill, rồi gõ /thanhtra
+git clone --branch v1.3.0 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra
 ```
 
-Clone theo **tag release đã pin** (release là immutable), đừng theo branch đang chạy — markdown của repo này chạy bên trong agent của bạn, nên cập nhật nó như cập nhật dependency. Vì sao: [SECURITY.md](SECURITY.md). Tag mới nhất: [Releases](https://github.com/aspelldenny/thanhtra/releases).
+Rồi chọn **một trong hai cách dùng**:
+
+**① Dùng như agent skill** — trải nghiệm chính. Bạn nhận báo cáo song ngữ có reasoning đầy đủ. Cài một lần, rồi nói chuyện với agent lập trình:
+
+```bash
+~/thanhtra/scripts/install.sh     # tự nhận diện Claude Code / Codex / Antigravity, nối skill
+```
+
+Giờ mở agent trong bất kỳ project nào và kích hoạt:
+- **Claude Code** — gõ `/thanhtra`
+- **OpenAI Codex CLI** — gõ `$thanhtra` (hoặc `/skills` rồi chọn)
+- **Google Antigravity** — chỉ cần nói: *"scan security cho repo này"*
+
+**② Dùng như CLI độc lập** — không cần agent, không cần cài, không cần API key. Python 3.10+ thuần (chỉ stdlib):
+
+```bash
+~/thanhtra/bin/thanhtra scan /path/to/repo --json --no-audit
+```
+
+> **Vì sao pin tag?** Release là immutable; branch thì không. Markdown của repo này chạy *bên trong* agent của bạn, nên hãy coi mỗi lần cập nhật như nâng cấp dependency và đọc diff trước. Lý do đầy đủ: [SECURITY.md](SECURITY.md). Phiên bản mới nhất: [Releases](https://github.com/aspelldenny/thanhtra/releases/latest).
 
 ## Giới thiệu
 
@@ -85,7 +105,7 @@ Yêu cầu: **Python 3.10+** (chỉ standard library — CLI và installer zero 
 Thanh Tra tự động detect mọi platform hỗ trợ có sẵn trên máy và cấu hình skill. Chạy:
 
 ```bash
-git clone --branch v1.2.0 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra   # pin theo tag release (xem SECURITY.md)
+git clone --branch v1.3.0 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra   # pin theo tag release (xem SECURITY.md)
 cd ~/thanhtra
 ./scripts/install.sh         # auto-detect, cài cho platform có sẵn
 ./scripts/install.sh --all   # ép cài cho cả 3 platform bất kể detection
