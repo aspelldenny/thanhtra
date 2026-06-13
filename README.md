@@ -25,7 +25,7 @@ Thanh Tra is a CLI-first security scanner and multi-platform agent skill that pe
 First, download the repo (always pin a **release tag**, never a moving branch — see why below):
 
 ```bash
-git clone --branch v1.3.3 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra
+git clone --branch v1.3.4 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra
 ```
 
 Then pick **one of two ways to use it**:
@@ -50,11 +50,11 @@ Now open your agent inside any project and trigger it:
 Prefer it on your `PATH`? Install the CLI from the pinned tag with [pipx](https://pipx.pypa.io/) (still zero-dependency, still from an auditable git tag — not PyPI):
 
 ```bash
-pipx install "git+https://github.com/aspelldenny/thanhtra@v1.3.3"
+pipx install "git+https://github.com/aspelldenny/thanhtra@v1.3.4"
 thanhtra scan /path/to/repo --json --no-audit
 ```
 
-> This installs the **CLI only**. The agent skill (path ①) always installs via `scripts/install.sh` — there is no `pip` path for the skill on purpose.
+> This installs the **CLI only**. The agent skill (path ①) always installs via `scripts/install.sh` — there is no `pip` path for the skill on purpose. Pick **one** CLI method: `scripts/install.sh` also creates `~/.local/bin/thanhtra` (a symlink to your clone), and pipx will not overwrite that symlink if it already exists — so use one or the other, not both.
 
 > **Why pin a tag?** Releases are immutable; a moving branch is not. This repo's markdown runs *inside* your agent, so treat every update like a dependency upgrade and read the diff first. Full reasoning: [SECURITY.md](SECURITY.md). Latest version: [Releases](https://github.com/aspelldenny/thanhtra/releases/latest).
 
@@ -114,7 +114,7 @@ Requirements: **Python 3.10+** (standard library only — the CLI and installer 
 Thanh Tra auto-detects every supported platform you have installed and wires up the skill. Run:
 
 ```bash
-git clone --branch v1.3.3 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra   # pin a release tag (see SECURITY.md)
+git clone --branch v1.3.4 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra   # pin a release tag (see SECURITY.md)
 cd ~/thanhtra
 ./scripts/install.sh         # auto-detect, install for what's present
 ./scripts/install.sh --all   # force install for all 3 platforms regardless
@@ -131,8 +131,8 @@ The installer symlinks the appropriate skill folder into each platform's expecte
 
 ```bash
 cd ~/thanhtra && git fetch --tags
-git diff v1.3.2..v1.3.3 -- skills/ SECURITY.md   # review what will run in your agent
-git checkout v1.3.3
+git diff v1.3.3..v1.3.4 -- skills/ SECURITY.md   # review what will run in your agent
+git checkout v1.3.4
 ```
 
 (Symlinks pick up the new version automatically; restart the CLI / IDE if needed.)

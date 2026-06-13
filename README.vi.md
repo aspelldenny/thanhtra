@@ -25,7 +25,7 @@ Thanh Tra là scanner bảo mật CLI-first kiêm skill agent đa nền tảng, 
 Trước hết, tải repo về (luôn pin theo **tag release**, đừng theo branch đang chạy — lý do ở dưới):
 
 ```bash
-git clone --branch v1.3.3 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra
+git clone --branch v1.3.4 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra
 ```
 
 Rồi chọn **một trong hai cách dùng**:
@@ -50,11 +50,11 @@ Giờ mở agent trong bất kỳ project nào và kích hoạt:
 Muốn nó nằm trên `PATH`? Cài CLI từ tag đã pin bằng [pipx](https://pipx.pypa.io/) (vẫn zero-dependency, vẫn từ git tag đọc được — không phải PyPI):
 
 ```bash
-pipx install "git+https://github.com/aspelldenny/thanhtra@v1.3.3"
+pipx install "git+https://github.com/aspelldenny/thanhtra@v1.3.4"
 thanhtra scan /path/to/repo --json --no-audit
 ```
 
-> Cách này chỉ cài **CLI**. Agent skill (đường ①) luôn cài qua `scripts/install.sh` — không có đường `pip` cho skill, đây là chủ đích.
+> Cách này chỉ cài **CLI**. Agent skill (đường ①) luôn cài qua `scripts/install.sh` — không có đường `pip` cho skill, đây là chủ đích. Chọn **một** cách cài CLI: `scripts/install.sh` cũng tạo `~/.local/bin/thanhtra` (symlink về bản clone của bạn), và pipx sẽ **không** ghi đè symlink đó nếu nó đã tồn tại — nên dùng một trong hai, đừng cả hai.
 
 > **Vì sao pin tag?** Release là immutable; branch thì không. Markdown của repo này chạy *bên trong* agent của bạn, nên hãy coi mỗi lần cập nhật như nâng cấp dependency và đọc diff trước. Lý do đầy đủ: [SECURITY.md](SECURITY.md). Phiên bản mới nhất: [Releases](https://github.com/aspelldenny/thanhtra/releases/latest).
 
@@ -114,7 +114,7 @@ Yêu cầu: **Python 3.10+** (chỉ standard library — CLI và installer zero 
 Thanh Tra tự động detect mọi platform hỗ trợ có sẵn trên máy và cấu hình skill. Chạy:
 
 ```bash
-git clone --branch v1.3.3 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra   # pin theo tag release (xem SECURITY.md)
+git clone --branch v1.3.4 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra   # pin theo tag release (xem SECURITY.md)
 cd ~/thanhtra
 ./scripts/install.sh         # auto-detect, cài cho platform có sẵn
 ./scripts/install.sh --all   # ép cài cho cả 3 platform bất kể detection
@@ -131,8 +131,8 @@ Installer symlink folder skill phù hợp vào vị trí của từng platform. 
 
 ```bash
 cd ~/thanhtra && git fetch --tags
-git diff v1.3.2..v1.3.3 -- skills/ SECURITY.md   # review những gì sẽ chạy trong agent của bạn
-git checkout v1.3.3
+git diff v1.3.3..v1.3.4 -- skills/ SECURITY.md   # review những gì sẽ chạy trong agent của bạn
+git checkout v1.3.4
 ```
 
 (Symlink tự load phiên bản mới; khởi động lại CLI/IDE nếu cần.)
