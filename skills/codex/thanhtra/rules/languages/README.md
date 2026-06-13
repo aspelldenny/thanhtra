@@ -1,6 +1,6 @@
 # Language Specialization Rules
 
-This folder contains **language-specific overrides** for the 21 generic rules in `rules/generic/`. When Thanh Tra detects the primary language of a target repo, the corresponding language folder is consulted; any rule with a matching `id` in frontmatter REPLACES the generic version for that scan.
+This folder contains **language-specific overrides** for the 24 generic rules in `rules/generic/`. When Thanh Tra detects the primary language of a target repo, the corresponding language folder is consulted; any rule with a matching `id` in frontmatter REPLACES the generic version for that scan.
 
 ## Override mechanism
 

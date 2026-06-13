@@ -1,6 +1,6 @@
 # 24 Rule bảo mật của Thanh Tra
 
-Tổng quan ngắn gọn từng rule với ví dụ unsafe/safe. Để đọc đầy đủ reasoning, search pattern và edge case, mở file rule tương ứng trong [`skill/rules/generic/`](../../skill/rules/generic/).
+Tổng quan ngắn gọn từng rule với ví dụ unsafe/safe. Để đọc đầy đủ reasoning, search pattern và edge case, mở file rule tương ứng trong [`skills/thanhtra/rules/generic/`](../../skills/thanhtra/rules/generic/).
 
 > **Ký hiệu:**
 > - **Severity max** — mức cao nhất một finding của rule này có thể đạt
@@ -57,7 +57,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 // .env không commit, .env.example chứa key giả
 ```
 
-[Đầy đủ →](../../skill/rules/generic/01-hardcoded-secret.md)
+[Đầy đủ →](../../skills/thanhtra/rules/generic/01-hardcoded-secret.md)
 
 ---
 
@@ -79,7 +79,7 @@ cursor.execute(f"SELECT * FROM users WHERE id = {user_id}")
 cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))
 ```
 
-[Đầy đủ →](../../skill/rules/generic/02-sql-injection.md)
+[Đầy đủ →](../../skills/thanhtra/rules/generic/02-sql-injection.md)
 
 ---
 
@@ -101,7 +101,7 @@ Render user input ra HTML mà không escape. Hacker chèn `<script>` đánh cắ
 // hoặc sanitize trước với DOMPurify
 ```
 
-[Đầy đủ →](../../skill/rules/generic/03-xss.md)
+[Đầy đủ →](../../skills/thanhtra/rules/generic/03-xss.md)
 
 ---
 
@@ -129,7 +129,7 @@ app.get('/orders/:id', async (req, res) => {
 });
 ```
 
-[Đầy đủ →](../../skill/rules/generic/04-idor.md)
+[Đầy đủ →](../../skills/thanhtra/rules/generic/04-idor.md)
 
 ---
 
@@ -153,7 +153,7 @@ AI hallucinate tên package không tồn tại (ví dụ `requests-fast`, `react
 - Dùng `npm view <name>` để check tồn tại + maintainer reputation
 - Pin version cụ thể, audit bằng `npm audit`
 
-[Đầy đủ →](../../skill/rules/generic/05-slopsquatting.md)
+[Đầy đủ →](../../skills/thanhtra/rules/generic/05-slopsquatting.md)
 
 ---
 
@@ -182,7 +182,7 @@ def login():
     # ... + lock account sau 5 lần fail liên tiếp
 ```
 
-[Đầy đủ →](../../skill/rules/generic/06-brute-force.md)
+[Đầy đủ →](../../skills/thanhtra/rules/generic/06-brute-force.md)
 
 ---
 
@@ -206,7 +206,7 @@ const { name, bio } = req.body;  // whitelist
 await User.findByIdAndUpdate(req.user.id, { name, bio });
 ```
 
-[Đầy đủ →](../../skill/rules/generic/07-mass-assignment.md)
+[Đầy đủ →](../../skills/thanhtra/rules/generic/07-mass-assignment.md)
 
 ---
 
@@ -230,7 +230,7 @@ session_data = json.loads(request.cookies.get('session'))
 # Hoặc dùng signed cookies (Flask: itsdangerous)
 ```
 
-[Đầy đủ →](../../skill/rules/generic/08-insecure-deserialization.md)
+[Đầy đủ →](../../skills/thanhtra/rules/generic/08-insecure-deserialization.md)
 
 ---
 
@@ -259,7 +259,7 @@ if (!ALLOWED_HOSTS.includes(url.hostname)) {
 // + block private IP ranges (169.254.*, 127.*, 10.*)
 ```
 
-[Đầy đủ →](../../skill/rules/generic/09-ssrf.md)
+[Đầy đủ →](../../skills/thanhtra/rules/generic/09-ssrf.md)
 
 ---
 
@@ -287,7 +287,7 @@ if (!requested.startsWith('/var/www/uploads/')) {
 res.sendFile(requested);
 ```
 
-[Đầy đủ →](../../skill/rules/generic/10-path-traversal.md)
+[Đầy đủ →](../../skills/thanhtra/rules/generic/10-path-traversal.md)
 
 ---
 
@@ -316,7 +316,7 @@ app.post('/transfer', (req, res) => {
 });
 ```
 
-[Đầy đủ →](../../skill/rules/generic/11-csrf.md)
+[Đầy đủ →](../../skills/thanhtra/rules/generic/11-csrf.md)
 
 ---
 
@@ -344,7 +344,7 @@ def delete_user(id):
     User.query.get(id).delete()
 ```
 
-[Đầy đủ →](../../skill/rules/generic/12-broken-access-control.md)
+[Đầy đủ →](../../skills/thanhtra/rules/generic/12-broken-access-control.md)
 
 ---
 
@@ -366,7 +366,7 @@ $hash = password_hash($_POST['password'], PASSWORD_BCRYPT);
 // Verify: password_verify($input, $hash)
 ```
 
-[Đầy đủ →](../../skill/rules/generic/13-weak-password-hashing.md)
+[Đầy đủ →](../../skills/thanhtra/rules/generic/13-weak-password-hashing.md)
 
 ---
 
@@ -392,7 +392,7 @@ const decoded = jwt.verify(token, process.env.JWT_SECRET, {
 // JWT_SECRET phải là random 32+ bytes
 ```
 
-[Đầy đủ →](../../skill/rules/generic/14-jwt-none-algorithm.md)
+[Đầy đủ →](../../skills/thanhtra/rules/generic/14-jwt-none-algorithm.md)
 
 ---
 
@@ -417,7 +417,7 @@ app.use(cors({
 }));
 ```
 
-[Đầy đủ →](../../skill/rules/generic/15-cors-misconfig.md)
+[Đầy đủ →](../../skills/thanhtra/rules/generic/15-cors-misconfig.md)
 
 ---
 
@@ -442,7 +442,7 @@ move_uploaded_file($_FILES['file']['tmp_name'], '/var/uploads-private/' . $newNa
 // Serve qua endpoint riêng, KHÔNG để trong webroot
 ```
 
-[Đầy đủ →](../../skill/rules/generic/16-unrestricted-file-upload.md)
+[Đầy đủ →](../../skills/thanhtra/rules/generic/16-unrestricted-file-upload.md)
 
 ---
 
@@ -466,7 +466,7 @@ ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')
 # Production: DEBUG=False, ALLOWED_HOSTS=example.com
 ```
 
-[Đầy đủ →](../../skill/rules/generic/17-verbose-error-debug-mode.md)
+[Đầy đủ →](../../skills/thanhtra/rules/generic/17-verbose-error-debug-mode.md)
 
 ---
 
@@ -492,7 +492,7 @@ const searchLimit = rateLimit({ windowMs: 60_000, max: 30 });
 app.get('/api/search', searchLimit, async (req, res) => { ... });
 ```
 
-[Đầy đủ →](../../skill/rules/generic/18-missing-rate-limit.md)
+[Đầy đủ →](../../skills/thanhtra/rules/generic/18-missing-rate-limit.md)
 
 ---
 
@@ -522,7 +522,7 @@ tx.Exec("UPDATE accounts SET balance=balance-? WHERE id=?", amount, userID)
 tx.Commit()
 ```
 
-[Đầy đủ →](../../skill/rules/generic/19-race-condition.md)
+[Đầy đủ →](../../skills/thanhtra/rules/generic/19-race-condition.md)
 
 ---
 
@@ -548,7 +548,7 @@ npm update
 # Set up Dependabot / Renovate cho update tự động
 ```
 
-[Đầy đủ →](../../skill/rules/generic/20-outdated-dependency.md)
+[Đầy đủ →](../../skills/thanhtra/rules/generic/20-outdated-dependency.md)
 
 ---
 
@@ -573,7 +573,7 @@ subprocess.run(['convert', filename, 'output.png'], check=True)
 # Không shell=True, truyền argv list, validate filename trước
 ```
 
-[Đầy đủ →](../../skill/rules/generic/21-command-injection.md)
+[Đầy đủ →](../../skills/thanhtra/rules/generic/21-command-injection.md)
 
 ---
 
@@ -601,7 +601,7 @@ if resp.category not in ALLOWED_CATEGORIES:        # validate field model trả 
     resp.category = "unknown"
 ```
 
-[Đầy đủ →](../../skill/rules/generic/22-prompt-injection.md)
+[Đầy đủ →](../../skills/thanhtra/rules/generic/22-prompt-injection.md)
 
 ---
 
@@ -634,7 +634,7 @@ def is_admin(token):
     return claims.get("role") == "admin"
 ```
 
-[Đầy đủ →](../../skill/rules/generic/23-exception-mishandling.md)
+[Đầy đủ →](../../skills/thanhtra/rules/generic/23-exception-mishandling.md)
 
 ---
 
@@ -657,7 +657,7 @@ import { randomBytes } from "crypto";
 const token = randomBytes(32).toString("hex");   // CSPRNG 256-bit
 ```
 
-[Đầy đủ →](../../skill/rules/generic/24-insecure-randomness.md)
+[Đầy đủ →](../../skills/thanhtra/rules/generic/24-insecure-randomness.md)
 
 ---
 
@@ -667,8 +667,8 @@ Một số rule có override chuyên sâu cho ngôn ngữ cụ thể. Khi Thanh 
 
 | Ngôn ngữ | Folder | Override rule |
 |---|---|---|
-| Go | [`skill/rules/languages/go/`](../../skill/rules/languages/go/) | SQL-INJECTION (GORM Raw), SSRF (Colly), VERBOSE-ERROR (gin Debug), COMMAND-INJECTION (exec.Command) |
-| PHP | [`skill/rules/languages/php/`](../../skill/rules/languages/php/) | SQL-INJECTION (mysqli/PDO), XSS (echo $_GET), INSECURE-DESERIALIZATION (unserialize), CSRF (Laravel), WEAK-PASSWORD-HASHING (md5), UNRESTRICTED-FILE-UPLOAD (move_uploaded_file) |
+| Go | [`skills/thanhtra/rules/languages/go/`](../../skills/thanhtra/rules/languages/go/) | SQL-INJECTION (GORM Raw), SSRF (Colly), VERBOSE-ERROR (gin Debug), COMMAND-INJECTION (exec.Command) |
+| PHP | [`skills/thanhtra/rules/languages/php/`](../../skills/thanhtra/rules/languages/php/) | SQL-INJECTION (mysqli/PDO), XSS (echo $_GET), INSECURE-DESERIALIZATION (unserialize), CSRF (Laravel), WEAK-PASSWORD-HASHING (md5), UNRESTRICTED-FILE-UPLOAD (move_uploaded_file) |
 
 Muốn add language khác (Ruby, Java, JS/TS, Python, Rust)? Đọc [contributing.md](contributing.md).
 
@@ -680,5 +680,5 @@ Nếu bạn thêm rule mới (22, 23...) hoặc cập nhật severity, nhớ upd
 
 1. File này (`docs/vi/rules.md`)
 2. [`docs/en/rules.md`](../en/rules.md)
-3. Bảng trong [SKILL.md](../../skill/SKILL.md) Step 4
-4. README.vi.md + README.en.md (section "Danh sách 24 lỗi")
+3. Bảng trong [SKILL.md](../../skills/thanhtra/SKILL.md) Step 4
+4. README.vi.md + README.md (section "Danh sách 24 lỗi")

@@ -82,7 +82,7 @@ For mỗi `chunk` trong `chunks` (theo thứ tự, không parallel):
    - Collect findings: `(file, line, rule_id, severity, issue, fix, context)`
 
 4. **Rule ID discipline (BẮT BUỘC):**
-   - **Chỉ dùng 21 canonical rule IDs**. KHÔNG tự bịa rule mới.
+   - **Chỉ dùng 24 canonical rule IDs**. KHÔNG tự bịa rule mới.
    - 1 dòng code dính 2 rule → tạo **2 finding riêng biệt**, mỗi cái 1 `rule_id`.
 
 5. **Write chunk findings** vào `.thanhtra-tmp/findings-<slug>.md`:
@@ -99,7 +99,7 @@ For mỗi `chunk` trong `chunks` (theo thứ tự, không parallel):
 Đọc tất cả `.thanhtra-tmp/findings-*.md`:
 
 1. **Parse** mỗi file thành list findings (file/line/rule_id/severity/issue/fix/context)
-2. **Validate rule_ids**: mọi finding phải có `rule_id` trong 21 canonical IDs.
+2. **Validate rule_ids**: mọi finding phải có `rule_id` trong 24 canonical IDs.
 3. **Dedup**: key = `(file, line, rule_id)`. Giữ entry có severity cao nhất. Nếu tie, giữ entry có `context` dài hơn.
    - **Lưu ý:** dedup key có `rule_id` → 1 vị trí (file:line) dính 2 rule khác nhau (vd IDOR + RACE) sẽ là 2 entry riêng, KHÔNG dedup.
 4. **Collect NOT_MAPPED**: nếu có, note ở cuối main report (giúp roadmap future rules).

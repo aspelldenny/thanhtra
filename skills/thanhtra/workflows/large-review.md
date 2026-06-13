@@ -100,7 +100,7 @@ Khi sub-agent return mà:
 Đọc tất cả `.thanhtra-tmp/findings-*.md`:
 
 1. **Parse** mỗi file thành list findings (file/line/rule_id/severity/issue/fix/context)
-2. **Validate rule_ids**: Mọi finding phải có `rule_id` trong 21 canonical IDs. Nếu sub-agent đã invent (vd `INSECURE-COOKIE`) → map về canonical theo mapping table trong [`../references/sub-agent-prompts.md`](../references/sub-agent-prompts.md#rule-id-discipline-critical--read-carefully). Nếu thật sự không map được → drop hoặc move vào `## NOT_MAPPED` section riêng.
+2. **Validate rule_ids**: Mọi finding phải có `rule_id` trong 24 canonical IDs. Nếu sub-agent đã invent (vd `INSECURE-COOKIE`) → map về canonical theo mapping table trong [`../references/sub-agent-prompts.md`](../references/sub-agent-prompts.md#rule-id-discipline-critical--read-carefully). Nếu thật sự không map được → drop hoặc move vào `## NOT_MAPPED` section riêng.
 3. **Dedup**: key = `(file, line, rule_id)`. Giữ entry có severity cao nhất. Nếu tie, giữ entry có `context` dài hơn.
    - **Lưu ý:** dedup key có `rule_id` → 1 vị trí (file:line) dính 2 rule khác nhau (vd IDOR + RACE) sẽ là 2 entry riêng, KHÔNG dedup.
 4. **Collect NOT_MAPPED**: nếu có findings trong `## NOT_MAPPED` section của sub-agent reports, collect lại để note ở cuối main report (giúp roadmap future rules).

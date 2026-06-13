@@ -20,17 +20,17 @@ Inline scan workflow cho repo nhỏ-vừa (≤20 main-lang files VÀ ≤30 total
 
 1. **Generic rules (luôn load):**
    ```
-   skill/rules/generic/01-hardcoded-secret.md
-   skill/rules/generic/02-sql-injection.md
+   rules/generic/01-hardcoded-secret.md
+   rules/generic/02-sql-injection.md
    ...
-   skill/rules/generic/21-command-injection.md
+   rules/generic/21-command-injection.md
    ```
 
-   Đọc TẤT CẢ 21 file bằng Read tool.
+   Đọc TẤT CẢ 24 file bằng Read tool.
 
 2. **Specialized overlay (nếu `$OVERLAY_AVAILABLE`):**
    ```
-   skill/rules/languages/<primary_lang>/*.md
+   rules/languages/<primary_lang>/*.md
    ```
 
    Với mỗi file overlay có cùng `id` với rule generic, **rule chuyên sâu thay thế hoàn toàn** rule generic cho lang đó. Ghi nhớ id nào đã override.
@@ -68,7 +68,7 @@ Cho mỗi file trong `$FILES`:
    - `file`, `line`, `rule_id`, `severity` (≤ `severity_max` của rule), `issue`, `fix`, `context`
 
 **Rule ID discipline (BẮT BUỘC):**
-- **Chỉ dùng 21 canonical rule IDs** đã list ở [SKILL.md Step 4](../SKILL.md#step-4--apply-rules). KHÔNG tự bịa rule mới (`INSECURE-COOKIE`, `AUTH-BYPASS`, `WEAK-CRYPTO`, `DATA-IN-URL`, `OAUTH-MISCONFIG`, `SUPPLY-CHAIN`, `INFO-DISCLOSURE`, `DATA-AT-REST`...).
+- **Chỉ dùng 24 canonical rule IDs** đã list ở [SKILL.md Step 4](../SKILL.md#step-4--apply-rules). KHÔNG tự bịa rule mới (`INSECURE-COOKIE`, `AUTH-BYPASS`, `WEAK-CRYPTO`, `DATA-IN-URL`, `OAUTH-MISCONFIG`, `SUPPLY-CHAIN`, `INFO-DISCLOSURE`, `DATA-AT-REST`...).
 - Nếu phát hiện 1 issue mà không có rule khớp 100%, MAP về rule canonical gần nhất (xem mapping table trong [`../references/sub-agent-prompts.md`](../references/sub-agent-prompts.md#rule-id-discipline-critical--read-carefully)) và note lý do trong `issue`.
 - 1 dòng code dính 2 rule (vd IDOR + RACE) → tạo **2 finding riêng biệt**, mỗi cái 1 `rule_id`. Không gom comma-separated.
 
@@ -167,6 +167,6 @@ Sau khi render report, double-check:
 - [ ] JSON summary cuối có đầy đủ fields theo schema
 - [ ] PASSED list có ít nhất các rule applicable đã check (không bỏ sót)
 - [ ] Không có chuỗi tiếng Việt/Anh hardcoded — đã dùng i18n key
-- [ ] **Mọi `rule_id` trong findings nằm trong 21 canonical IDs** (không có bịa)
+- [ ] **Mọi `rule_id` trong findings nằm trong 24 canonical IDs** (không có bịa)
 - [ ] **Counts sanity check**: `len(findings)` == `summary.critical + high + medium + low`
 - [ ] Nếu render `top_rules_by_count`: tổng count == `len(findings)` (không double-count)

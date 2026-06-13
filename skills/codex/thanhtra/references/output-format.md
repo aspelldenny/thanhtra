@@ -97,7 +97,7 @@ db.query('SELECT * FROM users WHERE id = ?', [id])  // dấu ? là placeholder, 
 const user = await User.findOne({ where: { id } })
 \```
 
-**{header_read_more}:** [Rule chi tiết](skills/thanhtra/rules/generic/02-sql-injection.md) · [OWASP A03 Injection](https://owasp.org/Top10/A03_2021-Injection/)
+**{header_read_more}:** [Rule chi tiết](https://github.com/aspelldenny/thanhtra/blob/main/skills/thanhtra/rules/generic/02-sql-injection.md) · [OWASP A03 Injection](https://owasp.org/Top10/A03_2021-Injection/)
 
 ---
 
@@ -139,7 +139,7 @@ git commit -m "Untrack .env"
 # 4. Set key qua env var hoặc secrets manager (AWS Secrets Manager, Vault, Doppler)
 \```
 
-**{header_read_more}:** [Rule chi tiết](skills/thanhtra/rules/generic/01-hardcoded-secret.md)
+**{header_read_more}:** [Rule chi tiết](https://github.com/aspelldenny/thanhtra/blob/main/skills/thanhtra/rules/generic/01-hardcoded-secret.md)
 
 ---
 
@@ -172,7 +172,7 @@ const argon2 = require('argon2')
 const hash = await argon2.hash(password)
 \```
 
-**{header_read_more}:** [Rule WEAK-PASSWORD-HASHING](skills/thanhtra/rules/generic/13-weak-password-hashing.md)
+**{header_read_more}:** [Rule WEAK-PASSWORD-HASHING](https://github.com/aspelldenny/thanhtra/blob/main/skills/thanhtra/rules/generic/13-weak-password-hashing.md)
 
 ---
 

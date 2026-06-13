@@ -62,5 +62,5 @@ To improve a Python override:
 
 To add Python ML/data-science specific patterns (notebook secrets, model `pickle`, `os.environ` in Jupyter cells):
 - Add a new section to relevant rule (e.g., `08-insecure-deserialization.md` for model pickle)
-- DON'T add a new rule id — map to existing 21 canonical IDs
+- DON'T add a new rule id — map to existing 24 canonical IDs
 - If truly novel class, open an issue: github.com/aspelldenny/thanhtra/issues

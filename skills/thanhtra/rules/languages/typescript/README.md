@@ -63,6 +63,6 @@ To improve a TypeScript override:
 3. Check both: did Thanh Tra catch real issues? Did it flag any false positives?
 4. Update the appropriate file in this folder with new patterns or refined reasoning
 
-To add a new TS-specific rule (rule id not in 21 canonical):
-- DON'T add a new id. Map your new patterns into one of the 21 canonical rules.
+To add a new TS-specific rule (rule id not in 24 canonical):
+- DON'T add a new id. Map your new patterns into one of the 24 canonical rules.
 - If truly novel class, open an issue: github.com/aspelldenny/thanhtra/issues
