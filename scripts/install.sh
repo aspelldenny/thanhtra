@@ -3,7 +3,7 @@
 #
 # Detection (auto):
 #   - Claude Code        → binary `claude`               → ~/.claude/skills/thanhtra
-#   - OpenAI Codex CLI   → binary `codex`                → ~/.agents/skills/thanhtra
+#   - OpenAI Codex CLI   → binary `codex`                → codex plugin (thanhtra@thanhtra-local)
 #   - Google Antigravity → app /Applications/Antigravity.app
 #                          HOẶC binary `agy`             → ~/.gemini/antigravity/skills/thanhtra
 #
@@ -215,8 +215,8 @@ if [ $installed -gt 0 ]; then
   echo ""
   echo "Test ngay:"
   detect_claude       && echo "  - Claude:      claude → gõ /thanhtra"
-  detect_codex        && echo "  - Codex:       codex → gõ \$thanhtra  (hoặc /skills)"
-  detect_antigravity  && echo "  - Antigravity: mở Antigravity app, nói 'scan security' trong Agent Manager"
+  detect_codex        && echo "  - Codex:       codex → nói 'scan security' (plugin, skill model tự gọi)"
+  detect_antigravity  && echo "  - Antigravity: mở app → gõ /thanhtra (slash command)"
 fi
 
 if [ $skipped -gt 0 ] && [ -z "$ONLY" ] && [ $FORCE_ALL -eq 0 ]; then
