@@ -25,7 +25,7 @@ Thanh Tra is a CLI-first security scanner and multi-platform agent skill that pe
 First, download the repo (always pin a **release tag**, never a moving branch — see why below):
 
 ```bash
-git clone --branch v1.4.0 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra
+git clone --branch v1.4.1 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra
 ```
 
 Then pick **one of two ways to use it**:
@@ -50,7 +50,7 @@ Now open your agent inside any project and trigger it:
 Prefer it on your `PATH`? Install the CLI from the pinned tag with [pipx](https://pipx.pypa.io/) (still zero-dependency, still from an auditable git tag — not PyPI):
 
 ```bash
-pipx install "git+https://github.com/aspelldenny/thanhtra@v1.4.0"
+pipx install "git+https://github.com/aspelldenny/thanhtra@v1.4.1"
 thanhtra scan /path/to/repo --json --no-audit
 ```
 
@@ -114,7 +114,7 @@ Requirements: **Python 3.10+** (standard library only — the CLI and installer 
 Thanh Tra auto-detects every supported platform you have installed and wires up the skill. Run:
 
 ```bash
-git clone --branch v1.4.0 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra   # pin a release tag (see SECURITY.md)
+git clone --branch v1.4.1 --depth 1 https://github.com/aspelldenny/thanhtra ~/thanhtra   # pin a release tag (see SECURITY.md)
 cd ~/thanhtra
 ./scripts/install.sh         # auto-detect, install for what's present
 ./scripts/install.sh --all   # force install for all 3 platforms regardless
@@ -131,8 +131,8 @@ The installer symlinks the skill folder for Claude Code / Antigravity, and regis
 
 ```bash
 cd ~/thanhtra && git fetch --tags
-git diff v1.3.4..v1.4.0 -- skills/ SECURITY.md   # review what will run in your agent
-git checkout v1.4.0
+git diff v1.4.0..v1.4.1 -- skills/ SECURITY.md   # review what will run in your agent
+git checkout v1.4.1
 ```
 
 (Symlinks pick up the new version automatically; restart the CLI / IDE if needed.)
