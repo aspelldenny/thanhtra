@@ -1,0 +1,54 @@
+# Packaging metadata for the Thanh Tra CLI (the deterministic, stdlib-only half
+# of the project). This exists to enable an on-PATH install straight from a
+# pinned, auditable git tag:
+#
+#     pipx install "git+https://github.com/aspelldenny/thanhtra@v1.3.3"
+#
+# It deliberately does NOT publish to PyPI: that would add a registry trust
+# surface (account compromise, typo-squatting) to a tool whose whole posture is
+# "scan before you trust". Installing from a pinned git tag keeps the trust
+# surface identical to a manual `git clone --branch vX.Y.Z`.
+#
+# Scope note: pip/pipx installs the CLI only. The agent SKILL (the primary
+# product) still installs via `scripts/install.sh`, which symlinks the skill
+# markdown into each agent's skill directory. See README.md.
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "thanhtra"
+dynamic = ["version"]                # read from thanhtra.__version__ — single source of truth
+description = "CLI-first, zero-dependency security scanner for AI-generated code (the deterministic half of the Thanh Tra agent skill)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "Bùi Tấn Việt" },
+    { name = "Phan Quốc Hiên" },
+]
+keywords = ["security", "sast", "scanner", "ai", "llm", "agent", "sarif", "owasp", "vibe-coding"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Security",
+]
+dependencies = []                    # zero runtime dependencies — Python standard library only
+
+[project.urls]
+Homepage = "https://github.com/aspelldenny/thanhtra"
+Source = "https://github.com/aspelldenny/thanhtra"
+Releases = "https://github.com/aspelldenny/thanhtra/releases"
+
+[project.scripts]
+thanhtra = "thanhtra.cli:main"
+
+[tool.setuptools.dynamic]
+version = { attr = "thanhtra.__version__" }
+
+[tool.setuptools.packages.find]
+include = ["thanhtra*"]              # ship the Python package only; not skills/, tests/, scripts/

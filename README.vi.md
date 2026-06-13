@@ -47,6 +47,15 @@ Giờ mở agent trong bất kỳ project nào và kích hoạt:
 ~/thanhtra/bin/thanhtra scan /path/to/repo --json --no-audit
 ```
 
+Muốn nó nằm trên `PATH`? Cài CLI từ tag đã pin bằng [pipx](https://pipx.pypa.io/) (vẫn zero-dependency, vẫn từ git tag đọc được — không phải PyPI):
+
+```bash
+pipx install "git+https://github.com/aspelldenny/thanhtra@v1.3.3"
+thanhtra scan /path/to/repo --json --no-audit
+```
+
+> Cách này chỉ cài **CLI**. Agent skill (đường ①) luôn cài qua `scripts/install.sh` — không có đường `pip` cho skill, đây là chủ đích.
+
 > **Vì sao pin tag?** Release là immutable; branch thì không. Markdown của repo này chạy *bên trong* agent của bạn, nên hãy coi mỗi lần cập nhật như nâng cấp dependency và đọc diff trước. Lý do đầy đủ: [SECURITY.md](SECURITY.md). Phiên bản mới nhất: [Releases](https://github.com/aspelldenny/thanhtra/releases/latest).
 
 ## Giới thiệu

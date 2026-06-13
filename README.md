@@ -47,6 +47,15 @@ Now open your agent inside any project and trigger it:
 ~/thanhtra/bin/thanhtra scan /path/to/repo --json --no-audit
 ```
 
+Prefer it on your `PATH`? Install the CLI from the pinned tag with [pipx](https://pipx.pypa.io/) (still zero-dependency, still from an auditable git tag — not PyPI):
+
+```bash
+pipx install "git+https://github.com/aspelldenny/thanhtra@v1.3.3"
+thanhtra scan /path/to/repo --json --no-audit
+```
+
+> This installs the **CLI only**. The agent skill (path ①) always installs via `scripts/install.sh` — there is no `pip` path for the skill on purpose.
+
 > **Why pin a tag?** Releases are immutable; a moving branch is not. This repo's markdown runs *inside* your agent, so treat every update like a dependency upgrade and read the diff first. Full reasoning: [SECURITY.md](SECURITY.md). Latest version: [Releases](https://github.com/aspelldenny/thanhtra/releases/latest).
 
 ## Introduction
